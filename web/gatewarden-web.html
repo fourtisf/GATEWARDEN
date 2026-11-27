@@ -380,7 +380,7 @@ const WW=3200,WH=1800,SPX=1130,SPY=600;let VW=1600;
 const CORE={x:WW/2,y:WH/2,r:62};
 const AR={x0:60,y0:180,x1:WW-60,y1:WH-40};
 const CAM={x:WW/2-800,y:WH/2-450};
-function updateCam(h,snap){const hr=F.hero,f=hr&&hr.alive&&S.phase!=='title'&&S.phase!=='shop'?hr:CORE,tx=clamp(f.x-VW/2,0,WW-VW),ty=clamp(f.y-24-450,0,WH-900),k=snap?1:Math.min(1,h*6);CAM.x+=(tx-CAM.x)*k;CAM.y+=(ty-CAM.y)*k;if(F.mouse.scr&&!PAD.aiming&&!TEST.auto){F.mouse.x=F.mouse.sx+CAM.x;F.mouse.y=F.mouse.sy+CAM.y;}}
+function updateCam(h,snap){const hr=F.hero,f=S.phase==='title'?{x:CORE.x+Math.cos(F.t*0.07)*1050,y:CORE.y+24+Math.sin(F.t*0.11)*400}:hr&&hr.alive&&S.phase!=='shop'?hr:CORE,tx=clamp(f.x-VW/2,0,WW-VW),ty=clamp(f.y-24-450,0,WH-900),k=snap?1:Math.min(1,h*6);CAM.x+=(tx-CAM.x)*k;CAM.y+=(ty-CAM.y)*k;if(F.mouse.scr&&!PAD.aiming&&!TEST.auto){F.mouse.x=F.mouse.sx+CAM.x;F.mouse.y=F.mouse.sy+CAM.y;}}
 const UNIT = {
   knight:{name:'Knight',col:'#5cc8ff',role:'TANK',cost:12,desc:'Armored guard. Takes 20% less damage.'},
   archer:{name:'Archer',col:'#a6f56b',role:'RANGED',cost:12,desc:'Long-range shots from the gate.'},
@@ -3021,7 +3021,7 @@ function frameBody(now){
     else{const sp=(S.phase==='battle'||S.phase==='collect')?S.speed:1,total=dt*sp,steps=Math.max(1,Math.ceil(total/(1/60))),h=total/steps;for(let i=0;i<steps;i++){if(S.paused||S.modal)break;update(h);}}
   }
   const ovOpen=!$('#overlay').classList.contains('hidden');
-  if(!ovOpen||(F.rc=(F.rc||0)+1)%(S.phase==='title'?2:6)===0)render();
+  if(!ovOpen||(F.rc=(F.rc||0)+1)%(S.phase==='title'?1:6)===0)render();
   hudAcc+=dt;if(hudAcc>0.07){hudAcc=0;renderHUD();}
   requestAnimationFrame(frame);
 }
