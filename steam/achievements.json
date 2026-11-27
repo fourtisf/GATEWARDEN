@@ -1,0 +1,191 @@
+[
+  {
+    "api_name": "GW_W5",
+    "display_name": "First Stand",
+    "description": "Clear wave 5",
+    "hidden": false,
+    "icon": "achievement_icons/GW_W5.jpg",
+    "icon_locked": "achievement_icons/GW_W5_locked.jpg",
+    "in_game_reward_soul_shards": 20
+  },
+  {
+    "api_name": "GW_W10",
+    "display_name": "Holding the Line",
+    "description": "Clear wave 10",
+    "hidden": false,
+    "icon": "achievement_icons/GW_W10.jpg",
+    "icon_locked": "achievement_icons/GW_W10_locked.jpg",
+    "in_game_reward_soul_shards": 40
+  },
+  {
+    "api_name": "GW_WIN",
+    "display_name": "Gatewarden",
+    "description": "Clear wave 20",
+    "hidden": false,
+    "icon": "achievement_icons/GW_WIN.jpg",
+    "icon_locked": "achievement_icons/GW_WIN_locked.jpg",
+    "in_game_reward_soul_shards": 100
+  },
+  {
+    "api_name": "GW_BOSS4",
+    "display_name": "Demon Slayer",
+    "description": "Defeat the Demon Lord",
+    "hidden": false,
+    "icon": "achievement_icons/GW_BOSS4.jpg",
+    "icon_locked": "achievement_icons/GW_BOSS4_locked.jpg",
+    "in_game_reward_soul_shards": 80
+  },
+  {
+    "api_name": "GW_COMBO100",
+    "display_name": "Unstoppable",
+    "description": "Reach a 100-kill combo",
+    "hidden": false,
+    "icon": "achievement_icons/GW_COMBO100.jpg",
+    "icon_locked": "achievement_icons/GW_COMBO100_locked.jpg",
+    "in_game_reward_soul_shards": 30
+  },
+  {
+    "api_name": "GW_COMBO300",
+    "display_name": "Godlike",
+    "description": "Reach a 300-kill combo",
+    "hidden": false,
+    "icon": "achievement_icons/GW_COMBO300.jpg",
+    "icon_locked": "achievement_icons/GW_COMBO300_locked.jpg",
+    "in_game_reward_soul_shards": 60
+  },
+  {
+    "api_name": "GW_EVO",
+    "display_name": "Evolved",
+    "description": "Evolve a weapon",
+    "hidden": false,
+    "icon": "achievement_icons/GW_EVO.jpg",
+    "icon_locked": "achievement_icons/GW_EVO_locked.jpg",
+    "in_game_reward_soul_shards": 30
+  },
+  {
+    "api_name": "GW_STAR3",
+    "display_name": "Elite Guard",
+    "description": "Merge a \u2605\u2605\u2605 unit",
+    "hidden": false,
+    "icon": "achievement_icons/GW_STAR3.jpg",
+    "icon_locked": "achievement_icons/GW_STAR3_locked.jpg",
+    "in_game_reward_soul_shards": 30
+  },
+  {
+    "api_name": "GW_KILLS1K",
+    "display_name": "Thousand Cuts",
+    "description": "Kill 1,000 enemies in one run",
+    "hidden": false,
+    "icon": "achievement_icons/GW_KILLS1K.jpg",
+    "icon_locked": "achievement_icons/GW_KILLS1K_locked.jpg",
+    "in_game_reward_soul_shards": 40
+  },
+  {
+    "api_name": "GW_LVL25",
+    "display_name": "Ascendant",
+    "description": "Reach level 25",
+    "hidden": false,
+    "icon": "achievement_icons/GW_LVL25.jpg",
+    "icon_locked": "achievement_icons/GW_LVL25_locked.jpg",
+    "in_game_reward_soul_shards": 40
+  },
+  {
+    "api_name": "GW_NOHIT",
+    "display_name": "Untouchable",
+    "description": "Clear a wave (3+) without taking damage",
+    "hidden": false,
+    "icon": "achievement_icons/GW_NOHIT.jpg",
+    "icon_locked": "achievement_icons/GW_NOHIT_locked.jpg",
+    "in_game_reward_soul_shards": 30
+  },
+  {
+    "api_name": "GW_RICH",
+    "display_name": "Hoarder",
+    "description": "Hold 500 gold at once",
+    "hidden": false,
+    "icon": "achievement_icons/GW_RICH.jpg",
+    "icon_locked": "achievement_icons/GW_RICH_locked.jpg",
+    "in_game_reward_soul_shards": 25
+  },
+  {
+    "api_name": "GW_FROST",
+    "display_name": "Cold Steel",
+    "description": "Clear wave 10 on Frozen Pass",
+    "hidden": false,
+    "icon": "achievement_icons/GW_FROST.jpg",
+    "icon_locked": "achievement_icons/GW_FROST_locked.jpg",
+    "in_game_reward_soul_shards": 60
+  },
+  {
+    "api_name": "GW_HELL",
+    "display_name": "Forged in Fire",
+    "description": "Clear wave 10 on Hellforge",
+    "hidden": false,
+    "icon": "achievement_icons/GW_HELL.jpg",
+    "icon_locked": "achievement_icons/GW_HELL_locked.jpg",
+    "in_game_reward_soul_shards": 100
+  },
+  {
+    "api_name": "GW_ALLHEROES",
+    "display_name": "Full Roster",
+    "description": "Unlock every hero",
+    "hidden": false,
+    "icon": "achievement_icons/GW_ALLHEROES.jpg",
+    "icon_locked": "achievement_icons/GW_ALLHEROES_locked.jpg",
+    "in_game_reward_soul_shards": 50
+  },
+  {
+    "api_name": "GW_ELITE50",
+    "display_name": "Elite Hunter",
+    "description": "Defeat 50 elites (all runs)",
+    "hidden": false,
+    "icon": "achievement_icons/GW_ELITE50.jpg",
+    "icon_locked": "achievement_icons/GW_ELITE50_locked.jpg",
+    "in_game_reward_soul_shards": 40
+  },
+  {
+    "api_name": "GW_ASC1",
+    "display_name": "Ascended",
+    "description": "Clear wave 20 on Ascension 1+",
+    "hidden": false,
+    "icon": "achievement_icons/GW_ASC1.jpg",
+    "icon_locked": "achievement_icons/GW_ASC1_locked.jpg",
+    "in_game_reward_soul_shards": 80
+  },
+  {
+    "api_name": "GW_DAILY",
+    "display_name": "Daily Grinder",
+    "description": "Reach wave 10 in a Daily Challenge",
+    "hidden": false,
+    "icon": "achievement_icons/GW_DAILY.jpg",
+    "icon_locked": "achievement_icons/GW_DAILY_locked.jpg",
+    "in_game_reward_soul_shards": 40
+  },
+  {
+    "api_name": "GW_MASTER5",
+    "display_name": "Veteran",
+    "description": "Reach Mastery 5 with any hero",
+    "hidden": false,
+    "icon": "achievement_icons/GW_MASTER5.jpg",
+    "icon_locked": "achievement_icons/GW_MASTER5_locked.jpg",
+    "in_game_reward_soul_shards": 50
+  },
+  {
+    "api_name": "GW_TREASURE",
+    "display_name": "Goblin Robber",
+    "description": "Catch a Treasure Goblin",
+    "hidden": false,
+    "icon": "achievement_icons/GW_TREASURE.jpg",
+    "icon_locked": "achievement_icons/GW_TREASURE_locked.jpg",
+    "in_game_reward_soul_shards": 20
+  },
+  {
+    "api_name": "GW_BOUNTY5",
+    "display_name": "Bounty Hunter",
+    "description": "Complete 5 bounties",
+    "hidden": false,
+    "icon": "achievement_icons/GW_BOUNTY5.jpg",
+    "icon_locked": "achievement_icons/GW_BOUNTY5_locked.jpg",
+    "in_game_reward_soul_shards": 40
+  }
+]

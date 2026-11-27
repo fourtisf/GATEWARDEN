@@ -1,0 +1,22 @@
+api_name,display_name,description,hidden,icon,icon_locked
+GW_W5,"First Stand","Clear wave 5",0,achievement_icons/GW_W5.jpg,achievement_icons/GW_W5_locked.jpg
+GW_W10,"Holding the Line","Clear wave 10",0,achievement_icons/GW_W10.jpg,achievement_icons/GW_W10_locked.jpg
+GW_WIN,"Gatewarden","Clear wave 20",0,achievement_icons/GW_WIN.jpg,achievement_icons/GW_WIN_locked.jpg
+GW_BOSS4,"Demon Slayer","Defeat the Demon Lord",0,achievement_icons/GW_BOSS4.jpg,achievement_icons/GW_BOSS4_locked.jpg
+GW_COMBO100,"Unstoppable","Reach a 100-kill combo",0,achievement_icons/GW_COMBO100.jpg,achievement_icons/GW_COMBO100_locked.jpg
+GW_COMBO300,"Godlike","Reach a 300-kill combo",0,achievement_icons/GW_COMBO300.jpg,achievement_icons/GW_COMBO300_locked.jpg
+GW_EVO,"Evolved","Evolve a weapon",0,achievement_icons/GW_EVO.jpg,achievement_icons/GW_EVO_locked.jpg
+GW_STAR3,"Elite Guard","Merge a ★★★ unit",0,achievement_icons/GW_STAR3.jpg,achievement_icons/GW_STAR3_locked.jpg
+GW_KILLS1K,"Thousand Cuts","Kill 1,000 enemies in one run",0,achievement_icons/GW_KILLS1K.jpg,achievement_icons/GW_KILLS1K_locked.jpg
+GW_LVL25,"Ascendant","Reach level 25",0,achievement_icons/GW_LVL25.jpg,achievement_icons/GW_LVL25_locked.jpg
+GW_NOHIT,"Untouchable","Clear a wave (3+) without taking damage",0,achievement_icons/GW_NOHIT.jpg,achievement_icons/GW_NOHIT_locked.jpg
+GW_RICH,"Hoarder","Hold 500 gold at once",0,achievement_icons/GW_RICH.jpg,achievement_icons/GW_RICH_locked.jpg
+GW_FROST,"Cold Steel","Clear wave 10 on Frozen Pass",0,achievement_icons/GW_FROST.jpg,achievement_icons/GW_FROST_locked.jpg
+GW_HELL,"Forged in Fire","Clear wave 10 on Hellforge",0,achievement_icons/GW_HELL.jpg,achievement_icons/GW_HELL_locked.jpg
+GW_ALLHEROES,"Full Roster","Unlock every hero",0,achievement_icons/GW_ALLHEROES.jpg,achievement_icons/GW_ALLHEROES_locked.jpg
+GW_ELITE50,"Elite Hunter","Defeat 50 elites (all runs)",0,achievement_icons/GW_ELITE50.jpg,achievement_icons/GW_ELITE50_locked.jpg
+GW_ASC1,"Ascended","Clear wave 20 on Ascension 1+",0,achievement_icons/GW_ASC1.jpg,achievement_icons/GW_ASC1_locked.jpg
+GW_DAILY,"Daily Grinder","Reach wave 10 in a Daily Challenge",0,achievement_icons/GW_DAILY.jpg,achievement_icons/GW_DAILY_locked.jpg
+GW_MASTER5,"Veteran","Reach Mastery 5 with any hero",0,achievement_icons/GW_MASTER5.jpg,achievement_icons/GW_MASTER5_locked.jpg
+GW_TREASURE,"Goblin Robber","Catch a Treasure Goblin",0,achievement_icons/GW_TREASURE.jpg,achievement_icons/GW_TREASURE_locked.jpg
+GW_BOUNTY5,"Bounty Hunter","Complete 5 bounties",0,achievement_icons/GW_BOUNTY5.jpg,achievement_icons/GW_BOUNTY5_locked.jpg

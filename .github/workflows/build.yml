@@ -1,0 +1,36 @@
+# Builds the desktop game on every push to main (or manually) and attaches the result as a downloadable artifact.
+name: Build desktop
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npx electron-builder --win --x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Gatewarden-Windows
+          path: dist/win-unpacked
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx electron-builder --linux --x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Gatewarden-Linux
+          path: dist/linux-unpacked

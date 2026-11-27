@@ -1,0 +1,125 @@
+# CLAUDE.md — Gatewarden (Steam release project)
+
+You are working on **Gatewarden**, a 2D action roguelite / tower-defense hybrid ("hordes from every side, one hero, hold the Gate").
+The goal of this repository is to **ship the game on Steam** as a Windows desktop app (Linux/Steam Deck optional).
+
+The game itself is finished and balanced (v0.7.0). Most remaining work is **release engineering**: real Steam IDs, a build, an upload, and polish requested by the owner.
+Owner: ALFA (non-technical, communicates in Indonesian). Developer: Michael. Keep explanations to the owner short and in Indonesian when asked.
+
+---
+
+## Layout
+
+```
+main.js                 Electron main process: window, fullscreen, Steam init/overlay, save file, IPC bridge
+preload.js              Exposes window.gwNative to the game (contextIsolation, sandboxed)
+steam.config.json       { appId, enableSteam, requireSteam, achievementPrefix }
+game/index.html         THE GAME — one self-contained HTML file (canvas + DOM HUD + WebAudio), ~2.8k lines
+game/fonts/             Bundled Outfit + Silkscreen woff2 (SIL OFL 1.1) — the game must run offline
+build/icon.png          1024×1024 app icon (electron-builder converts it to .ico/.icns)
+steam/                  SteamPipe scripts (app_build.vdf, depot_*.vdf), achievements.json/.csv, achievement icons
+store/                  Draft Steam store assets: screenshots (1920×1080) and capsules in every required size
+scripts/check.js        Pre-build checks (offline, achievements ↔ icons, placeholder IDs)
+scripts/upload-steam.*  Build + SteamCMD upload
+docs/LAUNCH_CHECKLIST.md  Step-by-step Steam launch plan (Indonesian, for the owner)
+store/STORE_PAGE.md     Store page copy (English), tags, system requirements, AI disclosure draft
+web/gatewarden-web.html Browser build of the same game (Google Fonts, localStorage) for demos / itch.io
+```
+
+## Commands
+
+```bash
+npm install            # Electron 45, electron-builder 26, steamworks.js 0.4
+npm start              # run the desktop app (dev mode: devtools on F12, "Unlock all" test button visible)
+npm run check          # sanity checks (warnings for placeholder IDs)
+npm run check:release  # strict: fails until real AppID/depots/studio name are set
+npm run dist:win       # -> dist/win-unpacked/Gatewarden.exe   (works on Windows; also on Linux, verified)
+npm run dist:linux     # -> dist/linux-unpacked/gatewarden
+STEAM_USER=xxx ./scripts/upload-steam.sh   # or scripts\upload-steam.bat on Windows
+```
+
+Steam builds use the electron-builder **`dir` target** (an unpacked folder). Steam installs that folder directly, so no installer and no code signing are needed.
+
+## Verified so far (by the previous session)
+- `npm install`, `electron-builder --linux` and `--win` both succeed. `steamworks.js` native files (win64/linux64) are in `app.asar.unpacked`.
+- The packaged app runs (tested headless with Xvfb). In release mode `gwNative.dev === false`, which hides the "Unlock all" test button.
+- Saves go to `<userData>/save/gatewarden-save.json` with an atomic write.
+- Without a running Steam client, `steamworks.init` throws. The error is caught and the game runs normally (expected).
+- The game loads with bundled fonts and makes no network requests.
+
+## Before the first Steam upload — TODO
+1. **Real IDs**:
+   - Put the Steam AppID in `steam.config.json` (`appId`).
+   - Replace `YOUR_APP_ID` and `YOUR_WINDOWS_DEPOT_ID` in `steam/app_build.vdf` and `steam/depot_windows.vdf`. Do the same for Linux if shipping Linux.
+   - Set `author`, `build.copyright` and `build.appId` in `package.json`.
+   - Then run `npm run check:release`.
+2. **Steamworks partner site** (owner does it or gives you the values):
+   - **Stats & Achievements:** create the 21 achievements exactly as in `steam/achievements.csv`. The API name must be `GW_<ID>`. Upload `steam/achievement_icons/*.jpg` (achieved + `_locked`). Publish.
+   - **Steam Cloud (Auto-Cloud):** byte quota 10 MB, 10 files. Root `WinAppDataRoaming`, subdirectory `Gatewarden/save`, pattern `*.json`. Linux root: `LinuxXdgConfigHome`, subdirectory `Gatewarden/save`.
+   - **Installation > General > Launch options:** Windows executable `Gatewarden.exe`. Linux (optional) executable `gatewarden`.
+   - **Depots:** one Windows depot (all languages, Windows OS). Optional Linux depot.
+3. Build, upload (`scripts/upload-steam.*`), and set the build live on the `default` branch.
+4. Test through the Steam client:
+   - The overlay opens (Shift+Tab).
+   - Achievements pop.
+   - Cloud save syncs between two PCs.
+   - A gamepad works.
+   - Alt+Enter / F11 toggles fullscreen.
+5. Optional: set `requireSteam: true` in `steam.config.json` for release builds. A copied exe then relaunches through Steam (`restartAppIfNecessary`).
+
+## CI (GitHub Actions)
+- `.github/workflows/build.yml`: on push to `main`, builds Windows (windows-latest) and Linux, and uploads `dist/*-unpacked` as artifacts **Gatewarden-Windows** / **Gatewarden-Linux**. This is how the owner gets a playable `.exe` out of a cloud session: push, open the Actions run, download the artifact.
+- `.github/workflows/steam-deploy.yml` (manual `workflow_dispatch`): runs `check:release`, builds Windows and uploads it to Steam with `game-ci/steam-deploy@v3`. It needs the repo secrets `STEAM_USERNAME`, `STEAM_CONFIG_VDF` and `STEAM_APP_ID`. The depot is assumed to be AppID+1.
+- If this project arrived as a zip: unzip it at the **repo root** (so `package.json` is at the root), commit everything except `node_modules/` and `dist/`, and push.
+
+## Steam integration — how it works
+- `main.js` calls `steamworks.init(appId)` and then `steamworks.electronEnableSteamOverlay()`. Both happen **before** `app.whenReady()`, because the overlay needs Chromium switches applied at startup.
+- `preload.js` exposes `window.gwNative`:
+  `{dev, steam, version, player, loadSave(), writeSave(str), achieve(id), toggleFullscreen(), setFullscreen(v), quit()}`.
+- In the game, `NATIVE = window.gwNative || null` and `DEV = NATIVE ? NATIVE.dev : true`:
+  - `loadP()` and `saveP()` use NATIVE when it is present, otherwise localStorage.
+  - `unlockAch(id)` calls `NATIVE.achieve(id)`, which maps to Steam API name `GW_` + `id.toUpperCase()`.
+  - On boot, every locally unlocked achievement is re-sent to Steam. This is idempotent and catches achievements earned offline.
+  - The QUIT button appears only when NATIVE is present.
+  - The "Test mode: unlock all" button appears only when `DEV` is true.
+- Window blur auto-pauses the battle, which also covers the Steam overlay opening.
+
+**Overlay troubleshooting** (a known Electron caveat): the overlay only appears when the game is launched **from the Steam client**. If it still doesn't render, try Electron's `--in-process-gpu` switch (steamworks.js sets it). As a last resort, pin Electron to an older major that the steamworks.js community has confirmed.
+
+## Game architecture (game/index.html)
+A single IIFE, no build step. Edit it directly; it is the source of truth. Approximate line map:
+
+| Section | What |
+|---|---|
+| ~336 `data` | `UNIT/UDEF` (recruitable army), `ED` (enemies & bosses), `HEROES`, `CARDS`, `EVOS`, `RELICS`, `MAPS`, `PERM` (Sanctum), `ACH`, `SKILLS`, `POOL`, `ASC`, `DAILY_MODS`, `QUEST_T`, difficulty curves `hpMult/atkMult` |
+| ~549 `persistent save` | `P` object, `SAVE_KEY='gatewarden.save.v1'`, `defaultP()`, deep-merge `loadP()`. **Never break the save shape**: add new fields to `defaultP()` only. |
+| ~560 `run state` | `S` (current run), helpers `hs()` (hero stats), `abilCd/abilInfo`, costs |
+| ~620 `audio` | `AU` (synth SFX), `TRACKS` / `MUS` (procedural music sequencer) |
+| ~684 `drawing` | Vector sprites: `drawHero`, `drawEnemy` (cached into sprite sheets at boot) |
+| ~1145 `hero` | `tryAttack(src)` (wind-up) → `doStrike()` (damage); `ATK_T` timings, `heroPose()` animation curve, `drawSmear()` |
+| ~1365 `skills` | `castAbility(k)` with keys `q`, `e`, `shock` (R ultimate), `f` (pool skill picked at level 5); `castSkill(id)` |
+| ~1477 `combat` | `hitEnemy`, `killEnemy` (rewards, combos, splits), `damageAlly`, `coreDamage` |
+| ~1551 `spawning` | `spawnPool(wave)`, `spawnTick` (+ mid-wave events: treasure goblin / ambush / elite) |
+| ~1598 `bosses` | telegraphs (`tele`), bullets, `bossAI` patterns (`slam/ring/charge/rain/radial/blink/summon`) |
+| ~1706 `battle update` | units, wolves, fires, meteors, ultimates, enemies, separation, projectiles |
+| ~1972 `render` | everything drawn on the 1600×900 canvas (stage is CSS-scaled to the window) |
+| ~2238 `progression` | level-up cards, evolutions, chests/relics |
+| ~2310 `meta` | achievements, shards, hero mastery, bounties, daily challenge, ascension unlocks |
+| ~2398 `flow` | `startWave / endWave / openShop / gameOver / newRun / continueRun` |
+| ~2496 `menus` | title (+ Daily & Bounties side panel), hero select (mastery, skins, ascension), Sanctum, achievements, settings, pause |
+| ~2665 `input` / `gamepad` / `loop` | keyboard/mouse (`doAct` dispatcher for `data-act` buttons), gamepad polling + menu focus navigation, fixed-step loop |
+
+**Test hooks:** `window.__G` exposes `S, P, F, newRun, startWave, endWave, castAbility, spawnEnemy, update, render, …`. Two flags matter:
+- `__G.TEST.auto = true` turns on the bot autopilot.
+- `__G.TEST.turbo = 45` runs 45 simulation steps per frame with no rendering. That gives very fast headless balance runs, about 15 s for a full 20-wave run in Chromium/Playwright.
+
+Keep these hooks: they power balance testing. DevTools are disabled in packaged builds.
+
+**Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
+
+## Conventions
+- Keep the game a single offline HTML file. No CDNs.
+- Keep the visual identity: dark navy/purple UI with teal (#3ef2d0) and pink (#ff5fa2) accents. **No black-and-gold and no light/white backgrounds** (owner preference).
+- Text in the game is English. Localization (Indonesian, Chinese, …) is a later task: extract strings first if asked.
+- After changing gameplay, run a headless smoke test: load, start a run, autopilot to the first shop, and expect no `pageerror`.
+- Commit messages short. Do not commit `node_modules/` or `dist/`.

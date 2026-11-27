@@ -1,0 +1,18 @@
+// SteamPipe app build script for Gatewarden.
+// 1) Replace YOUR_APP_ID / YOUR_WINDOWS_DEPOT_ID / YOUR_LINUX_DEPOT_ID with the numbers from Steamworks.
+// 2) Build first (npm run dist:win, optionally npm run dist:linux), then run scripts/upload-steam.(sh|bat).
+"AppBuild"
+{
+	"AppID" "YOUR_APP_ID"
+	"Desc" "Gatewarden v0.7.0"
+	"BuildOutput" "./output/"
+	"ContentRoot" "../dist/"
+	"SetLive" ""
+	"Preview" "0"
+	"Depots"
+	{
+		"YOUR_WINDOWS_DEPOT_ID" "depot_windows.vdf"
+		// Uncomment after you build on Linux (npm run dist:linux) to ship a native Linux / Steam Deck depot:
+		// "YOUR_LINUX_DEPOT_ID" "depot_linux.vdf"
+	}
+}

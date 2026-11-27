@@ -1,0 +1,26 @@
+# Manual: builds Windows and uploads it to Steam (SteamPipe) using game-ci/steam-deploy.
+# Repo secrets needed: STEAM_USERNAME, STEAM_CONFIG_VDF (see https://game.ci/docs/github/deployment/steam), STEAM_APP_ID.
+# The Windows depot is assumed to be STEAM_APP_ID + 1 (Steamworks default). Run `npm run check:release` locally first.
+name: Deploy to Steam
+on: workflow_dispatch
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run check:release
+      - run: npx electron-builder --win --x64
+      - uses: game-ci/steam-deploy@v3
+        with:
+          username: ${{ secrets.STEAM_USERNAME }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: ${{ secrets.STEAM_APP_ID }}
+          buildDescription: v${{ github.run_number }}-${{ github.sha }}
+          rootPath: dist
+          depot1Path: win-unpacked
+          releaseBranch: ''
