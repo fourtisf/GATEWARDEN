@@ -239,7 +239,9 @@ button{font-family:inherit}
 .mcard.sel{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal)}
 .mcard.locked{opacity:.45;cursor:not-allowed}
 .mcard .mn{font-weight:800;font-size:15px}
-.mcard .md{font-size:12px;color:#cfd4ff;margin-top:2px}
+.mcard .md{font-size:12px;color:#cfd4ff;margin-top:2px;max-width:50%;text-shadow:0 1px 4px rgba(0,0,0,.8)}
+.mcard{min-height:96px;display:flex;flex-direction:column;justify-content:center}
+.mcard .mn{font-size:17px;text-shadow:0 1px 6px rgba(0,0,0,.8)}
 .mcard:not(.locked):not(.sel):hover{border-color:var(--line2);transform:translateY(-2px)}
 .mcard .mb{font-family:'Silkscreen',monospace;font-size:10px;color:var(--teal);margin-top:6px}
 .secT{font-family:'Silkscreen',monospace;font-size:13px;letter-spacing:2px;color:var(--muted);text-align:left;margin-top:18px}
@@ -2750,7 +2752,7 @@ function showSelect(){
   const heroes=HERO_ORDER.map(k=>{const H=HEROES[k],own=P.heroes[k];
     return `<div class="hcard ${HSEL===k?'sel':''} ${own?'':'locked'}" style="--hc:${H.col}" data-act="selHero" data-arg="${k}">${own?'':'<div class="lockTag">🔒 LOCKED</div>'}<img src="${IMG[k]}"><div class="hn">${H.name}</div><div class="ht">${H.title}</div><div class="hd">${H.desc}</div>${heroStatBars(H)}<div class="sbar" style="margin-top:6px"><span>Q</span><b style="color:#dfe3ff;font-weight:400">${SKILLS[H.skills.q].icon} ${SKILLS[H.skills.q].name}</b></div><div class="sbar"><span>E</span><b style="color:#dfe3ff;font-weight:400">${SKILLS[H.skills.e].icon} ${SKILLS[H.skills.e].name}</b></div><div class="sbar"><span>R</span><b style="color:${ULTS[H.ult].col};font-weight:400">${ULTS[H.ult].icon} ${ULTS[H.ult].name}</b></div>${own?'':`<div class="hlock">${ICON_SHARD} ${H.cost} SHARDS</div>`}</div>`;}).join('');
   const maps=MAP_ORDER.map(k=>{const M=MAPS[k],own=P.maps[k];
-    return `<div class="mcard ${MSEL===k?'sel':''} ${own?'':'locked'}" style="background:linear-gradient(135deg,${M.pal[0]},${M.pal[2]})" data-act="${own?'selMap':'lockedMap'}" data-arg="${k}"><div class="mn">${own?'':'🔒 '}${M.name}</div><div class="md">${own?M.d:'Unlock: '+M.unlock}</div><div class="mb">${own?`BEST: WAVE ${P.best[k]||0}`:'LOCKED'}</div></div>`;}).join('');
+    return `<div class="mcard ${MSEL===k?'sel':''} ${own?'':'locked'}" style="background:linear-gradient(90deg,rgba(10,14,40,1) 0%,rgba(10,14,40,.94) 40%,rgba(10,14,40,0) 62%),url(${MAPIMG[k]||''}) right center/auto 100% no-repeat,rgb(10,14,40)" data-act="${own?'selMap':'lockedMap'}" data-arg="${k}"><div class="mn">${own?'':'🔒 '}${M.name}</div><div class="md">${own?M.d:'Unlock: '+M.unlock}</div><div class="mb">${own?`BEST: WAVE ${P.best[k]||0}`:'LOCKED'}</div></div>`;}).join('');
   const H=HEROES[HSEL], own=P.heroes[HSEL], can=P.shards>=H.cost;
   const info=own?`<b style="color:${H.col}">${H.name}</b> selected · ${MAPS[MSEL].name}`:`🔒 <b style="color:${H.col}">${H.name}</b> is locked — costs <b style="color:#e1d4ff">${H.cost} Soul Shards</b>, you have <b style="color:#e1d4ff">${P.shards}</b>. ${can?'Click UNLOCK to get this hero.':'Every run you play earns Soul Shards — even if you lose.'}`;
   const startBtn=own?`<button class="btn mbtn primary" data-act="start">START RUN ▶</button>`:can?`<button class="btn mbtn pink" data-act="unlockHero" data-arg="${HSEL}">UNLOCK ${H.name.toUpperCase()} · ${ICON_SHARD} ${H.cost}</button>`:`<button class="btn mbtn primary" disabled>🔒 NEED ${H.cost} SHARDS</button>`;
@@ -3065,7 +3067,11 @@ function frameBody(now){
   requestAnimationFrame(frame);
 }
 window.__gwFullscreenChanged=v=>{P.settings.fullscreen=!!v;saveP();if(MENU==='settings')showSettings();};
-function boot(){ensureQuests();fit();initTouch();if(NATIVE){try{for(const id in P.ach)NATIVE.achieve(id);}catch(e){}AU.init();}buildBG(P.last.map||'ruins');buildImages();buildSkillBar();$('#heroPortrait').src=IMG.captain;setupTitleScene();renderAll();showTitle();requestAnimationFrame(t=>{last=t;frame(t);});}
+const MAPIMG={};
+function buildMapThumbs(last){const order=MAP_ORDER.filter(k=>k!==last).concat([last]);for(const k of order){buildBG(k);const cv=document.createElement('canvas'),w=480,h=200,sc=w/1150;cv.width=w;cv.height=h;const c=cv.getContext('2d'),x0=CORE.x-640,y0=CORE.y-400;
+    c.scale(sc,sc);c.translate(-x0,-y0);c.drawImage(BG,0,0);for(const o of SCN.filter(o=>o.x>x0-100&&o.x<x0+1250&&o.y>y0-20&&o.y<y0+h/sc+160).sort((a,b)=>a.y-b.y))c.drawImage(o.img,o.x-o.ox,o.y-o.oy);try{drawCore(c);}catch(e){}
+    MAPIMG[k]=cv.toDataURL('image/jpeg',0.82);}}
+function boot(){ensureQuests();fit();initTouch();if(NATIVE){try{for(const id in P.ach)NATIVE.achieve(id);}catch(e){}AU.init();}buildImages();buildMapThumbs(P.last.map||'ruins');buildSkillBar();$('#heroPortrait').src=IMG.captain;setupTitleScene();renderAll();showTitle();requestAnimationFrame(t=>{last=t;frame(t);});}
 const fontsReady=document.fonts&&document.fonts.ready?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve();
 fontsReady.then(boot);
 window.__G={drawHero,drawEnemy,IMG,HEROES,ACH,update,render,tryAttack,startDaily,dailyInfo,ensureQuests,buyTrain,trainCost,get S(){return S;},get P(){return P;},F,get WV(){return WV;},TEST,PERF,newRun,continueRun,startWave,pickCard,pickRelic,buyOffer,rerollShop,repairGate,unitCost,canRecruit,castAbility,setSpeed:n=>{S.speed=n;},spawnEnemy,endWave,toTitle,showSelect,showSanctum,showAch,showSettings,unlockHero,buyPerm,saveP,evoReady,doAct,toggleFormation,openChest};
