@@ -211,6 +211,12 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Not done: localisation, online leaderboards, key rebinding.
 - Bot sims (safe road, no towers): Captain 12–20, Ranger from frost 8–10, Warden from cave 11–20, Shade from hell 6–8.
 
+**Consolidation pass (no new features):**
+- Staged unlocks per run: defenses from wave 2 (`renderTowerBar`, `buildTower`), road choice when leaving wave 2 (`openShop`), nests from wave 3, pacts after wave 5. A one-time hint explains the road choice (`P.tips.route`); the shrine banner waits until the training checklist is done.
+- Balance measured with a bot that builds defenses and takes dangerous roads (scratch harness, not in the repo; it needs `__G.buildTower`, `startWave(1)`, `pickPact`). Results, Captain from Moonlit Ruins, 8 runs each: no towers 10–20 (median 15), with towers 13–20 (median 15.5), dangerous roads 8–20 (median 11.5) against safe 10–20 (median 11) in the same batch. To get there the dangerous road became +35% HP, +15% damage, 50% chest (`hpMult`, `atkMult`, `endWave`), arrow tower damage is `(8+2.6·wave)` and tower health bases are 115/90/80.
+- Performance, worst case (wave 18, ~150 enemies, defenses, full army, 1920×1080, headless Chromium): update 1.6 ms + render 3.1 ms per frame. No optimisation was needed.
+- The bot still does not walk to shrines, so shrine strength is unmeasured.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
