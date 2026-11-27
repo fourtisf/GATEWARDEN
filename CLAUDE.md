@@ -204,6 +204,13 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Fifth hero `shade` (costs 200 shards, in the web demo too): uses the rogue unit sprite via `HEROES[k].spr` / `sprOf()`, sword weapon, +20% crit (`H.crit`), skills tornado and poison, new ultimate `shadow` (Death Mark) in `castUlt`, hero card `hs`.
 - Bot sims: Captain 9–20, Shade 9–12, Ranger from frost 7–13, Warden from hell 10–16, Arcanist from marsh 8–20.
 
+**Route choice, defenses, perimeter formation:**
+- Route: `openShop` rolls `S.routeOpts` (two other lands, the second marked `danger`). The shop shows one button per road; `startWave(pick)` uses it (no argument = the safe road, which is what Enter and the bot do). A dangerous road sets `S.danger`: enemies +20% HP (`hpMult`), +40% gold (`goldMult`), a bonus chest at wave end. The fixed rotation (`sceneAt`) is now only the fallback, and boss labels in the shop come from `LAND_BOSS[option]`.
+- Defenses: `TOWERS` (arrow, frost, spike), stored in `S.towers` so they persist across waves, lands and save/continue. `buildTower(k)` builds at the hero's position (keys 1·2·3 in battle or the `#towerBar` buttons), or upgrades one within 70 px (max level 3). Limit `towerMax()` = 3 + wave/3, max 10. Logic in `towerTick`, drawing in `drawTower` (y-sorted) and `drawTraps` (ground). Enemies ignore towers and cannot damage them. The bot never builds.
+- Army formation cycles guard → wide (perimeter ring) → follow (`posts`, `toggleFormation`).
+- Not done: localisation, online leaderboards, key rebinding.
+- Bot sims (safe road, no towers): Captain 12–20, Ranger from frost 8–10, Warden from cave 11–20, Shade from hell 6–8.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
