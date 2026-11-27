@@ -1,9 +1,19 @@
-# Builds the desktop game on every push to main (or manually) and attaches the result as a downloadable artifact.
+# Builds the desktop game on EVERY push (any branch, including claude/* session branches),
+# on pull requests, on manual dispatch, and on version tags.
+# Download the result from the run page: Actions -> latest run -> Artifacts -> "Gatewarden-Windows".
+# Pushing a tag like v0.7.0 also publishes a GitHub Release with Gatewarden-Windows.zip attached.
 name: Build desktop
 on:
   push:
-    branches: [main]
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
   workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   windows:
     runs-on: windows-latest
@@ -16,11 +26,22 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npx electron-builder --win --x64
+      - name: Zip Windows build
+        shell: pwsh
+        run: Compress-Archive -Path dist/win-unpacked/* -DestinationPath dist/Gatewarden-Windows.zip
       - uses: actions/upload-artifact@v4
         with:
           name: Gatewarden-Windows
           path: dist/win-unpacked
+          retention-days: 30
+      - name: Publish GitHub Release (only for v* tags)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/Gatewarden-Windows.zip
+          generate_release_notes: true
   linux:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,3 +55,4 @@ jobs:
         with:
           name: Gatewarden-Linux
           path: dist/linux-unpacked
+          retention-days: 30

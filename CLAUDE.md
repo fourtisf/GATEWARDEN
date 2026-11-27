@@ -8,6 +8,26 @@ Owner: ALFA (non-technical, communicates in Indonesian). Developer: Michael. Kee
 
 ---
 
+## ▶ START HERE — instructions for Claude Code
+The owner wants a playable Windows build now, and a Steam release once the Steamworks account is approved.
+Do these steps in order and report back to the owner **briefly, in Indonesian**:
+
+1. **Put the project at the repo root** if it isn't already: `package.json` must sit at the root, next to `.github/`. Do not commit `node_modules/` or `dist/`.
+2. Run `npm ci` (or `npm install` if there is no lockfile match) and `npm run check`. Four warnings about placeholder Steam IDs are **expected and OK**.
+3. Optional but recommended: run `npx electron-builder --win --x64` once locally, to prove the build works in this environment. It works on Linux; no Wine is needed. Don't commit `dist/`.
+4. **Commit and push to your current session branch.** The build workflow runs on every branch, so **you do not need a `main` branch**.
+5. Report the result to the owner:
+   - Give the Actions run URL if you can (`gh run list --branch <branch> --limit 1` or the GitHub UI). Otherwise tell them: "Buka tab Actions di repo GitHub → run 'Build desktop' terbaru → bagian Artifacts → download **Gatewarden-Windows** → ekstrak → jalankan Gatewarden.exe."
+   - If you are allowed to push tags, push `v0.7.0`. The Release page then gets a direct `Gatewarden-Windows.zip` download.
+6. **Steam IDs:** the owner gets these from partner.steamgames.com *after* paying the US$100 Steam Direct fee and finishing tax/bank/ID verification. Until then, leave the placeholders. Everything except the Steam upload works without them.
+   When the owner sends you `AppID`, `Windows depot ID` and `studio name`:
+   - Put the AppID in `steam.config.json`.
+   - Replace `YOUR_APP_ID` and `YOUR_WINDOWS_DEPOT_ID` in `steam/*.vdf`.
+   - Set `author`, `build.copyright` and `build.appId` (`com.<studio>.gatewarden`) in `package.json`.
+   - Run `npm run check:release` (it must pass), then commit and push.
+   - Then guide the owner through the "Before the first Steam upload" list below, and the secrets for `steam-deploy.yml`.
+7. Do not change gameplay or balance unless the owner asks. If you touch `game/index.html`, run a headless smoke test first (see "Test hooks").
+
 ## Layout
 
 ```
@@ -68,9 +88,15 @@ Steam builds use the electron-builder **`dir` target** (an unpacked folder). Ste
 5. Optional: set `requireSteam: true` in `steam.config.json` for release builds. A copied exe then relaunches through Steam (`restartAppIfNecessary`).
 
 ## CI (GitHub Actions)
-- `.github/workflows/build.yml`: on push to `main`, builds Windows (windows-latest) and Linux, and uploads `dist/*-unpacked` as artifacts **Gatewarden-Windows** / **Gatewarden-Linux**. This is how the owner gets a playable `.exe` out of a cloud session: push, open the Actions run, download the artifact.
-- `.github/workflows/steam-deploy.yml` (manual `workflow_dispatch`): runs `check:release`, builds Windows and uploads it to Steam with `game-ci/steam-deploy@v3`. It needs the repo secrets `STEAM_USERNAME`, `STEAM_CONFIG_VDF` and `STEAM_APP_ID`. The depot is assumed to be AppID+1.
-- If this project arrived as a zip: unzip it at the **repo root** (so `package.json` is at the root), commit everything except `node_modules/` and `dist/`, and push.
+- `.github/workflows/build.yml` runs on **every push to any branch** (including `claude/*` session branches), on PRs, on manual dispatch and on `v*` tags.
+  - It builds Windows and uploads `dist/win-unpacked` as the artifact **Gatewarden-Windows**, kept 30 days.
+  - A `v*` tag also publishes a GitHub Release with `Gatewarden-Windows.zip` attached: a permanent public download link.
+  - Linux builds only on manual dispatch or tags.
+- `.github/workflows/steam-deploy.yml` (manual `workflow_dispatch`):
+  - Runs `check:release`, builds Windows and uploads it to Steam with `game-ci/steam-deploy@v3`.
+  - Needs the repo secrets `STEAM_USERNAME`, `STEAM_CONFIG_VDF` and `STEAM_APP_ID`.
+  - The depot is assumed to be AppID+1.
+  - It **fails on purpose** until the real Steam IDs are filled in.
 
 ## Steam integration — how it works
 - `main.js` calls `steamworks.init(appId)` and then `steamworks.electronEnableSteamOverlay()`. Both happen **before** `app.whenReady()`, because the overlay needs Chromium switches applied at startup.
