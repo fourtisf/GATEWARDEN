@@ -150,6 +150,14 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Daily Challenge and Bounties panels on the title screen show only in the desktop (Steam) build (`sideHTML` returns '' without `NATIVE`).
 - Bot sims (random card picks, buys every shop offer, no Sanctum): median end wave 10 before and after these changes.
 
+**Open world (owner request):**
+- The world is `WW`×`WH` (3200×1800) with the Gate at its centre. `CAM` follows the hero (`updateCam`); `render()` draws everything in world space under a camera transform, then HUD layers in screen space.
+- The stage fills the window: `fit()` sets the view width `VW` (1200–2400) from the window aspect ratio; the height is always 900.
+- Enemies spawn on a ring around the Gate (`SPX`/`SPY` in `edgePoint`), not at the world edge, so travel time stays close to the old arena.
+- `buildBG` paints the whole world once per map, including `scenery()` (trees, ruins, pools, crystals, lava…). `MINI` is a downscaled copy used by `drawMini()` (minimap top-right + an arrow to the Gate when it is off screen).
+- Mouse position is stored in screen space (`F.mouse.sx/sy`) and converted to world space every frame.
+- Music on/off: `P.settings.musicOn`, `toggleMusic()`, HUD button `#musicBtn`, title button, key M.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
