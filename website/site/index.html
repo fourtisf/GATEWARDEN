@@ -333,6 +333,17 @@ button{font-family:inherit}
 .skillCard .ci{background:radial-gradient(circle,rgba(62,242,208,.3),rgba(62,242,208,.05))}
 .demoTag{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:999px;font-family:'Silkscreen',monospace;font-size:11px;letter-spacing:2px;color:#ffd6e7;background:rgba(255,95,162,.16);border:1px solid rgba(255,95,162,.5)}
 .ctrlHint2{font-size:12px;color:var(--dim);margin-top:14px}
+#toasts{right:auto;left:50%;top:auto;bottom:104px;transform:translateX(-50%);align-items:center}
+#stage.ovOpen #toasts{bottom:10px}
+.modal h1{font-size:38px;letter-spacing:2px;white-space:nowrap}
+.toast{font-size:14.5px;padding:9px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.btn:disabled,.pbuy:disabled,.rcard.cant .rbuy{filter:none;background:rgba(255,255,255,.06);color:var(--muted);box-shadow:none;border:1px solid var(--line2);cursor:not-allowed}
+.pbuy:disabled svg path{fill:var(--muted);stroke:var(--muted)}
+.syn:last-child:nth-child(odd){grid-column:1/-1}
+.achList{grid-template-columns:repeat(3,1fr);max-height:none;overflow:visible;gap:10px}
+.ach{padding:9px 12px;border-color:var(--line2)}
+.ach .an{font-size:14px}
+.ach .ad{font-size:12px;color:#aab2e0}
 </style>
 </head>
 <body>
@@ -2693,7 +2704,7 @@ function showAch(){
   MENU='ach';
   const list=ACH.map(a=>`<div class="ach ${P.ach[a.id]?'done':''}"><div class="ai">${a.icon}</div><div><div class="an">${a.name}</div><div class="ad">${a.d}</div></div><div class="ar">${P.ach[a.id]?'✓':`${ICON_SHARD} ${a.r}`}</div></div>`).join('');
   const st=P.stats;
-  overlay(`<div class="modal" style="width:900px"><h2>ACHIEVEMENTS</h2><p>${Object.keys(P.ach).length} / ${ACH.length} unlocked · ${st.runs} runs · ${st.wins} wins · ${st.kills} total kills</p>
+  overlay(`<div class="modal" style="width:1280px"><h2>ACHIEVEMENTS</h2><p>${Object.keys(P.ach).length} / ${ACH.length} unlocked · ${st.runs} runs · ${st.wins} wins · ${st.kills} total kills</p>
   <div class="achList" style="margin-top:16px">${list}</div><div class="mbtns"><button class="btn mbtn primary" data-act="back">BACK</button></div></div>`);
 }
 function showSettings(from){
@@ -2737,8 +2748,8 @@ function resume(){S.paused=false;if(S.phase==='shop')renderShop();else hideOverl
 
 /* ================= UI ================= */
 const stage=$('#stage');
-function overlay(html){const o=$('#overlay');o.innerHTML=html;o.classList.remove('hidden');PADNAV.focus=null;}
-function hideOverlay(){$('#overlay').classList.add('hidden');$('#overlay').innerHTML='';}
+function overlay(html){const o=$('#overlay');o.innerHTML=html;o.classList.remove('hidden');stage.classList.add('ovOpen');PADNAV.focus=null;}
+function hideOverlay(){stage.classList.remove('ovOpen');$('#overlay').classList.add('hidden');$('#overlay').innerHTML='';}
 function toast(msg,type=''){const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;const box=$('#toasts');box.appendChild(t);while(box.children.length>3)box.firstChild.remove();setTimeout(()=>t.remove(),2000);}
 function banner(t,s,col){const b=$('#banner');b.style.setProperty('--bc',col||'rgba(139,108,255,.85)');b.querySelector('.bt').textContent=t;b.querySelector('.bs').textContent=s||'';b.classList.remove('show');void b.offsetWidth;b.classList.add('show');}
 function bump(sel){const el=$(sel);if(!el)return;el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}
