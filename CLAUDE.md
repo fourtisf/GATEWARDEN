@@ -187,6 +187,12 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - First run only: a "Training" checklist (`TUT`, `F.tut`, `drawTut`) for move, kill, dash, skill, shrine; +30 gold when complete (`P.tips.tut`).
 - Records row on the Achievements screen (`P.rec`: best combo, most kills, highest level; best wave per map from `P.best`).
 
+**Content variety (owner request "everything is the same"):**
+- Fourth map `marsh` (Witchmarsh): own scenery branch in `scenery()`, toxic pools that slow and poison the hero (`F.heroSlow`), purple Gate. `MAP_ORDER` is ruins, frost, marsh, hell; all open from the start, also in the web demo.
+- Eight map-exclusive enemies, two per map (`MAPS[k].extra` = `{type:[minWave,weight]}`, added in `spawnPool`). They are tinted variants of existing sprites: `ED[k].base` + `ED[k].tint` (a canvas filter applied in `buildImages`). New behaviour flags: `chill` (slows the hero on hit), `leech` (heals on hit), `deathBoom` (explodes on death).
+- Ranger is unlocked from the start (`defaultP().heroes`).
+- Bot sims after this: ruins 13–20, marsh 6–20, frost (Ranger) 9, hell (Warden) 10–17.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

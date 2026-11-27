@@ -1,6 +1,6 @@
 # Gatewarden: website (demo gratis)
 
-Folder `site/` adalah website-nya: game versi browser dalam mode **demo gratis** (10 wave, 2 hero, 3 map), lengkap dengan tombol Steam. Tidak perlu build.
+Folder `site/` adalah website-nya: game versi browser dalam mode **demo gratis** (10 wave, 2 hero, 4 map), lengkap dengan tombol Steam. Tidak perlu build.
 
 ## Cara pakai dengan Claude Code (paling mudah)
 Lampirkan zip ini ke Claude Code, lalu tempel:
