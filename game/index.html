@@ -2018,6 +2018,7 @@ function updateBattle(h){
     e.cdT-=h*(F.warpT>0?0.5:1);const d=ED[e.type];
     if(d.treasure){treasureAI(e,h,sm);continue;}
     if(d.nest){nestAI(e,h);continue;}
+    if(d.tgt==='core'&&!d.fly&&!e.boss&&S.towers&&S.towers.length){const tw=towerNear(e);if(tw){e.moving=false;e.face=tw.x>=e.x?1:-1;if(e.cdT<=0){e.cdT=d.cd;e.atkAnim=1;hitTower(tw,e.atk);}continue;}}
     if(e.boss&&bossAI(e,h)){if(S.phase!=='battle')return;continue;}
     if(enemySpecial(e,h,al))continue;
     if(d.heal&&e.cdT<=0){let best=null,br=0.9;for(const a of foes){if(a===e||!a.alive)continue;const r=a.hp/a.maxHp;if(r<br&&dist(e,a)<=e.range){br=r;best=a;}}if(best){e.cdT=d.cd;e.atkAnim=1;healAlly(best,d.heal*atkMult(S.wave));continue;}}
@@ -2248,22 +2249,31 @@ function drawTut(c){const t=F.tut;if(!t||S.phase!=='battle')return;const x=18,y=
 /* ================= defenses: towers and traps ================= */
 const TOWERS={arrow:{icon:'🏹',name:'Arrow Tower',cost:35,d:'Shoots the nearest enemy in range.'},frost:{icon:'❄️',name:'Frost Pylon',cost:45,d:'Slows every enemy around it.'},spike:{icon:'🪤',name:'Spike Trap',cost:25,d:'Hurts ground enemies that walk over it.'}};
 const TW_KEYS=['arrow','frost','spike'];
+function towerHp(k,lv){return Math.round(({arrow:140,frost:110,spike:80})[k]*(0.6+0.4*lv)*(1+0.12*S.wave));}
+function towerNear(e){for(const t of S.towers||[]){if(t.k==='spike'||t.dead)continue;if(Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<56+e.r)return t;}return null;}
+function hitTower(t,dmg){if(t.dead)return;t.hp-=dmg;t.flash=1;if(t.hp<=0){t.dead=1;burst(t.x,t.y-24,'#c9d3f2',26,240);ring(t.x,t.y-10,'#ff5fa2',90,.5);shake(6);AU.boom();toast(`${TOWERS[t.k].name} destroyed!`,'bad');}}
+function towersNewWave(){for(const t of S.towers||[]){const m=towerHp(t.k,t.lv);t.maxHp=m;t.hp=Math.min(m,(t.hp===undefined?m:t.hp)+m*0.4);}}
 function towerMax(){return Math.min(10,3+Math.floor(S.wave/3));}
 function towerCost(k,up){const n=(S.towers||[]).filter(t=>t.k===k).length;return Math.round(TOWERS[k].cost*(up?0.8*up:1+0.35*n));}
-function renderTowerBar(){const el=$('#towerBar');if(!el)return;const n=(S.towers||[]).length;el.innerHTML=`<div class="twLbl">DEFENSES ${n}/${towerMax()}</div>`+TW_KEYS.map((k,i)=>`<div class="bc tw" data-tw="${k}" data-tip="${esc(`${TOWERS[k].name} (${i+1}) — ${towerCost(k)} gold\n${TOWERS[k].d}\nBuilt where your hero stands. Stand on one and press again to upgrade it.`)}">${TOWERS[k].icon}<span>${i+1}</span></div>`).join('');}
+function renderTowerBar(){const el=$('#towerBar');if(!el)return;const n=(S.towers||[]).length;el.innerHTML=`<div class="twLbl">DEFENSES ${n}/${towerMax()}</div>`+TW_KEYS.map((k,i)=>`<div class="bc tw" data-tw="${k}" data-tip="${esc(`${TOWERS[k].name} (${i+1}) — ${towerCost(k)} gold\n${TOWERS[k].d}\nBuilt where your hero stands. Stand on one and press again to upgrade or repair it. Enemies can destroy it.`)}">${TOWERS[k].icon}<span>${i+1}</span></div>`).join('');}
 function buildTower(k){const hr=F.hero;if(S.phase!=='battle'||!hr||!hr.alive||S.paused||S.modal)return;S.towers=S.towers||[];
   const near=S.towers.find(t=>t.k===k&&Math.hypot(t.x-hr.x,t.y-hr.y)<70);
-  if(near){if(near.lv>=3){toast(TOWERS[k].name+' is already at max level','bad');return;}const c=towerCost(k,near.lv+1);if(S.gold<c){toast(`Not enough gold — upgrade costs ${c}`,'bad');AU.err();return;}S.gold-=c;near.lv++;castFX(near.x,near.y,'#3ef2d0',false);toast(`${TOWERS[k].name} upgraded to level ${near.lv}`,'good');AU.buy();return;}
+  if(near){if(near.lv>=3){if(near.hp<near.maxHp){if(S.gold<10){toast('Not enough gold — repair costs 10','bad');AU.err();return;}S.gold-=10;near.hp=near.maxHp;castFX(near.x,near.y,'#7ff3e1',false);toast(TOWERS[k].name+' repaired','good');AU.buy();}else toast(TOWERS[k].name+' is already at max level','bad');return;}const c=towerCost(k,near.lv+1);if(S.gold<c){toast(`Not enough gold — upgrade costs ${c}`,'bad');AU.err();return;}S.gold-=c;near.lv++;near.maxHp=towerHp(k,near.lv);near.hp=near.maxHp;castFX(near.x,near.y,'#3ef2d0',false);toast(`${TOWERS[k].name} upgraded to level ${near.lv}`,'good');AU.buy();return;}
   if(Math.hypot(hr.x-CORE.x,(hr.y-CORE.y)*1.4)<150){toast('Too close to the Gate','bad');return;}
   if(S.towers.length>=towerMax()){toast(`Defense limit reached (${towerMax()}) — stand on one to upgrade it`,'bad');return;}
   const c=towerCost(k);if(S.gold<c){toast(`Not enough gold — ${TOWERS[k].name} costs ${c}`,'bad');AU.err();return;}
-  S.gold-=c;S.towers.push({k,x:hr.x,y:hr.y+6,lv:1,cd:0});castFX(hr.x,hr.y,'#3ef2d0',false);AU.buy();renderTowerBar();}
-function towerTick(h){const w=S.wave;for(const t of S.towers||[]){t.cd-=h;if(t.cd>0)continue;
+  S.gold-=c;{const m=towerHp(k,1);S.towers.push({k,x:hr.x,y:hr.y+6,lv:1,cd:0,hp:m,maxHp:m});}castFX(hr.x,hr.y,'#3ef2d0',false);AU.buy();renderTowerBar();}
+function towerTick(h){const w=S.wave;if((S.towers||[]).some(t=>t.dead)){S.towers=S.towers.filter(t=>!t.dead);renderTowerBar();}
+  for(const t of S.towers||[]){if(t.maxHp===undefined){t.maxHp=towerHp(t.k,t.lv);t.hp=t.maxHp;}if(t.flash>0)t.flash-=h*4;
+    if(t.k!=='spike'&&WV&&WV.bossEnt&&WV.bossEnt.alive&&Math.hypot(WV.bossEnt.x-t.x,WV.bossEnt.y-t.y)<120){hitTower(t,99999);continue;}
+    t.cd-=h;if(t.cd>0)continue;
   if(t.k==='arrow'){let b=null,bd=300+40*t.lv;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-t.x,e.y-t.y);if(d<bd){bd=d;b=e;}}
     if(b){t.cd=0.9;F.bolts.push({x1:t.x,y1:t.y-58,x2:b.x,y2:b.y-b.h*b.sc*0.5,life:.14,max:.14});hitEnemy(b,(9+3.2*w)*(0.6+0.5*t.lv),'unit',{});}else t.cd=0.2;}
   else if(t.k==='frost'){t.cd=0.3;const r=150+30*t.lv;for(const e of F.enemies)if(e.alive&&!e.boss&&Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<r)e.slowT=Math.max(e.slowT,0.45);}
-  else{t.cd=0.5;for(const e of F.enemies){if(!e.alive||ED[e.type].fly)continue;if(Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<52)hitEnemy(e,(7+2.4*w)*(0.6+0.5*t.lv),'unit',{});}}}}
-function twStars(c,t,x,y){if(t.lv<2)return;c.font='700 11px Silkscreen, monospace';c.textAlign='center';c.lineWidth=3;c.strokeStyle='rgba(5,8,26,.85)';const s='★'.repeat(t.lv-1);c.strokeText(s,x,y);c.fillStyle='#ffd166';c.fillText(s,x,y);}
+  else{t.cd=0.5;let n=0;for(const e of F.enemies){if(!e.alive||ED[e.type].fly)continue;if(Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<52){hitEnemy(e,(7+2.4*w)*(0.6+0.5*t.lv),'unit',{});n++;}}if(n)hitTower(t,1.5*(1+0.12*w));}}}
+function twStars(c,t,x,y){if(t.maxHp&&t.hp<t.maxHp){const w=44,p=clamp(t.hp/t.maxHp,0,1),by=y-(t.k==='spike'?52:108);c.fillStyle='rgba(5,8,26,.8)';rr(c,x-w/2-1,by-1,w+2,7,3);c.fill();c.fillStyle=p>0.4?'#3ef2d0':'#ff5f7a';rr(c,x-w/2,by,Math.max(2,w*p),5,2);c.fill();}
+  if(t.flash>0){c.fillStyle=`rgba(255,95,122,${0.35*t.flash})`;ell(c,x,y-(t.k==='spike'?22:40),30,t.k==='spike'?14:40);c.fill();}
+  if(t.lv<2)return;c.font='700 11px Silkscreen, monospace';c.textAlign='center';c.lineWidth=3;c.strokeStyle='rgba(5,8,26,.85)';const s='★'.repeat(t.lv-1);c.strokeText(s,x,y);c.fillStyle='#ffd166';c.fillText(s,x,y);}
 function drawTower(c,t){const x=t.x,y=t.y;c.fillStyle='rgba(4,8,24,.45)';ell(c,x,y+3,26,9);c.fill();
   if(t.k==='arrow'){rr(c,x-13,y-46,26,46,4);fs(c,'#4a5080',2.5);rr(c,x-18,y-58,36,14,4);fs(c,'#5c64a0',2.5);for(const dx of [-14,-2,10]){rr(c,x+dx,y-66,6,9,1);fs(c,'#5c64a0',2);}c.fillStyle='#0a0f2e';rr(c,x-3,y-36,6,14,2);c.fill();c.fillStyle='#3ef2d0';c.fillRect(x+14,y-82,2,18);c.beginPath();c.moveTo(x+16,y-82);c.lineTo(x+28,y-77);c.lineTo(x+16,y-72);c.closePath();c.fill();}
   else{const p=0.5+0.5*Math.sin(F.t*3+x),r=150+30*t.lv;c.strokeStyle=`rgba(155,232,255,${0.18+0.12*p})`;c.lineWidth=2;ell(c,x,y,r,r/1.3);c.stroke();rr(c,x-10,y-10,20,10,3);fs(c,'#3d5488',2.5);c.beginPath();c.moveTo(x-9,y-10);c.lineTo(x,y-56-4*p);c.lineTo(x+9,y-10);c.closePath();fs(c,'#9be8ff',2.5);c.fillStyle='rgba(255,255,255,.5)';c.beginPath();c.moveTo(x-3,y-14);c.lineTo(x,y-50);c.lineTo(x+2,y-14);c.closePath();c.fill();}
@@ -2822,7 +2832,7 @@ function startWave(pick){
   syncField(true);refreshHero(true);if(F.hero){F.hero.alive=true;F.hero.x=CORE.x;F.hero.y=CORE.y+120;}
   S.core.max=coreMax();S.core.hp=Math.min(S.core.max,S.core.hp+S.core.max*0.1);
   S.cd.q=S.cd.e=S.cd.shock=S.cd.f=0;if(armed)setArmed(null);clearSkillFX();if(F.hero){F.hero.sdash=null;F.hero.shield=0;}
-  spawnWorld();renderTowerBar();
+  towersNewWave();spawnWorld();renderTowerBar();
   hideOverlay();AU.horn();
   const b=bossFor(S.wave);
   if(b){spawnEnemy(b,CORE.x+900,CORE.y);toast(`The battle moves to ${MAPS[scn()].name}`,'good');}
@@ -3016,7 +3026,7 @@ function howHTML(back){
     ['<b>Elites</b> drop chests with relics. Chain kills for a <b>combo</b> — big combos pay more gold. Spend gold in the <b>shop</b> on units (3 of a kind merge) and Training. Press <b>G</b> to make your army follow you.'],
     ['The world is bigger than the screen — watch the <b>minimap</b>. <b>Shrines</b> (diamonds) give a timed boost when you step on them. <b>Nests</b> (orange squares) keep spawning enemies until you destroy them. Pools matter: healing springs in the Ruins, fast ice in Frozen Pass, burning lava in Hellforge.'],
     ['<b>The battlefield changes every wave.</b> Each land has its own terrain, pools and enemies, so every wave plays differently. The land you pick sets where you start and how tough the enemies are.'],
-    ['<b>Build defenses</b> with <b>1 · 2 · 3</b>: an Arrow Tower, a Frost Pylon or a Spike Trap appears where your hero stands. Stand on one and press again to upgrade it. After every wave you <b>choose the road</b>: a safe land, or a dangerous one with better rewards.'],
+    ['<b>Build defenses</b> with <b>1 · 2 · 3</b>: an Arrow Tower, a Frost Pylon or a Spike Trap appears where your hero stands. Stand on one and press again to upgrade or repair it. Enemies attack your defenses and can destroy them. After every wave you <b>choose the road</b>: a safe land, or a dangerous one with better rewards.'],
     ['Boss every 5 waves. Survive 20 waves and slay the <b>DEMON LORD</b>. Every run earns <b>Soul Shards</b>, hero <b>Mastery</b> (skins & bonuses) and progress on <b>Bounties</b>. Win a map to unlock <b>Ascension</b>; try the <b>Daily Challenge</b> every day.'],
   ];
   return `<div class="modal" style="width:860px"><h2>HOW TO PLAY</h2><div class="howto">${rows.map((r,i)=>`<div><span class="n">${i+1}</span><span>${r[0]}</span></div>`).join('')}</div><div class="mbtns"><button class="btn mbtn primary" data-act="${back}">${back==='pauseMenu'?'BACK':'GOT IT'}</button></div></div>`;
