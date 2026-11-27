@@ -146,7 +146,7 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Waves 1–4 spawn more enemies (`EARLY_A/EARLY_B` in the spawn rate, bigger opening pack) and enemy types arrive about one wave earlier (`basePool`).
 - Waves 3+ get a random theme (`THEMES`, `pickTheme`) that boosts one enemy type; maps bias the pool (`MAPS[k].bias`).
 - Mid-wave events start at wave 1; waves 6+ get a second event at 80%.
-- Frozen Pass is unlocked from the start; Hellforge unlocks at wave 10 on any map. The web demo allows Moonlit Ruins and Frozen Pass.
+- All three maps are unlocked from the start, in the Steam build and the web demo (owner request).
 - Daily Challenge and Bounties panels on the title screen show only in the desktop (Steam) build (`sideHTML` returns '' without `NATIVE`).
 - Bot sims (random card picks, buys every shop offer, no Sanctum): median end wave 10 before and after these changes.
 

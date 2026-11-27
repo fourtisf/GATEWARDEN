@@ -76,7 +76,7 @@ window.GW_CONFIG = { demo: true, demoWaves: 10, steamUrl: "", dev: false };
 ```
 - `demo: true` (default) is the free demo:
   - It ends after wave 10 with a "DEMO COMPLETE" screen.
-  - Only Captain, Ranger, Moonlit Ruins and Frozen Pass are playable. The rest show "Full game on Steam".
+  - Only Captain and Ranger are playable; all three maps are open. The rest show "Full game on Steam".
   - This protects Steam sales.
 - `demo: false` gives the full game in the browser.
 - `steamUrl`: set it to the Steam store link once the Coming Soon page is live. Every "COMING SOON TO STEAM" button then becomes "★ WISHLIST ON STEAM".

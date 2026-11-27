@@ -211,7 +211,8 @@ button{font-family:inherit}
 .mcard.sel{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal)}
 .mcard.locked{opacity:.45;cursor:not-allowed}
 .mcard .mn{font-weight:800;font-size:15px}
-.mcard .md{font-size:12px;color:var(--muted);margin-top:2px}
+.mcard .md{font-size:12px;color:#cfd4ff;margin-top:2px}
+.mcard:not(.locked):not(.sel):hover{border-color:var(--line2);transform:translateY(-2px)}
 .mcard .mb{font-family:'Silkscreen',monospace;font-size:10px;color:var(--teal);margin-top:6px}
 .secT{font-family:'Silkscreen',monospace;font-size:13px;letter-spacing:2px;color:var(--muted);text-align:left;margin-top:18px}
 .permGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
@@ -459,7 +460,7 @@ const SYN=[
 const MAPS={
   ruins:{name:'Moonlit Ruins',d:'Where every Gatewarden begins.',hp:1,shard:1,spawn:1,pal:['#21506a','#173852','#0a1528'],grass:'80,215,175',deco:'#2a3266',glow:'62,242,208',amb:'fireflies',unlock:null},
   frost:{name:'Frozen Pass',d:'Wolf packs & shield walls · Enemies +35% HP · Shards ×1.5',hp:1.35,shard:1.5,spawn:1.1,pal:['#4a7ca6','#29507a','#0e1c38'],grass:'210,240,255',deco:'#3d5488',glow:'155,232,255',amb:'snow',unlock:null,bias:{wolf:1.8,shield:1.6}},
-  hell:{name:'Hellforge',d:'Boomshrooms & Tuskers · Enemies +55% HP · Shards ×2',hp:1.55,shard:2,spawn:1.15,pal:['#5e2440','#391634','#16081a'],grass:'255,150,90',deco:'#4c1f3c',glow:'255,122,89',amb:'embers',unlock:'Reach wave 10 on any map',bias:{bomber:1.8,charger:1.6,brute:1.3}},
+  hell:{name:'Hellforge',d:'Boomshrooms & Tuskers · Enemies +55% HP · Shards ×2',hp:1.55,shard:2,spawn:1.15,pal:['#5e2440','#391634','#16081a'],grass:'255,150,90',deco:'#4c1f3c',glow:'255,122,89',amb:'embers',unlock:null,bias:{bomber:1.8,charger:1.6,brute:1.3}},
 };
 const MAP_ORDER=['ruins','frost','hell'];
 const PERM={
@@ -549,7 +550,7 @@ const HERO_SRC=new Set(['hero','blade','wolf','bolt','wave','meteor','shock','fi
 
 /* ================= persistent save ================= */
 const SAVE_KEY='gatewarden.save.v1';
-function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true},maps:{ruins:true,frost:true},ach:{},
+function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true},maps:{ruins:true,frost:true,hell:true},ach:{},
   settings:{master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0};}
 function readRaw(){if(NATIVE){try{return NATIVE.loadSave()||null;}catch(e){return null;}}try{return localStorage.getItem(SAVE_KEY);}catch(e){return null;}}
 function loadP(){const d=defaultP();try{const s=JSON.parse(readRaw()||'null');if(s){for(const k in d){if(s[k]===undefined)continue;if(d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k])&&s[k]&&typeof s[k]==='object')d[k]=Object.assign(d[k],s[k]);else d[k]=s[k];}}}catch(e){}return d;}
