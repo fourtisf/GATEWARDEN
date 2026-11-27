@@ -194,6 +194,13 @@ button{font-family:inherit}
 #lowHp{position:absolute;inset:0;pointer-events:none;z-index:4;box-shadow:inset 0 0 160px rgba(255,40,90,.55);opacity:0;transition:opacity .2s}
 /* ===== v0.5 additions ===== */
 .menu{width:640px;padding:34px 40px}
+.titleWrap{display:flex;align-items:stretch;justify-content:center;gap:24px}
+.titleWrap .menu{width:620px;max-width:none;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.titleMeta{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px}
+.titleMeta>*{margin-top:0!important}
+.keys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 14px;margin-top:22px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.keys span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.keys kbd{font-family:'Silkscreen',monospace;font-size:10.5px;color:#dfe3ff;padding:3px 7px;border-radius:6px;background:rgba(255,255,255,.07);border:1px solid var(--line2)}
 .menuBtns{display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:24px}
 .menuBtns .mbtn{width:340px}
 .contInfo{font-size:11px;letter-spacing:1px;opacity:.85;display:block;margin-top:2px}
@@ -264,16 +271,17 @@ button{font-family:inherit}
 #flash{position:absolute;inset:0;pointer-events:none;z-index:15;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.55),rgba(255,122,89,.25) 45%,transparent 75%);opacity:0}
 #flash.go{animation:fl .6s ease-out}
 @keyframes fl{from{opacity:1}to{opacity:0}}
-.side{position:absolute;right:28px;top:110px;width:380px;display:flex;flex-direction:column;gap:12px;text-align:left}
-.side .panel{padding:14px 16px;border-radius:18px;background:linear-gradient(180deg,rgba(30,38,104,.9),rgba(16,22,66,.92));border:1px solid var(--line2)}
-.side h3{font-family:'Silkscreen',monospace;font-size:12.5px;letter-spacing:1px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;white-space:nowrap}
-.side h3 small{font-size:8.5px;color:var(--muted);letter-spacing:.5px;white-space:nowrap}
-.qrow{margin-top:8px}
+.side{width:400px;flex:none;display:flex;flex-direction:column;gap:16px;text-align:left}
+.side .panel:last-child{flex:1}
+.side .panel{padding:18px 20px;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.5);background:linear-gradient(180deg,rgba(30,38,104,.9),rgba(16,22,66,.92));border:1px solid var(--line2)}
+.side h3{font-family:'Silkscreen',monospace;font-size:13.5px;letter-spacing:1px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;white-space:nowrap}
+.side h3 small{font-size:10px;color:var(--muted);letter-spacing:.5px;white-space:nowrap}
+.qrow{margin-top:12px}
 .qrow .qt{display:flex;justify-content:space-between;font-size:13px;color:#dfe3ff}
 .qrow .qt b{font-family:'Silkscreen',monospace;font-weight:400;font-size:11px;color:#e1d4ff;white-space:nowrap}
 .qbar{height:6px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:4px;overflow:hidden}
 .qbar i{display:block;height:100%;background:linear-gradient(90deg,#b48cff,#3ef2d0)}
-.qrow .qp{font-family:'Silkscreen',monospace;font-size:10px;color:var(--muted);margin-top:2px}
+.qrow .qp{font-family:'Silkscreen',monospace;font-size:10.5px;color:var(--muted);margin-top:2px}
 .dmods{display:flex;flex-direction:column;gap:6px;margin:6px 0 10px}
 .dmod{font-size:12.5px;color:#cfd4ff;padding:6px 9px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
 .dmod b{color:#fff}
@@ -2522,9 +2530,9 @@ let MENU='main', HSEL=null, MSEL=null, RESETARM=false;
 function showTitle(){
   MENU='main';RESETARM=false;
   const r=P.run;
-  overlay(`<div class="modal menu" style="margin-right:400px;background:linear-gradient(180deg,rgba(30,38,104,.86),rgba(16,22,66,.9))">
+  overlay(`<div class="titleWrap"><div class="modal menu" style="background:linear-gradient(180deg,rgba(30,38,104,.86),rgba(16,22,66,.9))">
   <div class="bigLogo" style="font-size:62px">GATE<span>WARDEN</span></div><p class="tagline">Hordes from every side. One hero. Hold the Gate.</p>
-  ${DEMO?'<div class="demoTag">FREE DEMO</div><br>':''}<div class="shardLine">${ICON_SHARD} ${P.shards} SOUL SHARDS</div>
+  <div class="titleMeta">${DEMO?'<div class="demoTag">FREE DEMO</div>':''}<div class="shardLine">${ICON_SHARD} ${P.shards} SOUL SHARDS</div></div>
   <div class="menuBtns">
    ${r?`<button class="btn mbtn primary" data-act="continue">CONTINUE<span class="contInfo">WAVE ${r.wave+1} · ${HEROES[r.hero].name.toUpperCase()} · ${MAPS[r.map].name.toUpperCase()}</span></button>`:''}
    <button class="btn mbtn ${r?'ghost':'primary'}" data-act="play">${r?'NEW RUN':'PLAY'}${HERO_ORDER.some(k=>!P.heroes[k]&&P.shards>=HEROES[k].cost)?'<span class="contInfo" style="color:#ff5fa2">NEW HERO READY TO UNLOCK</span>':''}</button>
@@ -2534,7 +2542,7 @@ function showTitle(){
    <div style="display:flex;gap:12px;width:340px"><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="settings">SETTINGS</button><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="how">HOW TO PLAY</button></div>
    ${NATIVE?'<button class="btn mbtn ghost" data-act="quit">QUIT TO DESKTOP</button>':''}
   </div>
-  <p class="kbd">WASD move · CLICK / SPACE attack · SHIFT dash · Q E R F skills · G army orders · controller supported</p></div>${sideHTML()}<div class="ver">${VERSION}</div>`);
+  <div class="keys"><span><kbd>WASD</kbd>move</span><span><kbd>CLICK / SPACE</kbd>attack</span><span><kbd>SHIFT</kbd>dash</span><span><kbd>Q E R F</kbd>skills</span><span><kbd>G</kbd>army orders</span><span>🎮 controller supported</span></div></div>${sideHTML()}</div><div class="ver">${VERSION}</div>`);
 }
 function sideHTML(){
   ensureQuests();const di=dailyInfo(),done=P.daily.claimed===di.key,best=P.daily.key===di.key?P.daily.best:0;
