@@ -166,7 +166,15 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - New cards: Corpse Blast, Frostbite, Echo Strike, Gate Sentinel, Glass Cannon, plus one hero-only card each (`hc`, `hr`, `ha`, `hw`, gated by `req`).
 - Story: one-time intro (`showIntro`, `P.intro`) and boss quotes (`BOSS_LINE`).
 - Bot sims after this (Captain, Moonlit Ruins, 8 runs): end waves 12–20, one win. Other hero/map pairs: 8–18.
-- Not done: recorded audio (all sound is still synthesised) and touch controls.
+- Not done: recorded audio (all sound is still synthesised).
+
+**v0.8.0 additions:**
+- Unlockable cards: `UNLOCKS` (9 cards gated by lifetime stats or hero mastery, stored in `P.unl`), checked in `unlockHTML()` on every end screen and listed under "Card collection" on the Achievements screen. `pickCards` skips locked cards. Bot sims must set `P.unl` to compare balance.
+- First-time tips (`P.tips`): shrine banner in wave 1, one toast per map pool. How to Play has a row about the minimap, shrines, nests and pools.
+- `spawnPoint()` re-rolls spawn points until one is off screen (purple rift effect if none is).
+- Touch controls (`TOUCH`, `initTouch`, `touchAuto`, `drawTouch`): left-side drag = joystick (writes `PAD.mx/my`), auto-attack on the nearest enemy, skill buttons tap to cast. `?touch` in the URL forces touch mode for testing. Menus are still desktop-sized, so phones are playable but small.
+- Fixed: armed (targeted) skills cast at screen coordinates instead of world coordinates after the open-world change.
+- `store/screenshots/*.png` were regenerated from this build (drafts made with the bot, not hand-picked).
 
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 

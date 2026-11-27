@@ -317,8 +317,12 @@ button{font-family:inherit}
 .btn:disabled,.pbuy:disabled,.rcard.cant .rbuy{filter:none;background:rgba(255,255,255,.06);color:var(--muted);box-shadow:none;border:1px solid var(--line2);cursor:not-allowed}
 .pbuy:disabled svg path{fill:var(--muted);stroke:var(--muted)}
 .syn:last-child:nth-child(odd){grid-column:1/-1}
-.achList{grid-template-columns:repeat(3,1fr);max-height:none;overflow:visible;gap:10px}
-.ach{padding:9px 12px;border-color:var(--line2)}
+.achList{grid-template-columns:repeat(3,1fr);max-height:none;overflow:visible;gap:7px}
+.ach{padding:6px 12px;border-color:var(--line2)}
+.ach .ai{width:34px;height:34px;font-size:19px}
+.touch #cv{touch-action:none}
+.touch #skillBar{transform:translateX(-50%) scale(1.7);transform-origin:50% 100%}
+.touch #hudTR .ibtn{min-width:46px;min-height:46px}
 .ach .an{font-size:14px}
 .ach .ad{font-size:12px;color:#aab2e0}
 </style>
@@ -371,7 +375,7 @@ function hexA(h,a){let k=_hc[h];if(!k){const n=parseInt(h.slice(1),16);k=_hc[h]=
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const ICON_COIN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#ffd166" stroke="#a8740f" stroke-width="2"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="#a8740f" stroke-width="2"/></svg>';
 const ICON_SHARD='<svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 2l6 8-6 12-6-12z" fill="#b48cff" stroke="#e1d4ff" stroke-width="1.5"/></svg>';
-const VERSION='v0.7.0 · Early Access';
+const VERSION='v0.8.0 · Early Access';
 const NATIVE=window.gwNative||null;
 const DEV=NATIVE?!!NATIVE.dev:true;
 
@@ -604,7 +608,7 @@ const HERO_SRC=new Set(['hero','blade','wolf','bolt','wave','meteor','shock','fi
 /* ================= persistent save ================= */
 const SAVE_KEY='gatewarden.save.v1';
 function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true},maps:{ruins:true,frost:true,hell:true},ach:{},
-  settings:{musicOn:true,master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0,intro:false};}
+  settings:{musicOn:true,master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0,intro:false,unl:{},tips:{}};}
 function readRaw(){if(NATIVE){try{return NATIVE.loadSave()||null;}catch(e){return null;}}try{return localStorage.getItem(SAVE_KEY);}catch(e){return null;}}
 function loadP(){const d=defaultP();try{const s=JSON.parse(readRaw()||'null');if(s){for(const k in d){if(s[k]===undefined)continue;if(d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k])&&s[k]&&typeof s[k]==='object')d[k]=Object.assign(d[k],s[k]);else d[k]=s[k];}}}catch(e){}return d;}
 let P=loadP();
@@ -1684,7 +1688,7 @@ function spawnTick(h){
   if(alive>=150){WV.acc=Math.min(WV.acc,2);return;}
   while(WV.acc>=1){
     const n=Math.min(Math.floor(WV.acc),1+Math.floor(Math.random()*(2+w/4)));
-    const p=edgePoint(), pool=spawnPool(w);
+    const p=spawnPoint(), pool=spawnPool(w);
     for(let i=0;i<n;i++){
       const k=wpick(pool);const elite=k!=='bat'&&k!=='slimelet'&&w>=2&&WV.elites<(1+Math.floor(w/6))*(modOn('elites')?3:1)&&Math.random()<0.02*(S.asc>=2?2:1)*(modOn('elites')?3:1);if(elite)WV.elites++;
       spawnEnemy(k,p.x+rand(-30,30),clamp(p.y+rand(-40,40),AR.y0-40,AR.y1+60),{elite});
@@ -2021,6 +2025,9 @@ function worldTick(h){
   for(const e of F.enemies){if(!e.alive||e.boss)continue;const d=ED[e.type];if(d.fly||d.nest)continue;pushOut(e,10);}
   for(const u of F.units)if(u.alive)pushOut(u,10);
   const hp=hr&&hr.alive?inPool(hr.x,hr.y):null;F.onIce=S.map==='frost'&&!!hp;
+  if(!P.tips.shrine&&WV&&WV.t>7&&F.shrines.length&&!TEST.turbo){P.tips.shrine=1;saveP();banner('SHRINES','Follow the diamonds on the minimap — step on a shrine for a power boost','#b48cff');}
+  if(hp&&!P.tips['pool'+S.map]&&!TEST.turbo){P.tips['pool'+S.map]=1;saveP();toast(S.map==='ruins'?'Healing spring — stand in it to recover HP':S.map==='frost'?'Ice — you move 30% faster on it':'Lava burns! Knock enemies into it',S.map==='hell'?'bad':'good');}
+  if(TOUCH&&hr&&hr.alive&&!TEST.auto)touchAuto(hr);
   F.poolT-=h;if(F.poolT<=0){F.poolT=0.4;
     if(hp&&S.map==='ruins'&&hr.hp<hr.maxHp){healHero(hr.maxHp*0.014);addPart({type:'plus',x:hr.x+rand(-14,14),y:hr.y-30,vx:0,vy:-50,life:.6,max:.6});}
     if(S.map==='hell'){if(hp)damageAlly(hr,5+1.2*S.wave,null);for(const e of F.enemies){if(!e.alive||e.boss||ED[e.type].fly||ED[e.type].nest)continue;if(inPool(e.x,e.y))hitEnemy(e,e.maxHp*0.06+4,'fire',{});}}}
@@ -2031,11 +2038,42 @@ function drawShrines(c){for(const s of F.shrines||[]){const D=SHRINES[s.k],bob=M
   const g=glowSpr(D.col,34);c.globalAlpha=0.5+0.2*Math.sin(F.t*4+s.t);c.drawImage(g,s.x-g.width/2,s.y-g.height*0.25-6,g.width,g.height*0.5);c.globalAlpha=1;
   c.fillStyle='rgba(4,8,24,.45)';ell(c,s.x,s.y+3,34,11);c.fill();rr(c,s.x-22,s.y-16,44,18,5);fs(c,'#2a3266',2.5);rr(c,s.x-14,s.y-34,28,20,4);fs(c,'#343d7a',2.5);
   c.strokeStyle=hexA(D.col,.9);c.lineWidth=2.5;ell(c,s.x,s.y+2,46,16);c.stroke();
-  c.font='30px serif';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#fff';c.fillText(D.icon,s.x,s.y-62+bob);c.textBaseline='alphabetic';}}
+  c.font='30px serif';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#fff';c.fillText(D.icon,s.x,s.y-62+bob);c.textBaseline='alphabetic';c.font='700 11px Silkscreen, monospace';c.lineWidth=4;c.strokeStyle='rgba(5,8,26,.85)';const nm=D.name.replace('SHRINE OF ','');c.strokeText(nm,s.x,s.y+30);c.fillStyle=D.col;c.fillText(nm,s.x,s.y+30);}}
 function showIntro(){MENU='intro';overlay(`<div class="modal" style="width:820px"><h2 style="color:var(--teal)">THE LAST GATE</h2>
   <p style="margin-top:14px;font-size:16px;color:#dfe3ff;line-height:1.7">A thousand years ago the Demon Lord was sealed behind a Gate of living crystal.<br>The seal is failing. Every creature of the dark can feel it — and they are all coming.</p>
   <p style="margin-top:14px;font-size:16px;color:#dfe3ff;line-height:1.7">You are a <b style="color:var(--teal)">Gatewarden</b>, the last of an order sworn to stand between the horde and the crystal.<br>Hold the Gate. Grow stronger with every fall. End this.</p>
   <div class="mbtns"><button class="btn mbtn primary" data-act="introOk">I WILL HOLD THE GATE ▶</button></div></div>`);}
+/* ================= unlocks, tips, touch ================= */
+const bestWave=()=>Math.max(0,...Object.values(P.best||{}));
+const UNLOCKS=[
+  {id:'frostbite',need:()=>P.stats.runs>=1,txt:'Finish your first run'},
+  {id:'reaper',need:()=>P.stats.kills>=300,txt:'Slay 300 enemies in total'},
+  {id:'turret',need:()=>bestWave()>=5,txt:'Reach wave 5'},
+  {id:'echo',need:()=>P.stats.kills>=1500,txt:'Slay 1,500 enemies in total'},
+  {id:'glass',need:()=>bestWave()>=10,txt:'Reach wave 10'},
+  {id:'hc',need:()=>mLevel('captain')>=2,txt:'Reach Captain Mastery 2'},
+  {id:'hr',need:()=>mLevel('ranger')>=2,txt:'Reach Ranger Mastery 2'},
+  {id:'ha',need:()=>mLevel('arcanist')>=2,txt:'Reach Arcanist Mastery 2'},
+  {id:'hw',need:()=>mLevel('warden')>=2,txt:'Reach Warden Mastery 2'},
+];
+function isUnl(id){return !!P.unl[id]||!UNLOCKS.some(u=>u.id===id);}
+function checkUnlocks(){const got=[];for(const u of UNLOCKS)if(!P.unl[u.id]&&u.need()){P.unl[u.id]=1;got.push(u.id);}if(got.length)saveP();return got;}
+function unlockHTML(){const got=checkUnlocks();let h=got.map(id=>{const cd=CARDS.find(c=>c.id===id);return `<div class="shardLine" style="margin-top:8px;background:rgba(62,242,208,.1);border-color:rgba(62,242,208,.45);color:#b8fff0">🃏 NEW CARD UNLOCKED: ${cd.icon} ${cd.name.toUpperCase()}</div>`;}).join('');
+  const nx=UNLOCKS.find(u=>!P.unl[u.id]&&!fullOnlyHero(u.id));if(nx){const cd=CARDS.find(c=>c.id===nx.id);h+=`<p style="font-size:13px;margin-top:10px">Next card to unlock: <b style="color:#dfe3ff">${cd.icon} ${cd.name}</b> — ${nx.txt}</p>`;}return h;}
+function fullOnlyHero(id){const m={ha:'arcanist',hw:'warden',hr:'ranger',hc:'captain'}[id];return !!m&&typeof fullOnly==='function'&&fullOnly(m);}
+function spawnPoint(){let p;for(let i=0;i<8;i++){p=edgePoint();if(p.x<CAM.x-70||p.x>CAM.x+VW+70||p.y<CAM.y-70||p.y>CAM.y+990)return p;}ring(p.x,p.y-10,'#b48cff',70,.45);burst(p.x,p.y-16,'#b48cff',14,200);return p;}
+const TOUCH=(()=>{try{return matchMedia('(pointer:coarse)').matches&&!matchMedia('(any-pointer:fine)').matches;}catch(e){return false;}})()||/[?&]touch\b/.test(location.search);
+const TJ={id:null,ox:0,oy:0,x:0,y:0};
+function touchAuto(hr){const st=hs(),W=HEROES[S.hero].weapon,rg=(W==='bow'||W==='staff')?st.range*0.92:st.range+34;let tg=null,bd=rg;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-hr.x,e.y-hr.y)-e.r;if(d<bd){bd=d;tg=e;}}
+  if(tg){F.mouse.x=tg.x;F.mouse.y=tg.y-20;F.mouse.inside=true;F.mouse.scr=false;F.mouseT=performance.now();tryAttack('mouse');}}
+function drawTouch(c){if(!TOUCH||S.phase!=='battle')return;const on=TJ.id!==null,bx=on?TJ.ox:170,by=on?TJ.oy:900-200;c.save();c.globalAlpha=on?.55:.22;c.strokeStyle='#3ef2d0';c.lineWidth=4;circ(c,bx,by,84);c.stroke();c.fillStyle='rgba(62,242,208,.12)';c.fill();
+  const dx=on?clamp(TJ.x-TJ.ox,-84,84):0,dy=on?clamp(TJ.y-TJ.oy,-84,84):0;c.globalAlpha=on?.85:.3;c.fillStyle='#3ef2d0';circ(c,bx+dx,by+dy,34);c.fill();c.restore();}
+function initTouch(){if(!TOUCH)return;document.documentElement.classList.add('touch');
+  const tp=t=>{const r=cv.getBoundingClientRect();return {x:(t.clientX-r.left)*VW/r.width,y:(t.clientY-r.top)*900/r.height};};
+  const end=e=>{for(const t of e.changedTouches)if(t.identifier===TJ.id){TJ.id=null;PAD.mx=PAD.my=0;}};
+  cv.addEventListener('touchstart',e=>{e.preventDefault();AU.init();for(const t of e.changedTouches){const p=tp(t);if(armed){castAbility(armed,p.x+CAM.x,p.y+CAM.y);continue;}if(TJ.id===null&&p.x<VW*0.55){TJ.id=t.identifier;TJ.ox=TJ.x=p.x;TJ.oy=TJ.y=p.y;}}},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===TJ.id){const p=tp(t);TJ.x=p.x;TJ.y=p.y;const dx=(p.x-TJ.ox)/70,dy=(p.y-TJ.oy)/70,l=Math.hypot(dx,dy);PAD.mx=l>1?dx/l:dx;PAD.my=l>1?dy/l:dy;}},{passive:false});
+  cv.addEventListener('touchend',end);cv.addEventListener('touchcancel',end);}
 function update(h){updateCam(h);if(F.castFlash>0)F.castFlash-=h;
   F.t+=h;F.shake=Math.max(0,F.shake-h*30);F.coreFlash=Math.max(0,F.coreFlash-h);
   if(F.comboT>0){F.comboT-=h;if(F.comboT<=0)F.combo=0;}
@@ -2365,7 +2403,7 @@ function render(){
   if(F.warpT>0&&S.phase==='battle'){const a=Math.min(1,F.warpT)*0.16;c.fillStyle=`rgba(120,90,255,${a})`;c.fillRect(0,0,VW,900);}
   if(F.goldRushT>0&&S.phase==='battle'){const a=Math.min(1,F.goldRushT)*(0.25+0.1*Math.sin(F.t*6));const g=c.createRadialGradient(VW/2,450,380,VW/2,450,VW*0.6);g.addColorStop(0,'rgba(255,209,102,0)');g.addColorStop(1,`rgba(255,209,102,${a})`);c.fillStyle=g;c.fillRect(0,0,VW,900);}
   if(F.castFlash>0){c.fillStyle=hexA(F.castCol||'#ffffff',Math.min(.13,F.castFlash*0.4));c.fillRect(0,0,VW,900);}
-  drawMini(c);
+  drawMini(c);drawTouch(c);
   if(WV&&WV.bossEnt&&WV.bossEnt.alive&&S.phase==='battle'){
     const b=WV.bossEnt,w=620,x=VW/2-w/2,y=118;
     c.fillStyle='rgba(8,10,34,.88)';rr(c,x-10,y-22,w+20,40,10);c.fill();c.strokeStyle=b.enraged?'rgba(255,59,92,.9)':'rgba(255,95,162,.55)';c.lineWidth=1.5;c.stroke();
@@ -2420,7 +2458,7 @@ function toggleFormation(){if(S.phase==='title')return;S.formation=S.formation==
 const WEAPON_CARDS=['wave','orbit','wolf','chain'];
 function evoReady(){return EVOS.filter(v=>!S.cards[v.id]&&cl(v.base)>=CARDS.find(c=>c.id===v.base).max&&cl(v.need)>=1);}
 function pickCards(n){
-  const pool=CARDS.filter(cd=>cl(cd.id)<cd.max&&(!cd.req||cd.req()));const out=[];
+  const pool=CARDS.filter(cd=>cl(cd.id)<cd.max&&(!cd.req||cd.req())&&isUnl(cd.id));const out=[];
   const ev=evoReady();if(ev.length)out.push(ev[0].id);
   if(!WEAPON_CARDS.some(id=>cl(id))){const wp=pool.filter(cd=>WEAPON_CARDS.includes(cd.id));if(wp.length){const pk=wp[Math.floor(Math.random()*wp.length)];out.push(pk.id);pool.splice(pool.indexOf(pk),1);}}
   const partners=new Set(EVOS.filter(v=>!S.cards[v.id]&&cl(v.base)>=CARDS.find(c=>c.id===v.base).max&&cl(v.need)<1).map(v=>v.need));
@@ -2555,7 +2593,7 @@ function dailyInfo(){const d=new Date();const key=d.getFullYear()+'-'+(d.getMont
   const r=()=>{h=(Math.imul(h,1103515245)+12345)>>>0;return h/4294967296;};const ks=Object.keys(DAILY_MODS);const m1=ks[Math.floor(r()*ks.length)];let m2=m1;let g=0;while(m2===m1&&g++<20)m2=ks[Math.floor(r()*ks.length)];
   return {key,hero:HERO_ORDER[Math.floor(r()*4)],map:MAP_ORDER[Math.floor(r()*3)],mods:[m1,m2]};}
 function endHTML(sh){
-  let h=shardHTML(sh);
+  let h=shardHTML(sh)+unlockHTML();
   if(S.mxpGain>0){const lv=mLevel(S.hero),x=P.hxp[S.hero]||0,cur=MASTERY_XP[lv-1]||0,nx=MASTERY_XP[lv]||cur,pc=lv>=10?100:Math.round((x-cur)/(nx-cur)*100);
     h+=`<div class="mastery" style="max-width:560px;margin:12px auto 0"><img src="${IMG[S.hero]}" style="width:40px;height:40px"><div class="mb2"><div class="ml" style="color:${HEROES[S.hero].col}">${HEROES[S.hero].name.toUpperCase()} MASTERY ${lv} · +${S.mxpGain} XP</div><div class="qbar"><i style="width:${pc}%"></i></div><div class="mt">${S.mLvUp?`LEVEL UP! Unlocked: ${MASTERY_REW[S.mLvUp-1]}`:lv<10?`Next (LV ${lv+1}): ${MASTERY_REW[lv]}`:'MAX MASTERY'}</div></div></div>`;}
   if(S.questsDone&&S.questsDone.length)h+=`<div style="margin-top:10px">${S.questsDone.map(q=>`<div class="shardLine" style="margin-top:6px;background:rgba(62,242,208,.1);border-color:rgba(62,242,208,.45);color:#b8fff0">📜 Bounty complete: ${questText(q)} · +${q.r}</div>`).join('')}</div>`;
@@ -2748,7 +2786,7 @@ function showAch(){
   const list=ACH.map(a=>`<div class="ach ${P.ach[a.id]?'done':''}"><div class="ai">${a.icon}</div><div><div class="an">${a.name}</div><div class="ad">${a.d}</div></div><div class="ar">${P.ach[a.id]?'✓':`${ICON_SHARD} ${a.r}`}</div></div>`).join('');
   const st=P.stats;
   overlay(`<div class="modal" style="width:1280px"><h2>ACHIEVEMENTS</h2><p>${Object.keys(P.ach).length} / ${ACH.length} unlocked · ${st.runs} runs · ${st.wins} wins · ${st.kills} total kills</p>
-  <div class="achList" style="margin-top:16px">${list}</div><div class="mbtns"><button class="btn mbtn primary" data-act="back">BACK</button></div></div>`);
+  <div class="achList" style="margin-top:14px">${list}</div><div class="sec" style="margin-top:16px;text-align:left;color:#cfd4ff">CARD COLLECTION <span style="color:var(--muted)">· ${UNLOCKS.filter(u=>P.unl[u.id]).length} / ${UNLOCKS.length} unlocked</span></div><div class="achList">${UNLOCKS.map(u=>{const cd=CARDS.find(c=>c.id===u.id),on=!!P.unl[u.id];return `<div class="ach ${on?'done':''}"><div class="ai">${cd.icon}</div><div><div class="an">${cd.name}</div><div class="ad">${on?cd.d(0):u.txt}</div></div><div class="ar">${on?'✓':'🔒'}</div></div>`;}).join('')}</div><div class="mbtns" style="margin-top:14px"><button class="btn mbtn primary" data-act="back">BACK</button></div></div>`);
 }
 function showSettings(from){
   MENU='settings';SETFROM=from||SETFROM||'main';
@@ -2772,6 +2810,7 @@ function howHTML(back){
     ['<b>Red circles and lanes on the ground are attacks</b> about to land. Step out or dash through them! Shieldbearers block hits from the front — hit them from behind.'],
     ['Kills drop <b>XP gems</b>. Each level-up lets you pick an upgrade. Max a weapon card and own its partner card to unlock an <b>EVOLUTION</b>.'],
     ['<b>Elites</b> drop chests with relics. Chain kills for a <b>combo</b> — big combos pay more gold. Spend gold in the <b>shop</b> on units (3 of a kind merge) and Training. Press <b>G</b> to make your army follow you.'],
+    ['The world is bigger than the screen — watch the <b>minimap</b>. <b>Shrines</b> (diamonds) give a timed boost when you step on them. <b>Nests</b> (orange squares) keep spawning enemies until you destroy them. Pools matter: healing springs in the Ruins, fast ice in Frozen Pass, burning lava in Hellforge.'],
     ['Boss every 5 waves. Survive 20 waves and slay the <b>DEMON LORD</b>. Every run earns <b>Soul Shards</b>, hero <b>Mastery</b> (skins & bonuses) and progress on <b>Bounties</b>. Win a map to unlock <b>Ascension</b>; try the <b>Daily Challenge</b> every day.'],
   ];
   return `<div class="modal" style="width:860px"><h2>HOW TO PLAY</h2><div class="howto">${rows.map((r,i)=>`<div><span class="n">${i+1}</span><span>${r[0]}</span></div>`).join('')}</div><div class="mbtns"><button class="btn mbtn primary" data-act="${back}">${back==='pauseMenu'?'BACK':'GOT IT'}</button></div></div>`;
@@ -2937,7 +2976,7 @@ cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('mousedown',e=>{
   AU.init();if(!canAct())return;
   const p=fieldPos(e);F.mouse.sx=p.x;F.mouse.sy=p.y;F.mouse.scr=true;F.mouse.x=p.x+CAM.x;F.mouse.y=p.y+CAM.y;F.mouse.inside=true;F.mouseT=performance.now();
-  if(armed){if(e.button===0)castAbility(armed,p.x,p.y);else setArmed(null);return;}
+  if(armed){if(e.button===0)castAbility(armed,F.mouse.x,F.mouse.y);else setArmed(null);return;}
   if(e.button===2){tryDash();return;}
   if(e.button===0){F.mouseDown=true;tryAttack('mouse');}
 });
@@ -3026,7 +3065,7 @@ function frameBody(now){
   requestAnimationFrame(frame);
 }
 window.__gwFullscreenChanged=v=>{P.settings.fullscreen=!!v;saveP();if(MENU==='settings')showSettings();};
-function boot(){ensureQuests();fit();if(NATIVE){try{for(const id in P.ach)NATIVE.achieve(id);}catch(e){}AU.init();}buildBG(P.last.map||'ruins');buildImages();buildSkillBar();$('#heroPortrait').src=IMG.captain;setupTitleScene();renderAll();showTitle();requestAnimationFrame(t=>{last=t;frame(t);});}
+function boot(){ensureQuests();fit();initTouch();if(NATIVE){try{for(const id in P.ach)NATIVE.achieve(id);}catch(e){}AU.init();}buildBG(P.last.map||'ruins');buildImages();buildSkillBar();$('#heroPortrait').src=IMG.captain;setupTitleScene();renderAll();showTitle();requestAnimationFrame(t=>{last=t;frame(t);});}
 const fontsReady=document.fonts&&document.fonts.ready?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve();
 fontsReady.then(boot);
 window.__G={drawHero,drawEnemy,IMG,HEROES,ACH,update,render,tryAttack,startDaily,dailyInfo,ensureQuests,buyTrain,trainCost,get S(){return S;},get P(){return P;},F,get WV(){return WV;},TEST,PERF,newRun,continueRun,startWave,pickCard,pickRelic,buyOffer,rerollShop,repairGate,unitCost,canRecruit,castAbility,setSpeed:n=>{S.speed=n;},spawnEnemy,endWave,toTitle,showSelect,showSanctum,showAch,showSettings,unlockHero,buyPerm,saveP,evoReady,doAct,toggleFormation,openChest};

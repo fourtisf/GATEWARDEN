@@ -90,7 +90,7 @@ window.GW_CONFIG = { demo: true, demoWaves: 10, steamUrl: "", dev: false };
   - `<script src="config.js">`;
   - local `@font-face` (Outfit and Silkscreen, SIL OFL; licenses in `site/fonts/`).
 - Saves go to `localStorage` key `gatewarden.save.v1`, per browser.
-- Input is keyboard and mouse, or a gamepad. Touch devices see a "BEST ON PC" notice; there are no touch controls yet.
+- Input is keyboard and mouse, a gamepad, or touch (left-side drag to move, auto-attack, tap skill buttons). Touch devices see a short "TOUCH CONTROLS" notice; menus are desktop-sized.
 - Test hooks: `window.__G` (`TEST.auto` autopilot, `TEST.turbo` fast headless sim). The architecture is described in the Steam project's CLAUDE.md.
 - Do not restyle. The palette (dark navy/purple, teal and pink accents) is owner-approved. No black-and-gold, no light backgrounds.
 - To update the game later, regenerate `index.html` from the Steam project's `game/index.html`:
