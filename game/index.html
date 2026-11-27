@@ -258,6 +258,14 @@ button{font-family:inherit}
 @keyframes fl{from{opacity:1}to{opacity:0}}
 .side{width:400px;flex:none;display:flex;flex-direction:column;gap:16px;text-align:left}
 .side .panel:last-child{flex:1}
+.side.solo{width:360px}
+.side.solo .panel{display:flex;flex-direction:column;padding:26px 24px}
+.side.solo h3{font-size:15px;padding-bottom:14px;margin-bottom:0;border-bottom:1px solid var(--line)}
+.side.solo .qrow{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:0;border-bottom:1px solid var(--line)}
+.side.solo .qrow:last-child{border-bottom:none}
+.side.solo .qrow .qt{font-size:15px}
+.side.solo .qbar{height:8px;margin-top:10px}
+.side.solo .qrow .qp{margin-top:6px;font-size:11px}
 .side .panel{padding:18px 20px;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.5);background:linear-gradient(180deg,rgba(30,38,104,.9),rgba(16,22,66,.92));border:1px solid var(--line2)}
 .side h3{font-family:'Silkscreen',monospace;font-size:13.5px;letter-spacing:1px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;white-space:nowrap}
 .side h3 small{font-size:10px;color:var(--muted);letter-spacing:.5px;white-space:nowrap}
@@ -2522,11 +2530,11 @@ function showTitle(){
 function sideHTML(){
   ensureQuests();const di=dailyInfo(),done=P.daily.claimed===di.key,best=P.daily.key===di.key?P.daily.best:0;
   const q=P.quests.map(q=>`<div class="qrow"><div class="qt"><span>${questText(q)}</span><b>${ICON_SHARD} ${q.r}</b></div><div class="qbar"><i style="width:${Math.round(q.prog/q.n*100)}%"></i></div><div class="qp">${Math.floor(q.prog)} / ${q.n}</div></div>`).join('');
-  return `<div class="side"><div class="panel"><h3>📅 DAILY CHALLENGE <small>${done?'CLAIMED ✓':'+100 · WAVE 10'}</small></h3>
+  const dailyPanel=!NATIVE?'':`<div class="panel"><h3>📅 DAILY CHALLENGE <small>${done?'CLAIMED ✓':'+100 · WAVE 10'}</small></h3>
   <div style="display:flex;gap:10px;align-items:center"><img src="${IMG[di.hero]}" style="width:44px;height:44px"><div style="font-size:13px;color:#cfd4ff"><b style="color:${HEROES[di.hero].col}">${HEROES[di.hero].name}</b> · ${MAPS[di.map].name}<br><span style="color:var(--muted);font-size:12px">Ascension 2 · Best today: wave ${best}</span></div></div>
   <div class="dmods">${di.mods.map(m=>`<div class="dmod">${DAILY_MODS[m].icon} <b>${DAILY_MODS[m].name}</b> — ${DAILY_MODS[m].d}</div>`).join('')}</div>
-  <button class="btn mbtn pink" data-act="daily">PLAY DAILY ▶</button></div>
-  <div class="panel"><h3>📜 BOUNTIES <small>${P.bounties||0} COMPLETED</small></h3>${q}</div></div>`;
+  <button class="btn mbtn pink" data-act="daily">PLAY DAILY ▶</button></div>`;
+  return `<div class="side${dailyPanel?'':' solo'}">${dailyPanel}<div class="panel"><h3>📜 BOUNTIES <small>${P.bounties||0} COMPLETED</small></h3>${q}</div></div>`;
 }
 function startDaily(){const di=dailyInfo();newRun(di.hero,di.map,{daily:true,mods:di.mods});banner('DAILY CHALLENGE',di.mods.map(m=>DAILY_MODS[m].name).join(' + '),'#ff5fa2');}
 function heroStatBars(H){return ['HP','DMG','SPD'].map((n,i)=>`<div class="sbar"><span>${n}</span><i><b style="width:${H.stats[i]*20}%"></b></i></div>`).join('');}
