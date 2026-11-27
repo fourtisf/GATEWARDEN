@@ -234,14 +234,20 @@ button{font-family:inherit}
 .selInfo{margin-top:14px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:14px;color:#cfd4ff;text-align:center}
 .selInfo.lockedInfo{background:rgba(180,140,255,.1);border-color:rgba(180,140,255,.45)}
 #toasts{z-index:30!important}
-.mapGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.mapGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
 .mcard{padding:12px 14px;border-radius:14px;border:2px solid var(--line);cursor:pointer;text-align:left;transition:.15s;background-size:cover}
 .mcard.sel{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal)}
 .mcard.locked{opacity:.45;cursor:not-allowed}
 .mcard .mn{font-weight:800;font-size:15px}
 .mcard .md{font-size:12px;color:#cfd4ff;margin-top:2px;max-width:58%;font-size:11.5px;text-shadow:0 1px 4px rgba(0,0,0,.8)}
-.mcard{min-height:96px;display:flex;flex-direction:column;justify-content:center}
-.mcard .mn{font-size:17px;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.mcard{min-height:54px;padding:7px 12px;display:flex;flex-direction:column;justify-content:center}
+.mcard .md{display:none}
+.hcard{padding:10px 12px}
+.hcard img{width:84px;height:84px}
+.selInfo{margin-top:10px;padding:8px 14px}
+.secT{margin-top:12px}
+.mcard .mn{font-size:15px;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.mcard .mb{margin-top:3px}
 .mcard:not(.locked):not(.sel):hover{border-color:var(--line2);transform:translateY(-2px)}
 .mcard .mb{font-family:'Silkscreen',monospace;font-size:10px;color:var(--teal);margin-top:6px}
 .secT{font-family:'Silkscreen',monospace;font-size:13px;letter-spacing:2px;color:var(--muted);text-align:left;margin-top:18px}
@@ -445,6 +451,14 @@ const ED = {
   sentinel:{name:'Stone Sentinel',base:'shield',tint:'saturate(.35) brightness(1.15)',sc:1.1,hp:120,atk:10,range:24,cd:1.1,spd:46,gold:1.6,xp:4,r:18,h:54,tgt:'core',shield:true,heavy:true},
   leech:{name:'Bog Leech',base:'bat',tint:'hue-rotate(120deg) saturate(1.2) brightness(.9)',hp:20,atk:5,range:18,cd:0.7,spd:140,gold:.3,xp:1,r:12,h:40,tgt:'hero',fly:true,leech:true},
   toad:{name:'Bog Hulk',base:'slime',tint:'hue-rotate(-50deg) saturate(1.3) brightness(.85)',sc:1.4,hp:140,atk:11,range:24,cd:1,spd:54,gold:1.4,xp:4,r:22,h:34,tgt:'core',split:'slime'},
+  shardbat:{name:'Shard Bat',base:'bat',tint:'sepia(1) saturate(5) hue-rotate(140deg) brightness(1.1)',hp:15,atk:4,range:18,cd:0.8,spd:160,gold:.3,xp:1,r:12,h:40,tgt:'hero',fly:true},
+  geode:{name:'Geode Golem',base:'brute',tint:'sepia(1) saturate(4) hue-rotate(230deg)',sc:1.15,hp:260,atk:15,range:30,cd:1.4,spd:38,gold:2.6,xp:7,r:22,h:62,tgt:'core',heavy:true},
+  scarab:{name:'Scarab',base:'wolf',tint:'sepia(1) saturate(4) brightness(1.05)',sc:.8,hp:14,atk:4,range:18,cd:0.7,spd:150,gold:.22,xp:1,r:11,h:30,tgt:'core'},
+  sandbrute:{name:'Dune Tusker',base:'charger',tint:'sepia(1) saturate(3) hue-rotate(-15deg)',sc:1.15,hp:110,atk:14,range:26,cd:1.2,spd:66,gold:1.8,xp:5,r:21,h:40,tgt:'hero',charge:true,heavy:true},
+  ghoul:{name:'Ghoul',base:'goblin',tint:'saturate(.25) brightness(1.35)',hp:40,atk:7,range:22,cd:0.9,spd:84,gold:.5,xp:2,r:14,h:40,tgt:'hero',leech:true},
+  boneknight:{name:'Bone Knight',base:'skel',tint:'sepia(1) saturate(3) hue-rotate(240deg)',sc:1.25,hp:90,atk:11,range:210,cd:1.4,spd:56,gold:1.6,xp:4,r:17,h:40,tgt:'core',proj:'bone',heavy:true},
+  stormhawk:{name:'Storm Hawk',base:'bat',tint:'sepia(1) saturate(6) hue-rotate(10deg) brightness(1.2)',hp:18,atk:6,range:18,cd:0.7,spd:175,gold:.35,xp:2,r:12,h:40,tgt:'hero',fly:true,chill:0.8},
+  thunderer:{name:'Storm Caller',base:'shaman',tint:'sepia(1) saturate(4) hue-rotate(170deg)',hp:70,atk:4,range:180,cd:1.8,spd:56,gold:1.6,xp:5,r:14,h:46,tgt:'core',heal:22,deathBoom:true},
   nest:{name:'Goblin Nest',hp:150,atk:0,range:0,cd:9,spd:0,gold:12,xp:14,r:30,h:56,tgt:'none',nest:true,heavy:true},
   king:{name:'Goblin King',hp:900,atk:22,range:36,cd:1.2,spd:42,gold:40,xp:40,r:32,h:46,sc:2.0,boss:true,tgt:'core',summon:'goblin',summonN:4,heavy:true,pats:['slam','charge','summon','slam']},
   colossus:{name:'Bone Colossus',hp:2300,atk:30,range:40,cd:1.5,spd:34,gold:60,xp:60,r:38,h:72,sc:1.7,boss:true,tgt:'core',summon:'skel',summonN:3,heavy:true,pats:['rain','ring','summon','rain']},
@@ -547,9 +561,17 @@ const MAPS={
   ruins:{name:'Moonlit Ruins',d:'Where every Gatewarden begins.',hp:1,shard:1,spawn:1,pal:['#21506a','#173852','#0a1528'],grass:'80,215,175',deco:'#2a3266',glow:'62,242,208',amb:'fireflies',unlock:null,extra:{wisp:[2,3.5],sentinel:[5,2]}},
   frost:{name:'Frozen Pass',d:'Wolf packs & shield walls · Enemies +35% HP · Shards ×1.5',hp:1.35,shard:1.5,spawn:1.1,pal:['#4a7ca6','#29507a','#0e1c38'],grass:'210,240,255',deco:'#3d5488',glow:'155,232,255',amb:'snow',unlock:null,bias:{wolf:1.8,shield:1.6},extra:{frostwolf:[2,4],icegiant:[5,1.8]}},
   marsh:{name:'Witchmarsh',d:'Toxic pools & leeches · Enemies +20% HP · Shards ×1.3',hp:1.2,shard:1.3,spawn:1.05,pal:['#2f5a4a','#1d3b3a','#0b1622'],grass:'150,230,140',deco:'#3a3560',glow:'180,140,255',amb:'fireflies',unlock:null,bias:{slime:1.8,shaman:1.6},extra:{leech:[2,4],toad:[4,2]}},
+  cave:{name:'Crystal Caverns',d:'Mana pools recharge your skills · Enemies +10% HP · Shards ×1.15',hp:1.1,shard:1.15,spawn:1.02,pal:['#3d3275','#261e4e','#0c0a20'],grass:'190,150,255',deco:'#3b3470',glow:'200,130,255',gate:'#c77dff',amb:'fireflies',unlock:null,bias:{bat:1.8,skel:1.4},extra:{shardbat:[2,4],geode:[5,2]},
+    kit:{pool:['190,120,255','rgba(10,8,30,.7)'],items:[['crystal',26,'#c77dff'],['crystal',18,'#5ce1e6'],['mushroom',18,'#5ce1e6']]}},
+  dunes:{name:'Sunscar Dunes',d:'Quicksand slows everyone · Enemies +25% HP · Shards ×1.35',hp:1.25,shard:1.35,spawn:1.06,pal:['#6b4a2e','#432b20','#170e10'],grass:'230,190,120',deco:'#5a3d2a',glow:'255,190,110',gate:'#ffb86b',amb:'embers',unlock:null,bias:{charger:1.8,wolf:1.4},extra:{scarab:[1,5],sandbrute:[5,2]},
+    kit:{pool:['214,170,96','rgba(40,24,12,.6)'],items:[['mound',22,'rgba(230,190,120,.2)'],['bones',20],['cactus',30,'#3f7a4a'],['dead',16,'#3a2416']]}},
+  grave:{name:'Bloodmoon Graveyard',d:'Spirit wells empower you · Enemies +40% HP · Shards ×1.6',hp:1.4,shard:1.6,spawn:1.1,pal:['#4d2a4c','#2e1932','#100814'],grass:'200,140,190',deco:'#463a5e',glow:'255,95,162',gate:'#ff5fa2',amb:'fireflies',unlock:null,bias:{skel:2,shaman:1.5},extra:{ghoul:[2,4],boneknight:[4,2.4]},
+    kit:{pool:['255,95,162','rgba(16,6,18,.7)'],items:[['bones',14],['tomb',40,'#5a4e78'],['dead',20,'#1c1024'],['arch',10]]}},
+  storm:{name:'Stormpeak',d:'Charged water shocks enemies · Enemies +45% HP · Shards ×1.75',hp:1.45,shard:1.75,spawn:1.12,pal:['#3e4a68','#273048','#0b0e1a'],grass:'170,200,255',deco:'#39425e',glow:'255,224,102',gate:'#ffe066',amb:'snow',unlock:null,bias:{bat:1.6,charger:1.5},extra:{stormhawk:[2,4],thunderer:[5,1.8]},
+    kit:{pool:['255,221,102','rgba(10,12,26,.7)'],items:[['pine',36,'#2a4466'],['crystal',14,'#ffe066'],['spike',20,'#2a2f48']]}},
   hell:{name:'Hellforge',d:'Boomshrooms & Tuskers · Enemies +55% HP · Shards ×2',hp:1.55,shard:2,spawn:1.15,pal:['#5e2440','#391634','#16081a'],grass:'255,150,90',deco:'#4c1f3c',glow:'255,122,89',amb:'embers',unlock:null,bias:{bomber:1.8,charger:1.6,brute:1.3},extra:{imp:[1,5],magma:[4,2]}},
 };
-const MAP_ORDER=['ruins','frost','marsh','hell'];
+const MAP_ORDER=['ruins','cave','frost','dunes','marsh','grave','storm','hell'];
 const PERM={
   might:{icon:'⚔️',name:'Might',d:'+6% damage',max:10,base:30,g:1.35},
   vigor:{icon:'❤️',name:'Vigor',d:'+12 max HP',max:10,base:25,g:1.35},
@@ -637,7 +659,7 @@ const HERO_SRC=new Set(['hero','blade','wolf','bolt','wave','meteor','shock','fi
 
 /* ================= persistent save ================= */
 const SAVE_KEY='gatewarden.save.v1';
-function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true,ranger:true},maps:{ruins:true,frost:true,marsh:true,hell:true},ach:{},
+function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true,ranger:true},maps:{ruins:true,cave:true,frost:true,dunes:true,marsh:true,grave:true,storm:true,hell:true},ach:{},
   settings:{musicOn:true,master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0,intro:false,unl:{},tips:{},rec:{combo:0,kills:0,level:0},rxp:0,login:{day:'',streak:0}};}
 function readRaw(){if(NATIVE){try{return NATIVE.loadSave()||null;}catch(e){return null;}}try{return localStorage.getItem(SAVE_KEY);}catch(e){return null;}}
 function loadP(){const d=defaultP();try{const s=JSON.parse(readRaw()||'null');if(s){for(const k in d){if(s[k]===undefined)continue;if(d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k])&&s[k]&&typeof s[k]==='object')d[k]=Object.assign(d[k],s[k]);else d[k]=s[k];}}}catch(e){}return d;}
@@ -699,7 +721,7 @@ function hs(){
   const H=HEROES[S.hero], hr=F.hero, pm=P.perm, W=WEAP[H.weapon];
   const ml=mLevel(S.hero);
   let maxHp=(H.hp+30*cl('vital')+15*S.train.hp+12*pm.vigor)*(has('giant')?1.5:1)*(1+(ml>=4?0.1:0)+(ml>=9?0.1:0))*(modOn('glass')?0.6:1)*(cl('glass')?0.7:1);
-  let atk=H.atk*(1+0.2*cl('blade'))*(1+0.03*Math.max(0,S.wave-1))*(1+0.08*S.train.atk)*(1+0.06*pm.might)*(1+(ml>=2?0.05:0)+(ml>=7?0.05:0))*(modOn('glass')?1.6:1)*(cl('glass')?1.7:1)*(F.buff&&F.buff.fury>0?1.6:1);
+  let atk=H.atk*(1+0.2*cl('blade'))*(1+0.03*Math.max(0,S.wave-1))*(1+0.08*S.train.atk)*(1+0.06*pm.might)*(1+(ml>=2?0.05:0)+(ml>=7?0.05:0))*(modOn('glass')?1.6:1)*(cl('glass')?1.7:1)*(F.buff&&F.buff.fury>0?1.6:1)*(F.inWell?1.3:1);
   let bp=0;if(hr&&F.banners)for(const b of F.banners)if(Math.hypot(hr.x-b.x,(hr.y-b.y)*1.3)<b.r)bp=Math.max(bp,b.pow);
   const buffed=bp>0;atk*=1+bp;
   if(has('berserk')&&hr&&hr.hp<hr.maxHp*0.5)atk*=1.35;
@@ -1159,7 +1181,23 @@ function scenery(c0,k,M){
   const rock=(x,y)=>{const s=rand(14,28);spr(x,y,90,74,s*0.85,()=>{sh(x,y,s*1.1);c.beginPath();c.moveTo(x-s,y);c.lineTo(x-s*0.7,y-s*0.8);c.lineTo(x-s*0.1,y-s*1.15);c.lineTo(x+s*0.7,y-s*0.7);c.lineTo(x+s,y);c.closePath();fs(c,M.deco,2.5);c.fillStyle='rgba(255,255,255,.09)';c.beginPath();c.moveTo(x-s*0.7,y-s*0.8);c.lineTo(x-s*0.1,y-s*1.15);c.lineTo(x+s*0.1,y-s*0.6);c.closePath();c.fill();});};
   const pill=(x,y,hh)=>spr(x,y,76,hh+52,15,()=>{c.fillStyle='rgba(4,8,24,.45)';ell(c,x,y+4,26,9);c.fill();rr(c,x-16,y-hh,32,hh,5);fs(c,M.deco,2.5);c.fillStyle='rgba(255,255,255,.07)';c.fillRect(x-16,y-hh,32,8);c.beginPath();c.moveTo(x-16,y-hh);c.lineTo(x-6,y-hh-10);c.lineTo(x+4,y-hh-3);c.lineTo(x+16,y-hh-8);c.lineTo(x+16,y-hh);c.closePath();fs(c,M.deco,2);
     if(k==='frost'){c.fillStyle='rgba(235,248,255,.85)';c.beginPath();c.moveTo(x-17,y-hh);c.lineTo(x-6,y-hh-11);c.lineTo(x+4,y-hh-4);c.lineTo(x+17,y-hh-9);c.lineTo(x+17,y-hh+4);c.lineTo(x-17,y-hh+5);c.closePath();c.fill();}});
-  if(k==='frost'){
+  if(M.kit){const K=M.kit;
+    spot(8,430,150,(x,y)=>pool(x,y,K.pool[0],K.pool[1]));
+    const mk={
+      crystal:col=>(x,y)=>{const s=rand(.7,1.25);spr(x,y,80,96,15,()=>{sh(x,y,18*s);for(const [dx,hh,w] of [[-10,30,8],[0,50,11],[11,34,8]]){c.beginPath();c.moveTo(x+(dx-w)*s,y);c.lineTo(x+dx*s,y-hh*s);c.lineTo(x+(dx+w)*s,y);c.closePath();fs(c,col,2);c.fillStyle='rgba(255,255,255,.4)';c.beginPath();c.moveTo(x+(dx-w*0.2)*s,y-4);c.lineTo(x+dx*s,y-hh*s);c.lineTo(x+(dx+w*0.3)*s,y-4);c.closePath();c.fill();}});},
+      mushroom:col=>(x,y)=>{const s=rand(.8,1.4);spr(x,y,80,90,12,()=>{sh(x,y,16*s);rr(c,x-5*s,y-22*s,10*s,22*s,3);fs(c,'#d9cfe8',2.2);c.beginPath();c.moveTo(x-20*s,y-20*s);c.quadraticCurveTo(x,y-50*s,x+20*s,y-20*s);c.closePath();fs(c,col,2.5);c.fillStyle='rgba(255,255,255,.75)';for(const [dx,dy] of [[-8,-27],[5,-33],[10,-25]]){circ(c,x+dx*s,y+dy*s,2.6*s);c.fill();}});},
+      pine:col=>(x,y)=>{const s=rand(.8,1.25);spr(x,y,110,150,13,()=>{sh(x,y,24*s);c.fillStyle='#2a2f52';c.fillRect(x-4*s,y-16*s,8*s,16*s);for(let i=0;i<3;i++){const w=(30-i*7)*s,b=y-12*s-i*20*s;c.beginPath();c.moveTo(x-w,b);c.lineTo(x,b-30*s);c.lineTo(x+w,b);c.closePath();fs(c,col,2.5);}});},
+      spike:col=>(x,y)=>{const s=rand(.7,1.3);spr(x,y,90,120,16,()=>{sh(x,y,20*s);for(const [dx,hh,w] of [[-12,34,9],[2,62,12],[14,28,8]]){c.beginPath();c.moveTo(x+(dx-w)*s,y);c.lineTo(x+(dx+w*0.25)*s,y-hh*s);c.lineTo(x+(dx+w)*s,y);c.closePath();fs(c,col,2.5);c.strokeStyle=`rgba(${M.glow},.6)`;c.lineWidth=1.5;c.beginPath();c.moveTo(x+(dx-w*0.4)*s,y-3);c.lineTo(x+(dx+w*0.25)*s,y-hh*s);c.stroke();}});},
+      dead:col=>(x,y)=>{spr(x,y,90,104,9,()=>{sh(x,y,22);c.strokeStyle=col;c.lineCap='round';c.lineWidth=7;c.beginPath();c.moveTo(x,y);c.lineTo(x+3,y-44);c.stroke();c.lineWidth=4;c.beginPath();c.moveTo(x+2,y-26);c.lineTo(x-20,y-52);c.moveTo(x+3,y-36);c.lineTo(x+24,y-60);c.moveTo(x+3,y-44);c.lineTo(x-4,y-70);c.stroke();c.lineCap='butt';});},
+      cactus:col=>(x,y)=>{const s=rand(.8,1.3);spr(x,y,90,110,11,()=>{sh(x,y,18*s);rr(c,x-8*s,y-56*s,16*s,56*s,8*s);fs(c,col,2.5);rr(c,x-26*s,y-40*s,10*s,22*s,5*s);fs(c,col,2.2);rr(c,x-26*s,y-26*s,22*s,9*s,4*s);fs(c,col,2.2);rr(c,x+16*s,y-48*s,10*s,24*s,5*s);fs(c,col,2.2);rr(c,x+4*s,y-32*s,22*s,9*s,4*s);fs(c,col,2.2);c.fillStyle='rgba(255,255,255,.12)';c.fillRect(x-5*s,y-52*s,4*s,44*s);});},
+      tomb:col=>(x,y)=>{const s=rand(.8,1.2),t=Math.random()<0.35;spr(x,y,70,84,12,()=>{sh(x,y,18*s);if(t){rr(c,x-4*s,y-46*s,8*s,46*s,2);fs(c,col,2.5);rr(c,x-15*s,y-36*s,30*s,8*s,2);fs(c,col,2.5);}else{c.beginPath();c.moveTo(x-14*s,y);c.lineTo(x-14*s,y-26*s);c.quadraticCurveTo(x,y-48*s,x+14*s,y-26*s);c.lineTo(x+14*s,y);c.closePath();fs(c,col,2.5);c.strokeStyle='rgba(10,8,24,.55)';c.lineWidth=2;c.beginPath();c.moveTo(x-6*s,y-22*s);c.lineTo(x+6*s,y-22*s);c.moveTo(x-6*s,y-15*s);c.lineTo(x+6*s,y-15*s);c.stroke();}});},
+      arch:()=>(x,y)=>{spr(x,y,130,124,0,()=>{sh(x,y,44);for(const dx of [-30,30]){rr(c,x+dx-9,y-70,18,70,4);fs(c,M.deco,2.5);}rr(c,x-44,y-86,88,18,5);fs(c,M.deco,2.5);c.fillStyle='rgba(255,255,255,.07)';c.fillRect(x-44,y-86,88,5);});OBST.push({x:x-30,y,r:11},{x:x+30,y,r:11});},
+      bones:()=>(x,y)=>{sh(x,y,20);for(const [dx,dy,r] of [[-9,-6,8],[8,-6,8],[0,-16,8]]){circ(c,x+dx,y+dy,r);fs(c,'#d9cfc0',2);c.fillStyle='#1c0a16';circ(c,x+dx-3,y+dy-1,1.8);c.fill();circ(c,x+dx+3,y+dy-1,1.8);c.fill();}},
+      mound:col=>(x,y)=>{c.fillStyle=col;ell(c,x,y,rand(40,80),rand(12,22));c.fill();},
+    };
+    const gaps={mound:24,bones:24,crystal:42,mushroom:40,pine:46,spike:44,dead:40,cactus:42,tomb:38,arch:62};
+    for(const [t,n,col] of K.items)spot(n,330,gaps[t],mk[t](col));
+  }else if(k==='frost'){
     spot(7,430,150,(x,y)=>pool(x,y,'155,232,255','rgba(230,245,255,.28)'));
     spot(20,330,24,(x,y)=>{c.fillStyle='rgba(235,248,255,.35)';ell(c,x,y,rand(30,60),rand(10,18));c.fill();});
     spot(42,330,46,(x,y)=>{const s=rand(.8,1.25);spr(x,y,110,150,13,()=>{sh(x,y,24*s);c.fillStyle='#2a2f52';c.fillRect(x-4*s,y-16*s,8*s,16*s);for(let i=0;i<3;i++){const w=(30-i*7)*s,b=y-12*s-i*20*s;c.beginPath();c.moveTo(x-w,b);c.lineTo(x,b-30*s);c.lineTo(x+w,b);c.closePath();fs(c,'#24506a',2.5);c.fillStyle='rgba(235,248,255,.88)';c.beginPath();c.moveTo(x-w*0.55,b-12*s);c.lineTo(x,b-30*s);c.lineTo(x+w*0.55,b-12*s);c.lineTo(x+w*0.2,b-9*s);c.lineTo(x,b-14*s);c.lineTo(x-w*0.25,b-8*s);c.closePath();c.fill();}});});
@@ -1211,7 +1249,7 @@ function buildBG(mapKey){
   F.amb=[];
 }
 function drawCore(c){
-  const x=CORE.x,y=CORE.y,t=F.t,fr=clamp(S.core.hp/S.core.max,0,1),hurt=F.coreFlash>0,gc=scn()==='hell'?'#ff7a59':scn()==='frost'?'#9be8ff':scn()==='marsh'?'#c9a0ff':'#3ef2d0';
+  const x=CORE.x,y=CORE.y,t=F.t,fr=clamp(S.core.hp/S.core.max,0,1),hurt=F.coreFlash>0,gc=MAPS[scn()].gate?MAPS[scn()].gate:scn()==='hell'?'#ff7a59':scn()==='frost'?'#9be8ff':scn()==='marsh'?'#c9a0ff':'#3ef2d0';
   c.fillStyle='rgba(4,8,24,.5)';ell(c,x,y+6,96,36);c.fill();
   c.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;c.lineTo(x+Math.cos(a)*86,y+Math.sin(a)*40);}c.closePath();fs(c,'#2e3670',3);
   c.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;c.lineTo(x+Math.cos(a)*68,y-8+Math.sin(a)*30);}c.closePath();fs(c,'#3a4380',2);
@@ -2062,13 +2100,16 @@ function worldTick(h){
     F.shrines=F.shrines.filter(s=>!s.done);}
   for(const e of F.enemies){if(!e.alive||e.boss)continue;const d=ED[e.type];if(d.fly||d.nest)continue;pushOut(e,10);}
   for(const u of F.units)if(u.alive)pushOut(u,10);
-  const hp=hr&&hr.alive?inPool(hr.x,hr.y):null;F.onIce=scn()==='frost'&&!!hp;
+  const hp=hr&&hr.alive?inPool(hr.x,hr.y):null;F.onIce=scn()==='frost'&&!!hp;F.inWell=scn()==='grave'&&!!hp;
   if(!P.tips.shrine&&WV&&WV.t>7&&F.shrines.length&&!TEST.turbo){P.tips.shrine=1;saveP();banner('SHRINES','Follow the diamonds on the minimap — step on a shrine for a power boost','#b48cff');}
-  if(hp&&!P.tips['pool'+scn()]&&!TEST.turbo){P.tips['pool'+scn()]=1;saveP();toast(({ruins:'Healing spring — stand in it to recover HP',frost:'Ice — you move 30% faster on it',marsh:'Toxic bog! It slows and poisons you',hell:'Lava burns! Knock enemies into it'})[scn()],scn()==='hell'||scn()==='marsh'?'bad':'good');}
+  if(hp&&!P.tips['pool'+scn()]&&!TEST.turbo){P.tips['pool'+scn()]=1;saveP();toast(({ruins:'Healing spring — stand in it to recover HP',frost:'Ice — you move 30% faster on it',marsh:'Toxic bog! It slows and poisons you',cave:'Mana pool — your skills recharge twice as fast here',dunes:'Quicksand slows everyone — fight enemies stuck in it',grave:'Spirit well — +30% damage while you stand in it',storm:'Charged water shocks enemies — lure them through it',hell:'Lava burns! Knock enemies into it'})[scn()],scn()==='hell'||scn()==='marsh'?'bad':'good');}
   if(TOUCH&&hr&&hr.alive&&!TEST.auto)touchAuto(hr);
   if(F.tut&&!TEST.turbo)tutTick(hr);
   F.poolT-=h;if(F.poolT<=0){F.poolT=0.4;
     if(hp&&scn()==='ruins'&&hr.hp<hr.maxHp){healHero(hr.maxHp*0.014);addPart({type:'plus',x:hr.x+rand(-14,14),y:hr.y-30,vx:0,vy:-50,life:.6,max:.6});}
+    if(hp&&scn()==='cave'){for(const k of ['q','e','shock','f'])if(S.cd[k]>0)S.cd[k]=Math.max(0,S.cd[k]-0.5);addPart({type:'plus',x:hr.x+rand(-14,14),y:hr.y-30,vx:0,vy:-50,life:.6,max:.6});}
+    if(scn()==='dunes'){if(hp)F.heroSlow=Math.max(F.heroSlow||0,0.6);for(const e of F.enemies){if(e.alive&&!e.boss&&!ED[e.type].fly&&!ED[e.type].nest&&inPool(e.x,e.y))e.slowT=0.7;}}
+    if(scn()==='storm'){let z=0;for(const e of F.enemies){if(!e.alive||e.boss||ED[e.type].fly||ED[e.type].nest||!inPool(e.x,e.y))continue;hitEnemy(e,8+3*S.wave+e.maxHp*0.04,'bolt',{});if(z++<4)F.bolts.push({sky:true,x:e.x,y:e.y-e.h*e.sc*0.5,life:.25,max:.25});}}
     if(hp&&scn()==='marsh'){F.heroSlow=Math.max(F.heroSlow||0,0.6);damageAlly(hr,3+0.7*S.wave,null);}
     if(scn()==='hell'){if(hp)damageAlly(hr,5+1.2*S.wave,null);for(const e of F.enemies){if(!e.alive||e.boss||ED[e.type].fly||ED[e.type].nest)continue;if(inPool(e.x,e.y))hitEnemy(e,e.maxHp*0.06+4,'fire',{});}}}
   const tl=cl('turret');if(tl){F.turT-=h;if(F.turT<=0){let best=null,bd=560;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-CORE.x,e.y-CORE.y);if(d<bd){bd=d;best=e;}}
@@ -2392,7 +2433,7 @@ function drawMini(c){
   c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=1;c.strokeRect(x+CAM.x*kx+.5,y+CAM.y*ky+.5,VW*kx-1,900*ky-1);
   const hr=F.hero;if(hr&&hr.alive){c.fillStyle='#fff';circ(c,x+hr.x*kx,y+hr.y*ky,3.4);c.fill();c.strokeStyle='#04161c';c.lineWidth=1;c.stroke();}
   c.restore();
-  {let by=238;c.font='700 12px Silkscreen, monospace';c.textAlign='right';const bf=F.buff||{};for(const [t,lbl,col] of [[bf.fury,'FURY +60% DMG','#ff5fa2'],[bf.haste,'HASTE +35% SPEED','#5cc8ff'],[F.onIce?1:0,'ICE · +30% SPEED','#9be8ff'],[F.heroSlow>0?1:0,'ISLOWED · −35% SPEED','#c9a0ff']]){if(!(t>0))continue;const fl=t===1&&lbl[0]==='I',tx=(lbl.startsWith('ISL')?lbl.slice(1):lbl)+(fl?'':' · '+Math.ceil(t)+'s');c.lineWidth=4;c.strokeStyle='rgba(5,8,26,.85)';c.strokeText(tx,VW-18,by);c.fillStyle=col;c.fillText(tx,VW-18,by);by+=20;}}
+  {let by=238;c.font='700 12px Silkscreen, monospace';c.textAlign='right';const bf=F.buff||{};for(const [t,lbl,col] of [[bf.fury,'FURY +60% DMG','#ff5fa2'],[bf.haste,'HASTE +35% SPEED','#5cc8ff'],[F.onIce?1:0,'ICE · +30% SPEED','#9be8ff'],[F.heroSlow>0?1:0,'ISLOWED · −35% SPEED','#c9a0ff'],[F.inWell?1:0,'ISPIRIT WELL · +30% DMG','#ff9cc2']]){if(!(t>0))continue;const fl=t===1&&lbl[0]==='I',tx=(lbl.startsWith('IS')?lbl.slice(1):lbl)+(fl?'':' · '+Math.ceil(t)+'s');c.lineWidth=4;c.strokeStyle='rgba(5,8,26,.85)';c.strokeText(tx,VW-18,by);c.fillStyle=col;c.fillText(tx,VW-18,by);by+=20;}}
   const sx=CORE.x-CAM.x,sy=CORE.y-CAM.y;
   if(S.phase==='battle'&&(sx<0||sx>VW||sy<70||sy>900)){
     const cx=VW/2,cy=470,a=Math.atan2(sy-cy,sx-cx),R=Math.min((VW/2-80)/Math.max(1e-6,Math.abs(Math.cos(a))),(450-130)/Math.max(1e-6,Math.abs(Math.sin(a)))),ax=cx+Math.cos(a)*R,ay=cy+Math.sin(a)*R,hot=F.coreFlash>0;
@@ -2831,7 +2872,7 @@ function showSelect(){
   const maps=MAP_ORDER.map(k=>{const M=MAPS[k],own=P.maps[k];
     return `<div class="mcard ${MSEL===k?'sel':''} ${own?'':'locked'}" style="background:linear-gradient(90deg,rgba(10,14,40,1) 0%,rgba(10,14,40,.94) 40%,rgba(10,14,40,0) 62%),url(${MAPIMG[k]||''}) right center/auto 100% no-repeat,rgb(10,14,40)" data-act="${own?'selMap':'lockedMap'}" data-arg="${k}"><div class="mn">${own?'':'🔒 '}${M.name}</div><div class="md">${own?M.d:'Unlock: '+M.unlock}</div><div class="mb">${own?`BEST: WAVE ${P.best[k]||0}`:'LOCKED'}</div></div>`;}).join('');
   const H=HEROES[HSEL], own=P.heroes[HSEL], can=P.shards>=H.cost;
-  const info=own?`<b style="color:${H.col}">${H.name}</b> selected · ${MAPS[MSEL].name}`:`🔒 <b style="color:${H.col}">${H.name}</b> is locked — costs <b style="color:#e1d4ff">${H.cost} Soul Shards</b>, you have <b style="color:#e1d4ff">${P.shards}</b>. ${can?'Click UNLOCK to get this hero.':'Every run you play earns Soul Shards — even if you lose.'}`;
+  const info=own?`<b style="color:${H.col}">${H.name}</b> starts in <b>${MAPS[MSEL].name}</b> <span style="color:var(--muted)">— ${MAPS[MSEL].d}</span>`:`🔒 <b style="color:${H.col}">${H.name}</b> is locked — costs <b style="color:#e1d4ff">${H.cost} Soul Shards</b>, you have <b style="color:#e1d4ff">${P.shards}</b>. ${can?'Click UNLOCK to get this hero.':'Every run you play earns Soul Shards — even if you lose.'}`;
   const startBtn=own?`<button class="btn mbtn primary" data-act="start">START RUN ▶</button>`:can?`<button class="btn mbtn pink" data-act="unlockHero" data-arg="${HSEL}">UNLOCK ${H.name.toUpperCase()} · ${ICON_SHARD} ${H.cost}</button>`:`<button class="btn mbtn primary" disabled>🔒 NEED ${H.cost} SHARDS</button>`;
   const ml=mLevel(HSEL),hx=P.hxp[HSEL]||0,cur=MASTERY_XP[ml-1]||0,nx=MASTERY_XP[ml]||cur,pc=ml>=10?100:Math.round((hx-cur)/Math.max(1,nx-cur)*100);
   const skins=Object.entries(SKINS).map(([k,sk])=>{const okS=ml>=sk.lv,sel=(P.skin[HSEL]||'default')===k;return `<div class="skinBtn ${sel?'sel':''} ${okS?'':'lock'}" style="background:${sk.col}" data-act="skin" data-arg="${k}" data-tip="${esc(sk.name+(okS?'':' — unlocks at Mastery '+sk.lv))}"></div>`;}).join('');
@@ -2839,7 +2880,7 @@ function showSelect(){
   const amax=P.asc[MSEL]||0, asel=Math.min(P.ascSel[MSEL]||0,amax);
   const ascBox=amax>0?`<div class="ascBox"><button class="ascBtn" data-act="ascDown" ${asel<=0?'disabled':''}>◀</button><div class="an">ASCENSION ${asel}</div><button class="ascBtn" data-act="ascUp" ${asel>=amax?'disabled':''}>▶</button><div class="ad">${asel>0?ASC.slice(1,asel+1).map((t,i)=>`${i+1}. ${t}`).slice(-3).join(' · ')+` · Shards ×${(1+0.2*asel).toFixed(1)}`:'Normal difficulty. Raise Ascension for harder runs and more shards.'}</div></div>`:`<div class="ascBox" style="opacity:.7"><div class="an">🔒 ASCENSION</div><div class="ad">Clear wave 20 on ${MAPS[MSEL].name} to unlock harder Ascension levels (up to 10) with bigger rewards.</div></div>`;
   overlay(`<div class="modal" style="width:1080px"><h2>CHOOSE YOUR HERO</h2><p>Each hero plays differently. Unlock more with Soul Shards. <span style="color:#e1d4ff">${ICON_SHARD} ${P.shards}</span></p>
-  <div class="heroGrid">${heroes}</div><div class="selInfo ${own?'':'lockedInfo'}">${info}</div>${mast}<div class="secT">STARTING LAND <span style="color:var(--muted);letter-spacing:1px">· the battlefield changes every wave — you fight across all four lands</span></div><div class="mapGrid">${maps}</div>${ascBox}
+  <div class="heroGrid">${heroes}</div><div class="selInfo ${own?'':'lockedInfo'}">${info}</div>${mast}<div class="secT">STARTING LAND <span style="color:var(--muted);letter-spacing:1px">· the battlefield changes every wave — you fight across all eight lands</span></div><div class="mapGrid">${maps}</div>${ascBox}
   <div class="mbtns"><button class="btn mbtn ghost" data-act="back">BACK</button>${startBtn}</div></div>`);
 }
 function unlockHero(k){
