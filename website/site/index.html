@@ -688,6 +688,7 @@ let armed=null;
 const has = id => S.relics.includes(id);
 const cl = id => S.cards[id]||0;
 const evo = id => !!S.cards[id];
+const scn = () => S.scene||S.map;
 const modOn = id => !!(S&&S.mods&&S.mods.includes(id));
 const skillOf = k => k==='q'?HEROES[S.hero].skills.q:k==='e'?HEROES[S.hero].skills.e:k==='f'?S.fskill:null;
 const skName = k => {const id=skillOf(k);return id?SKILLS[id].name:'Skill';};
@@ -1238,7 +1239,7 @@ function buildBG(mapKey){
   F.amb=[];
 }
 function drawCore(c){
-  const x=CORE.x,y=CORE.y,t=F.t,fr=clamp(S.core.hp/S.core.max,0,1),hurt=F.coreFlash>0,gc=S.map==='hell'?'#ff7a59':S.map==='frost'?'#9be8ff':S.map==='marsh'?'#c9a0ff':'#3ef2d0';
+  const x=CORE.x,y=CORE.y,t=F.t,fr=clamp(S.core.hp/S.core.max,0,1),hurt=F.coreFlash>0,gc=scn()==='hell'?'#ff7a59':scn()==='frost'?'#9be8ff':scn()==='marsh'?'#c9a0ff':'#3ef2d0';
   c.fillStyle='rgba(4,8,24,.5)';ell(c,x,y+6,96,36);c.fill();
   c.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;c.lineTo(x+Math.cos(a)*86,y+Math.sin(a)*40);}c.closePath();fs(c,'#2e3670',3);
   c.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;c.lineTo(x+Math.cos(a)*68,y-8+Math.sin(a)*30);}c.closePath();fs(c,'#3a4380',2);
@@ -1725,7 +1726,7 @@ function coreDist(e){return Math.hypot(e.x-CORE.x,(e.y-CORE.y)*1.5)-CORE.r;}
 /* ================= spawning ================= */
 const THEMES={bat:'Bat swarm — they dive straight at you!',wolf:'Wolf packs are hunting you!',slime:'Slime tide — they split when slain.',skel:'Bone archers — close the distance!',bomber:'Boomshrooms — pop them away from the Gate!',brute:'Orc warband — heavy hitters incoming.',charger:'Tusker stampede — sidestep the charge!',shield:'Shield wall — strike them from behind.',shaman:'Hex coven — kill the healers first!'};
 function basePool(w){return {goblin:10,bat:w>=2?5:3,slime:w>=2?3:0,wolf:w>=3?4.5:w>=2?2.5:0,skel:w>=3?4:0,bomber:w>=3?2.6:0,brute:w>=4?2+w*0.1:0,charger:w>=5?1.8:0,shield:w>=6?2.2:0,shaman:w>=7?1.4:0};}
-function spawnPool(w){const p=basePool(w),b=MAPS[S.map].bias;if(b)for(const k in b)if(p[k])p[k]*=b[k];const ex=MAPS[S.map].extra;if(ex)for(const k in ex)if(w>=ex[k][0])p[k]=ex[k][1];if(WV&&WV.theme&&p[WV.theme])p[WV.theme]=p[WV.theme]*3+4;return p;}
+function spawnPool(w){const p=basePool(w),b=MAPS[scn()].bias;if(b)for(const k in b)if(p[k])p[k]*=b[k];const ex=MAPS[scn()].extra;if(ex)for(const k in ex)if(w>=ex[k][0])p[k]=ex[k][1];if(WV&&WV.theme&&p[WV.theme])p[WV.theme]=p[WV.theme]*3+4;return p;}
 function pickTheme(w){if(w<3||bossFor(w))return null;const p=basePool(w),ks=Object.keys(THEMES).filter(k=>p[k]>0&&k!==S.lastTheme);const k=ks[Math.floor(Math.random()*ks.length)]||null;S.lastTheme=k;return k;}
 function edgePoint(side){
   const r=side!==undefined?side:Math.random();
@@ -2056,7 +2057,7 @@ function updatePickups(h){
   F.chests=F.chests.filter(c=>!c.done);
 }
 function updateAmbient(h){
-  const M=MAPS[S.map], A=F.amb, want=M.amb==='snow'?90:M.amb==='embers'?60:28;
+  const M=MAPS[scn()], A=F.amb, want=M.amb==='snow'?90:M.amb==='embers'?60:28;
   while(A.length<want)A.push({x:rand(0,VW),y:rand(0,900),vx:0,vy:0,t:rand(0,10),s:rand(1,3)});
   for(const p of A){p.t+=h;
     if(M.amb==='snow'){p.x+=(20+Math.sin(p.t)*25)*h;p.y+=(40+p.s*16)*h;}
@@ -2089,15 +2090,15 @@ function worldTick(h){
     F.shrines=F.shrines.filter(s=>!s.done);}
   for(const e of F.enemies){if(!e.alive||e.boss)continue;const d=ED[e.type];if(d.fly||d.nest)continue;pushOut(e,10);}
   for(const u of F.units)if(u.alive)pushOut(u,10);
-  const hp=hr&&hr.alive?inPool(hr.x,hr.y):null;F.onIce=S.map==='frost'&&!!hp;
+  const hp=hr&&hr.alive?inPool(hr.x,hr.y):null;F.onIce=scn()==='frost'&&!!hp;
   if(!P.tips.shrine&&WV&&WV.t>7&&F.shrines.length&&!TEST.turbo){P.tips.shrine=1;saveP();banner('SHRINES','Follow the diamonds on the minimap — step on a shrine for a power boost','#b48cff');}
-  if(hp&&!P.tips['pool'+S.map]&&!TEST.turbo){P.tips['pool'+S.map]=1;saveP();toast(({ruins:'Healing spring — stand in it to recover HP',frost:'Ice — you move 30% faster on it',marsh:'Toxic bog! It slows and poisons you',hell:'Lava burns! Knock enemies into it'})[S.map],S.map==='hell'||S.map==='marsh'?'bad':'good');}
+  if(hp&&!P.tips['pool'+scn()]&&!TEST.turbo){P.tips['pool'+scn()]=1;saveP();toast(({ruins:'Healing spring — stand in it to recover HP',frost:'Ice — you move 30% faster on it',marsh:'Toxic bog! It slows and poisons you',hell:'Lava burns! Knock enemies into it'})[scn()],scn()==='hell'||scn()==='marsh'?'bad':'good');}
   if(TOUCH&&hr&&hr.alive&&!TEST.auto)touchAuto(hr);
   if(F.tut&&!TEST.turbo)tutTick(hr);
   F.poolT-=h;if(F.poolT<=0){F.poolT=0.4;
-    if(hp&&S.map==='ruins'&&hr.hp<hr.maxHp){healHero(hr.maxHp*0.014);addPart({type:'plus',x:hr.x+rand(-14,14),y:hr.y-30,vx:0,vy:-50,life:.6,max:.6});}
-    if(hp&&S.map==='marsh'){F.heroSlow=Math.max(F.heroSlow||0,0.6);damageAlly(hr,3+0.7*S.wave,null);}
-    if(S.map==='hell'){if(hp)damageAlly(hr,5+1.2*S.wave,null);for(const e of F.enemies){if(!e.alive||e.boss||ED[e.type].fly||ED[e.type].nest)continue;if(inPool(e.x,e.y))hitEnemy(e,e.maxHp*0.06+4,'fire',{});}}}
+    if(hp&&scn()==='ruins'&&hr.hp<hr.maxHp){healHero(hr.maxHp*0.014);addPart({type:'plus',x:hr.x+rand(-14,14),y:hr.y-30,vx:0,vy:-50,life:.6,max:.6});}
+    if(hp&&scn()==='marsh'){F.heroSlow=Math.max(F.heroSlow||0,0.6);damageAlly(hr,3+0.7*S.wave,null);}
+    if(scn()==='hell'){if(hp)damageAlly(hr,5+1.2*S.wave,null);for(const e of F.enemies){if(!e.alive||e.boss||ED[e.type].fly||ED[e.type].nest)continue;if(inPool(e.x,e.y))hitEnemy(e,e.maxHp*0.06+4,'fire',{});}}}
   const tl=cl('turret');if(tl){F.turT-=h;if(F.turT<=0){let best=null,bd=560;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-CORE.x,e.y-CORE.y);if(d<bd){bd=d;best=e;}}
     if(best){F.turT=1.3-0.2*tl;F.bolts.push({x1:CORE.x,y1:CORE.y-78,x2:best.x,y2:best.y-best.h*best.sc*0.5,life:.2,max:.2});hitEnemy(best,hs().atk*(0.9+0.6*(tl-1)),'bolt',{});}else F.turT=0.25;}}
 }
@@ -2434,7 +2435,7 @@ function render(){
   c.setTransform(1,0,0,1,0,0);c.drawImage(BG,cmx,cmy,VW,900,0,0,VW,900);
   {const tg=c.createLinearGradient(0,0,0,150);tg.addColorStop(0,'rgba(6,9,30,.9)');tg.addColorStop(1,'rgba(6,9,30,0)');c.fillStyle=tg;c.fillRect(0,0,VW,150);}
   c.setTransform(1,0,0,1,sx-cmx,sy-cmy);
-  const amb=MAPS[S.map].amb;
+  const amb=MAPS[scn()].amb;
   for(const f of F.fires){const a=clamp(f.life/2.2,0,1);const g=glowSpr(evo('inferno')?'#ff7a3a':'#ffb35c',9);c.globalAlpha=0.75*a;c.drawImage(g,f.x-g.width/2,f.y-6-g.height/2*0.7,g.width,g.height*0.7);}
   c.globalAlpha=1;
   for(const g of F.gems){const img=GEMS[g.v>=5?'g5':g.v>=3?'g3':'g1'];c.drawImage(img,g.x-20,g.y-26+Math.sin(g.t*5)*2.5);}
@@ -2720,7 +2721,7 @@ function saveRun(){
 
 /* ================= flow ================= */
 function startWave(){
-  S.wave++;S.phase='battle';S.modal=null;S.phoenixUsed=false;S.cardReroll=Math.max(S.cardReroll,1+P.perm.reroll+(mLevel(S.hero)>=5?1:0));S.stats.hurtWave=0;
+  S.wave++;S.scene=MAP_ORDER[(MAP_ORDER.indexOf(S.map)+S.wave-1)%MAP_ORDER.length];buildBG(S.scene);S.phase='battle';S.modal=null;S.phoenixUsed=false;S.cardReroll=Math.max(S.cardReroll,1+P.perm.reroll+(mLevel(S.hero)>=5?1:0));S.stats.hurtWave=0;
   WV={t:0,dur:waveDur(S.wave),acc:S.wave<=4?7:2,boss:!!bossFor(S.wave),bossEnt:null,elites:0,event:0,theme:pickTheme(S.wave)};
   F.enemies=[];F.proj=[];F.meteors=[];F.fires=[];F.gems=[];F.chests=[];F.tele=[];F.bullets=[];F.storms=[];F.holes=[];
   syncField(true);refreshHero(true);if(F.hero){F.hero.alive=true;F.hero.x=CORE.x;F.hero.y=CORE.y+120;}
@@ -2729,8 +2730,8 @@ function startWave(){
   spawnWorld();
   hideOverlay();AU.horn();
   const b=bossFor(S.wave);
-  if(b){spawnEnemy(b,CORE.x+900,CORE.y);}
-  else banner(`WAVE ${S.wave}`,S.wave===1?(S.prevBest>0&&!S.daily?`Your record here is wave ${S.prevBest} — beat it!`:'Defend the Gate! Enemies come from every side.'):S.wave===2?'Watch for red circles on the ground — step out!':WV.theme?THEMES[WV.theme]:'Survive until the timer runs out.','#8b6cff');
+  if(b){spawnEnemy(b,CORE.x+900,CORE.y);toast(`The battle moves to ${MAPS[scn()].name}`,'good');}
+  else banner(`WAVE ${S.wave} · ${MAPS[scn()].name.toUpperCase()}`,S.wave===1?(S.prevBest>0&&!S.daily?`Your record here is wave ${S.prevBest} — beat it!`:'Defend the Gate! Enemies come from every side.'):S.wave===2?'Watch for red circles on the ground — step out!':WV.theme?THEMES[WV.theme]:'Survive until the timer runs out.','#8b6cff');
   syncMusic();renderAll();
 }
 function endWave(){
@@ -2803,7 +2804,7 @@ function continueRun(){
   if(!P.run)return;
   const sp=S.speed;const r=P.run;
   S=Object.assign(newState(r.hero,r.map),r);S.speed=sp;S.phase='shop';S.modal=null;S.paused=false;HSC=null;
-  resetField();buildBG(S.map);F.hero=makeHero();refreshHero(true);
+  resetField();buildBG(scn());F.hero=makeHero();refreshHero(true);
   WV=null;setupRunUI();syncField(true);renderBuild();renderShop();renderAll();syncMusic();
 }
 function setupRunUI(){$('#heroPortrait').src=IMG[S.hero];$('#heroName').textContent=HEROES[S.hero].name.toUpperCase();buildSkillBar();}
@@ -2869,7 +2870,7 @@ function showSelect(){
   const amax=P.asc[MSEL]||0, asel=Math.min(P.ascSel[MSEL]||0,amax);
   const ascBox=amax>0?`<div class="ascBox"><button class="ascBtn" data-act="ascDown" ${asel<=0?'disabled':''}>◀</button><div class="an">ASCENSION ${asel}</div><button class="ascBtn" data-act="ascUp" ${asel>=amax?'disabled':''}>▶</button><div class="ad">${asel>0?ASC.slice(1,asel+1).map((t,i)=>`${i+1}. ${t}`).slice(-3).join(' · ')+` · Shards ×${(1+0.2*asel).toFixed(1)}`:'Normal difficulty. Raise Ascension for harder runs and more shards.'}</div></div>`:`<div class="ascBox" style="opacity:.7"><div class="an">🔒 ASCENSION</div><div class="ad">Clear wave 20 on ${MAPS[MSEL].name} to unlock harder Ascension levels (up to 10) with bigger rewards.</div></div>`;
   overlay(`<div class="modal" style="width:1080px"><h2>CHOOSE YOUR HERO</h2><p>Each hero plays differently. Unlock more with Soul Shards. <span style="color:#e1d4ff">${ICON_SHARD} ${P.shards}</span></p>
-  <div class="heroGrid">${heroes}</div><div class="selInfo ${own?'':'lockedInfo'}">${info}</div>${mast}<div class="secT">BATTLEFIELD</div><div class="mapGrid">${maps}</div>${ascBox}
+  <div class="heroGrid">${heroes}</div><div class="selInfo ${own?'':'lockedInfo'}">${info}</div>${mast}<div class="secT">STARTING LAND <span style="color:var(--muted);letter-spacing:1px">· the battlefield changes every wave — you fight across all four lands</span></div><div class="mapGrid">${maps}</div>${ascBox}
   <div class="mbtns"><button class="btn mbtn ghost" data-act="back">BACK</button>${startBtn}</div></div>`);
 }
 function unlockHero(k){
@@ -2921,6 +2922,7 @@ function howHTML(back){
     ['Kills drop <b>XP gems</b>. Each level-up lets you pick an upgrade. Max a weapon card and own its partner card to unlock an <b>EVOLUTION</b>.'],
     ['<b>Elites</b> drop chests with relics. Chain kills for a <b>combo</b> — big combos pay more gold. Spend gold in the <b>shop</b> on units (3 of a kind merge) and Training. Press <b>G</b> to make your army follow you.'],
     ['The world is bigger than the screen — watch the <b>minimap</b>. <b>Shrines</b> (diamonds) give a timed boost when you step on them. <b>Nests</b> (orange squares) keep spawning enemies until you destroy them. Pools matter: healing springs in the Ruins, fast ice in Frozen Pass, burning lava in Hellforge.'],
+    ['<b>The battlefield changes every wave.</b> Each land has its own terrain, pools and enemies, so every wave plays differently. The land you pick sets where you start and how tough the enemies are.'],
     ['Boss every 5 waves. Survive 20 waves and slay the <b>DEMON LORD</b>. Every run earns <b>Soul Shards</b>, hero <b>Mastery</b> (skins & bonuses) and progress on <b>Bounties</b>. Win a map to unlock <b>Ascension</b>; try the <b>Daily Challenge</b> every day.'],
   ];
   return `<div class="modal" style="width:860px"><h2>HOW TO PLAY</h2><div class="howto">${rows.map((r,i)=>`<div><span class="n">${i+1}</span><span>${r[0]}</span></div>`).join('')}</div><div class="mbtns"><button class="btn mbtn primary" data-act="${back}">${back==='pauseMenu'?'BACK':'GOT IT'}</button></div></div>`;

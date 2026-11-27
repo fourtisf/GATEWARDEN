@@ -193,6 +193,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Ranger is unlocked from the start (`defaultP().heroes`).
 - Bot sims after this: ruins 13–20, marsh 6–20, frost (Ranger) 9, hell (Warden) 10–17.
 
+**Battlefield changes every wave (owner request):** `S.scene` is the land shown in the current wave; `startWave` sets it to the next entry of `MAP_ORDER` (starting from the chosen map `S.map` in wave 1) and rebuilds the background (about 0.1–0.2 s). `scn()` returns it and drives terrain, pools, the Gate colour, ambient particles and the enemy pool (`bias`, `extra`). `S.map` still decides enemy HP, spawn rate, shard multiplier, records, ascension and achievements. Bot sims after this (Captain, start Moonlit Ruins, 6 runs): 9–20, one win.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
