@@ -160,6 +160,14 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 
 **Skills (owner request):** `SK_POW=1.25` and `SK_CD=0.8` make every skill and ultimate 25% stronger with 20% shorter cooldowns; `castFX()` adds the cast burst, shake and a brief colour flash. Bot sims after this: median end wave 11.
 
+**World content (owner request "make it fun for hours"):**
+- `scenery()` now builds y-sorted sprites (`SCN`) with circle colliders (`OBST`, `pushOut`) and records pools (`POOLS`, `inPool`). Pools: Moonlit Ruins heals the hero, Frozen Pass gives +30% speed (`F.onIce`), Hellforge lava burns the hero and ground enemies. Flying enemies and bosses ignore obstacles.
+- Per wave (`spawnWorld`): 2 shrines (`SHRINES`: fury, haste, mend, fortune; buffs in `F.buff`, applied in `hs()`), from wave 3 an enemy nest (`ED.nest`, `nestAI`; killing it cuts the spawn rate by 20% for the wave), and a 40% chance of a far "lost chest" that vanishes at wave end.
+- New cards: Corpse Blast, Frostbite, Echo Strike, Gate Sentinel, Glass Cannon, plus one hero-only card each (`hc`, `hr`, `ha`, `hw`, gated by `req`).
+- Story: one-time intro (`showIntro`, `P.intro`) and boss quotes (`BOSS_LINE`).
+- Bot sims after this (Captain, Moonlit Ruins, 8 runs): end waves 12–20, one win. Other hero/map pairs: 8–18.
+- Not done: recorded audio (all sound is still synthesised) and touch controls.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
