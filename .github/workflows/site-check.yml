@@ -1,0 +1,18 @@
+# Runs on every push and pull request (any branch): validates the website files.
+name: Website check
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check website files
+        run: |
+          if [ -f scripts/check-site.py ]; then python3 scripts/check-site.py
+          else python3 website/scripts/check-site.py website/site; fi

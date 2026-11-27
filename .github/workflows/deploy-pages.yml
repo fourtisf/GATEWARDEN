@@ -1,0 +1,36 @@
+# Free hosting on GitHub Pages. Runs automatically on every push to main (and manually from the Actions tab).
+# One-time setup: repo Settings -> Pages -> Source = "GitHub Actions".
+# (GitHub Pages on a PRIVATE repo needs a paid GitHub plan; on a free plan make the repo public or use Vercel.)
+# Site URL: https://<user>.github.io/<repo>/
+name: Deploy web (GitHub Pages)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: dir
+        name: Find site folder (site/ or website/site/)
+        run: |
+          if [ -f site/index.html ]; then echo "dir=site" >> "$GITHUB_OUTPUT"
+          elif [ -f website/site/index.html ]; then echo "dir=website/site" >> "$GITHUB_OUTPUT"
+          else echo "No site/index.html found"; exit 1; fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.dir.outputs.dir }}
+      - id: deployment
+        uses: actions/deploy-pages@v4

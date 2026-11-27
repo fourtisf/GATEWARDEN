@@ -1,0 +1,57 @@
+# Deploys the website to your VPS (e.g. Hostinger) over SSH with rsync.
+# Runs on every push to main and manually (Actions -> "Deploy web (VPS)" -> Run workflow, any branch).
+# If the secrets below are not set yet, it skips cleanly (green, no error).
+# Repo secrets (Settings -> Secrets and variables -> Actions):
+#   VPS_HOST      server IP or hostname
+#   VPS_USER      SSH user (e.g. root or deploy)
+#   VPS_SSH_KEY   private key (the matching public key must be in ~/.ssh/authorized_keys on the VPS)
+#   VPS_PATH      target folder, e.g. /var/www/gatewarden
+#   VPS_PORT      optional, default 22
+name: Deploy web (VPS)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HAS_VPS: ${{ secrets.VPS_HOST != '' && secrets.VPS_SSH_KEY != '' }}
+    steps:
+      - name: Skip if VPS secrets are not set
+        if: env.HAS_VPS != 'true'
+        run: echo "::notice::VPS secrets not set - skipping VPS deploy. Add VPS_HOST, VPS_USER, VPS_SSH_KEY, VPS_PATH to enable."
+      - uses: actions/checkout@v4
+        if: env.HAS_VPS == 'true'
+      - id: dir
+        if: env.HAS_VPS == 'true'
+        name: Find site folder (site/ or website/site/)
+        run: |
+          if [ -f site/index.html ]; then echo "dir=site" >> "$GITHUB_OUTPUT"
+          elif [ -f website/site/index.html ]; then echo "dir=website/site" >> "$GITHUB_OUTPUT"
+          else echo "No site/index.html found"; exit 1; fi
+      - name: Setup SSH
+        if: env.HAS_VPS == 'true'
+        env:
+          KEY: ${{ secrets.VPS_SSH_KEY }}
+          HOST: ${{ secrets.VPS_HOST }}
+          PORT: ${{ secrets.VPS_PORT || '22' }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts
+      - name: Upload with rsync
+        if: env.HAS_VPS == 'true'
+        env:
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USER }}
+          DEST: ${{ secrets.VPS_PATH }}
+          PORT: ${{ secrets.VPS_PORT || '22' }}
+          SITE: ${{ steps.dir.outputs.dir }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$PORT" "$USER@$HOST" "mkdir -p '$DEST'"
+          rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -p $PORT" "$SITE/" "$USER@$HOST:$DEST/"
