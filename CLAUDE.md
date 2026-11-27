@@ -141,6 +141,15 @@ A single IIFE, no build step. Edit it directly; it is the source of truth. Appro
 
 Keep these hooks: they power balance testing. DevTools are disabled in packaged builds.
 
+**Pacing changes (after v0.7.0, owner request "game feels boring"):**
+- Each run starts with a "Starting Power" pick: 3 weapon cards (`S.pending=1` in `newRun`, `lv===1` branch in `openLevelUp`).
+- Waves 1–4 spawn more enemies (`EARLY_A/EARLY_B` in the spawn rate, bigger opening pack) and enemy types arrive about one wave earlier (`basePool`).
+- Waves 3+ get a random theme (`THEMES`, `pickTheme`) that boosts one enemy type; maps bias the pool (`MAPS[k].bias`).
+- Mid-wave events start at wave 1; waves 6+ get a second event at 80%.
+- Frozen Pass is unlocked from the start; Hellforge unlocks at wave 10 on any map. The web demo allows Moonlit Ruins and Frozen Pass.
+- Daily Challenge and Bounties panels on the title screen show only in the desktop (Steam) build (`sideHTML` returns '' without `NATIVE`).
+- Bot sims (random card picks, buys every shop offer, no Sanctum): median end wave 10 before and after these changes.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

@@ -465,8 +465,8 @@ const SYN=[
 ];
 const MAPS={
   ruins:{name:'Moonlit Ruins',d:'Where every Gatewarden begins.',hp:1,shard:1,spawn:1,pal:['#21506a','#173852','#0a1528'],grass:'80,215,175',deco:'#2a3266',glow:'62,242,208',amb:'fireflies',unlock:null},
-  frost:{name:'Frozen Pass',d:'Enemies +35% HP, more of them · Shards ×1.5',hp:1.35,shard:1.5,spawn:1.1,pal:['#4a7ca6','#29507a','#0e1c38'],grass:'210,240,255',deco:'#3d5488',glow:'155,232,255',amb:'snow',unlock:'Reach wave 10 on any map'},
-  hell:{name:'Hellforge',d:'Enemies +55% HP, more of them · Shards ×2',hp:1.55,shard:2,spawn:1.15,pal:['#5e2440','#391634','#16081a'],grass:'255,150,90',deco:'#4c1f3c',glow:'255,122,89',amb:'embers',unlock:'Clear wave 20 once'},
+  frost:{name:'Frozen Pass',d:'Wolf packs & shield walls · Enemies +35% HP · Shards ×1.5',hp:1.35,shard:1.5,spawn:1.1,pal:['#4a7ca6','#29507a','#0e1c38'],grass:'210,240,255',deco:'#3d5488',glow:'155,232,255',amb:'snow',unlock:null,bias:{wolf:1.8,shield:1.6}},
+  hell:{name:'Hellforge',d:'Boomshrooms & Tuskers · Enemies +55% HP · Shards ×2',hp:1.55,shard:2,spawn:1.15,pal:['#5e2440','#391634','#16081a'],grass:'255,150,90',deco:'#4c1f3c',glow:'255,122,89',amb:'embers',unlock:'Reach wave 10 on any map',bias:{bomber:1.8,charger:1.6,brute:1.3}},
 };
 const MAP_ORDER=['ruins','frost','hell'];
 const PERM={
@@ -556,7 +556,7 @@ const HERO_SRC=new Set(['hero','blade','wolf','bolt','wave','meteor','shock','fi
 
 /* ================= persistent save ================= */
 const SAVE_KEY='gatewarden.save.v1';
-function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true},maps:{ruins:true},ach:{},
+function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true},maps:{ruins:true,frost:true},ach:{},
   settings:{master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0};}
 function readRaw(){if(NATIVE){try{return NATIVE.loadSave()||null;}catch(e){return null;}}try{return localStorage.getItem(SAVE_KEY);}catch(e){return null;}}
 function loadP(){const d=defaultP();try{const s=JSON.parse(readRaw()||'null');if(s){for(const k in d){if(s[k]===undefined)continue;if(d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k])&&s[k]&&typeof s[k]==='object')d[k]=Object.assign(d[k],s[k]);else d[k]=s[k];}}}catch(e){}return d;}
@@ -592,6 +592,7 @@ const trainCost = k => Math.round(TRAIN[k].base*Math.pow(TRAIN[k].g,S.train[k]))
 function unitCost(t){let c=UNIT[t].cost*(1+0.06*S.wave);if(has('discount'))c*=0.8;if(S.asc>=6)c*=1.2;if(modOn('golden'))c*=1.5;return Math.round(c);}
 const sellValue = u => Math.floor(UNIT[u.type].cost*0.5*[1,3,9][u.star-1]);
 const repairCost = () => 12+3*S.wave;
+const EARLY_A=1.5,EARLY_B=0.3;
 const waveDur = w => Math.min(60,30+2*(w-1));
 const goldMult = () => (1+0.2*cl('greed'))*(has('chestr')?1.3:1)*(1+0.08*P.perm.fortune)*(modOn('golden')?2:1)*(modOn('elites')?1.5:1)*(F.goldRushT>0?2:1);
 const xpMult = () => (1+0.2*cl('wisdom'))*(1+0.08*P.perm.insight)*(modOn('giants')?1.6:1);
@@ -1208,7 +1209,7 @@ function doStrike(hr,ang,big){
       const ey=e.y-e.h*e.sc*0.4, dx=e.x-hx, dy=ey-hy;
       const d=Math.hypot(dx,dy*1.15)-e.r*0.8;if(d>range)continue;
       if(!big){let da=Math.atan2(dy,dx)-ang;da=Math.atan2(Math.sin(da),Math.cos(da));if(Math.abs(da)>arc/2)continue;}
-      heroHit(e,st.atk*(big?1.5:1),'hero',{kb:big?32:7,ang:Math.atan2(dy,dx),dir:Math.atan2(dy,dx),stun:big?0.3:0.04,heavyHit:big});hits++;
+      heroHit(e,st.atk*(big?1.5:1),'hero',{kb:big?36:13,ang:Math.atan2(dy,dx),dir:Math.atan2(dy,dx),stun:big?0.3:0.08,heavyHit:big});hits++;
     }
     hr.swing=-(hr.swing||1);
     F.slashes.push({x:hx,y:hy,ang,arc,range,life:big?.34:.2,max:big?.34:.2,big,dir:big?1:hr.swing,col:'#3ef2d0'});
@@ -1502,8 +1503,9 @@ function killEnemy(e,src,silent){
   e.alive=false;
   const d=ED[e.type], m=e.elite?6:1;
   const sp=SPR[e.type];addPart({type:'corpse',key:e.type,x:e.x,y:e.y,face:e.face,es:e.elite?1.35:1,vx:0,vy:0,life:.32,max:.32});
-  burst(e.x,e.y-18*e.sc,e.boss?'#ff5fa2':e.elite?AFFIX[e.affix].col:'#a6f56b',e.boss?50:e.elite?24:9,e.boss?280:150);
+  burst(e.x,e.y-18*e.sc,e.boss?'#ff5fa2':e.elite?AFFIX[e.affix].col:'#a6f56b',e.boss?50:e.elite?24:14,e.boss?280:190);
   if(silent)return;
+  if(HERO_SRC.has(src)){shake(e.elite?8:2.5);if(e.elite)F.hitStop=Math.max(F.hitStop,0.09);}
   let g=d.gold*m*goldMult()*comboMult();
   S.goldF+=g;const gi=Math.floor(S.goldF);S.goldF-=gi;S.gold+=gi;S.stats.goldEarned+=gi;
   if(gi>0&&F.parts.length<600)for(let i=0;i<Math.min(4,gi);i++)addPart({type:'coin',x:e.x,y:e.y-20,vx:rand(-90,90),vy:-rand(160,300),g:700,life:rand(.45,.65),max:.65});
@@ -1557,7 +1559,10 @@ function moveTo(e,tx,ty,h,m=1){const dx=tx-e.x,dy=ty-e.y,d=Math.hypot(dx,dy);if(
 function coreDist(e){return Math.hypot(e.x-CORE.x,(e.y-CORE.y)*1.5)-CORE.r;}
 
 /* ================= spawning ================= */
-function spawnPool(w){return {goblin:10,bat:w>=2?5:0,slime:w>=2?3:0,wolf:w>=3?4.5:0,skel:w>=3?4:0,bomber:w>=4?2.6:0,brute:w>=4?2+w*0.1:0,charger:w>=6?1.8:0,shield:w>=7?2.2:0,shaman:w>=8?1.4:0};}
+const THEMES={bat:'Bat swarm — they dive straight at you!',wolf:'Wolf packs are hunting you!',slime:'Slime tide — they split when slain.',skel:'Bone archers — close the distance!',bomber:'Boomshrooms — pop them away from the Gate!',brute:'Orc warband — heavy hitters incoming.',charger:'Tusker stampede — sidestep the charge!',shield:'Shield wall — strike them from behind.',shaman:'Hex coven — kill the healers first!'};
+function basePool(w){return {goblin:10,bat:w>=2?5:3,slime:w>=2?3:0,wolf:w>=3?4.5:w>=2?2.5:0,skel:w>=3?4:0,bomber:w>=3?2.6:0,brute:w>=4?2+w*0.1:0,charger:w>=5?1.8:0,shield:w>=6?2.2:0,shaman:w>=7?1.4:0};}
+function spawnPool(w){const p=basePool(w),b=MAPS[S.map].bias;if(b)for(const k in b)if(p[k])p[k]*=b[k];if(WV&&WV.theme&&p[WV.theme])p[WV.theme]=p[WV.theme]*3+4;return p;}
+function pickTheme(w){if(w<3||bossFor(w))return null;const p=basePool(w),ks=Object.keys(THEMES).filter(k=>p[k]>0&&k!==S.lastTheme);const k=ks[Math.floor(Math.random()*ks.length)]||null;S.lastTheme=k;return k;}
 function edgePoint(side){
   const r=side!==undefined?side:Math.random();
   if(r<0.36)return {x:-30,y:rand(AR.y0,AR.y1)};
@@ -1578,7 +1583,7 @@ function spawnEnemy(key,x,y,opts){
 }
 function spawnTick(h){
   const w=S.wave, prog=WV.boss?0.5:WV.t/WV.dur;
-  let rate=(1.0+0.33*w+prog*0.27*w)*MAPS[S.map].spawn*(modOn('swarm')?1.4:1);if(WV.boss)rate*=0.45;
+  let rate=(1.0+0.33*w+prog*0.27*w+Math.max(0,EARLY_A-EARLY_B*w))*MAPS[S.map].spawn*(modOn('swarm')?1.4:1);if(WV.boss)rate*=0.45;
   WV.acc+=h*rate;
   const alive=F.enemies.length;
   if(alive>=150){WV.acc=Math.min(WV.acc,2);return;}
@@ -1592,10 +1597,10 @@ function spawnTick(h){
     WV.acc-=n;
   }
   // mid-wave events
-  if(!WV.boss&&w>=3&&!WV.event&&WV.t>=WV.dur*0.5){
-    WV.event=true;
-    if(w%3===0){const p=edgePoint(Math.random()<0.5?0.1:0.5);spawnEnemy('tgoblin',p.x<800?40:1560,clamp(p.y,AR.y0+40,AR.y1-40));banner('TREASURE GOBLIN!','Catch it before it escapes — it carries a chest!','#ffd166');AU.coin();AU.warn();}
-    else if(w%3===1){const side=Math.random()<0.5?0.1:0.5, p=edgePoint(side), n=Math.round(12+w*1.2), kind=w>=6&&Math.random()<0.5?'wolf':'bat';
+  if(!WV.boss&&WV.event<(w>=6?2:1)&&WV.t>=WV.dur*(WV.event?0.8:0.45)){
+    const ek=(w+WV.event)%3;WV.event++;
+    if(ek===0){const p=edgePoint(Math.random()<0.5?0.1:0.5);spawnEnemy('tgoblin',p.x<800?40:1560,clamp(p.y,AR.y0+40,AR.y1-40));banner('TREASURE GOBLIN!','Catch it before it escapes — it carries a chest!','#ffd166');AU.coin();AU.warn();}
+    else if(ek===1){const side=Math.random()<0.5?0.1:0.5, p=edgePoint(side), n=w<2?8:Math.round(12+w*1.2), kind=w>=6&&Math.random()<0.5?'wolf':'bat';
       for(let i=0;i<n;i++)spawnEnemy(kind,p.x+rand(-60,60),clamp(p.y+rand(-120,120),AR.y0,AR.y1));
       banner('AMBUSH!',`A ${kind==='bat'?'swarm of bats':'wolf pack'} attacks from the ${p.x<800?'west':'east'}!`,'#ff5fa2');AU.horn();
     }else{const p=edgePoint(),pool=spawnPool(w);delete pool.bat;const k=wpick(pool)||'goblin';const e=spawnEnemy(k,p.x,clamp(p.y,AR.y0,AR.y1),{elite:true,guaranteed:true});
@@ -2258,7 +2263,8 @@ function pickSkills(){const own=new Set([skillOf('q'),skillOf('e')]);return shuf
 function openLevelUp(){
   const lv=S.level-S.pending+1;
   S.modal='levelup';
-  if(!S.fskill&&lv>=5&&!S.skillOffered){S.skillOffered=true;S.choices=pickSkills();}
+  if(lv===1)S.choices=shuffle(WEAPON_CARDS.filter(id=>cl(id)<1)).slice(0,3);
+  else if(!S.fskill&&lv>=5&&!S.skillOffered){S.skillOffered=true;S.choices=pickSkills();}
   else S.choices=pickCards(has('crown')?4:3);
   if(!S.choices.length){S.pending=0;S.modal=null;return;}
   AU.levelup();renderLevelUp();
@@ -2276,7 +2282,7 @@ function cardHTML(id,i){
 function renderLevelUp(){
   const lv=S.level-S.pending+1;
   const sk=S.choices[0]&&S.choices[0].startsWith('sk:');
-  overlay(`<div class="modal" style="width:${S.choices.length>3?1060:880}px;background:linear-gradient(180deg,rgba(34,42,112,.92),rgba(16,22,66,.95))"><div class="lvTitle">${sk?'NEW SKILL!':`LEVEL ${lv}!`}</div><p>${sk?'Pick a new skill for your F slot — it stays for the whole run':'Choose an upgrade'}${S.pending>1?` · ${S.pending-1} more after this`:''}</p>
+  overlay(`<div class="modal" style="width:${S.choices.length>3?1060:880}px;background:linear-gradient(180deg,rgba(34,42,112,.92),rgba(16,22,66,.95))"><div class="lvTitle">${sk?'NEW SKILL!':lv===1?'STARTING POWER':`LEVEL ${lv}!`}</div><p>${sk?'Pick a new skill for your F slot — it stays for the whole run':lv===1?'Choose the power that shapes this run':'Choose an upgrade'}${S.pending>1?` · ${S.pending-1} more after this`:''}</p>
   <div class="cards" style="grid-template-columns:repeat(${S.choices.length},1fr)">${S.choices.map(cardHTML).join('')}</div>
   <div class="mbtns"><button class="btn mbtn ghost small" data-act="cardReroll" ${S.cardReroll>0?'':'disabled'}>REROLL (${S.cardReroll}) · R</button></div></div>`);
 }
@@ -2392,8 +2398,8 @@ function endHTML(sh){
 function checkWaveAch(){
   const w=S.wave;
   if(w>=5)unlockAch('w5');
-  if(w>=10){unlockAch('w10');if(!P.maps.frost){P.maps.frost=true;saveP();toast('New map unlocked: Frozen Pass','good');}}
-  if(w>=20){unlockAch('win');if(!P.maps.hell){P.maps.hell=true;saveP();toast('New map unlocked: Hellforge','good');}}
+  if(w>=10){unlockAch('w10');if(!P.maps.hell){P.maps.hell=true;saveP();toast('New map unlocked: Hellforge','good');}}
+  if(w>=20)unlockAch('win');
   if(w>=10&&S.map==='frost')unlockAch('frost');
   if(w>=10&&S.map==='hell')unlockAch('hell');
   if(w>=3&&S.stats.hurtWave===0)unlockAch('nohit');
@@ -2406,7 +2412,7 @@ function saveRun(){
 /* ================= flow ================= */
 function startWave(){
   S.wave++;S.phase='battle';S.modal=null;S.phoenixUsed=false;S.cardReroll=Math.max(S.cardReroll,1+P.perm.reroll+(mLevel(S.hero)>=5?1:0));S.stats.hurtWave=0;
-  WV={t:0,dur:waveDur(S.wave),acc:2,boss:!!bossFor(S.wave),bossEnt:null,elites:0,event:false};
+  WV={t:0,dur:waveDur(S.wave),acc:S.wave<=4?7:2,boss:!!bossFor(S.wave),bossEnt:null,elites:0,event:0,theme:pickTheme(S.wave)};
   F.enemies=[];F.proj=[];F.meteors=[];F.fires=[];F.gems=[];F.chests=[];F.tele=[];F.bullets=[];F.storms=[];F.holes=[];
   syncField(true);refreshHero(true);if(F.hero){F.hero.alive=true;F.hero.x=CORE.x;F.hero.y=CORE.y+120;}
   S.core.max=coreMax();S.core.hp=Math.min(S.core.max,S.core.hp+S.core.max*0.1);
@@ -2414,7 +2420,7 @@ function startWave(){
   hideOverlay();AU.horn();
   const b=bossFor(S.wave);
   if(b){spawnEnemy(b,1640,CORE.y);}
-  else banner(`WAVE ${S.wave}`,S.wave===1?'Defend the Gate! Enemies come from every side.':S.wave===2?'Watch for red circles on the ground — step out!':'Survive until the timer runs out.','#8b6cff');
+  else banner(`WAVE ${S.wave}`,S.wave===1?'Defend the Gate! Enemies come from every side.':S.wave===2?'Watch for red circles on the ground — step out!':WV.theme?THEMES[WV.theme]:'Survive until the timer runs out.','#8b6cff');
   syncMusic();renderAll();
 }
 function endWave(){
@@ -2473,7 +2479,7 @@ function newRun(hero,map,opt){
   P.run=null;saveP();
   S=newState(hero,map);S.speed=sp;HSC=null;resetField();buildBG(map);
   S.asc=opt.daily?2:Math.min(P.ascSel[map]||0,P.asc[map]||0);S.daily=!!opt.daily;S.mods=opt.mods||[];
-  F.hero=makeHero();
+  F.hero=makeHero();S.pending=1;
   S.gold=30+15*P.perm.purse;S.army=[];summon('knight',1);summon('archer',1);S.lastNew=0;
   S.cardReroll=1+P.perm.reroll+(mLevel(hero)>=5?1:0);
   if(mLevel(hero)>=8){const r=RELICS[Math.floor(Math.random()*RELICS.length)];S.relics.push(r.id);if(r.id==='banner')S.armyMax++;setTimeout(()=>toast(`Mastery relic: ${r.icon} ${r.name}`,'good'),600);}
