@@ -176,6 +176,12 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Fixed: armed (targeted) skills cast at screen coordinates instead of world coordinates after the open-world change.
 - `store/screenshots/*.png` were regenerated from this build (drafts made with the bot, not hand-picked).
 
+**Retention systems (owner request "reasons to keep playing"):**
+- Warden Rank: account XP `P.rxp` from every run (`finishRun`), `rankInfo()`, shards on each rank-up; bar on the title and end screens (`rankBarHTML`).
+- Daily login bonus with a 7-day streak (`P.login`, `loginInfo`, `claimLogin`); button on the title while unclaimed.
+- New-record bonus per map (`S.prevBest`, `retainHTML`) and a "beat your record" line in the wave 1 banner.
+- MISSIONS screen (`showMissions`) shows the Daily Challenge and Bounties in every build, so the web demo has them again without side panels on the title.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

@@ -350,6 +350,19 @@ button{font-family:inherit}
 .touch #hudTR .ibtn{min-width:46px;min-height:46px}
 .ach .an{font-size:14px}
 .ach .ad{font-size:12px;color:#aab2e0}
+.rankBar{width:340px;margin:12px auto 0;text-align:left}
+.rankBar .rl{font-family:'Silkscreen',monospace;font-size:11.5px;letter-spacing:1px;color:#cfd4ff}
+.rankBar .rl b{color:var(--teal);font-weight:400}
+.rankBar .qbar{height:7px;margin-top:5px}
+.rankBar .rx{font-size:11.5px;color:var(--muted);margin-top:3px}
+.modal>.rankBar{width:560px;margin-top:14px}
+.menu>.rankBar{width:340px;margin-top:12px}
+.loginBtn{border-color:rgba(255,95,162,.7)!important;color:#ffd6e7!important;background:rgba(255,95,162,.12)!important}
+.missWrap{margin-top:16px}
+.missWrap .side{width:auto;flex-direction:row;align-items:stretch}
+.missWrap .side .panel{flex:1;box-shadow:none}
+.menuBtns{margin-top:18px;gap:10px}
+.menu{padding:26px 40px}
 </style>
 </head>
 <body>
@@ -638,7 +651,7 @@ const HERO_SRC=new Set(['hero','blade','wolf','bolt','wave','meteor','shock','fi
 /* ================= persistent save ================= */
 const SAVE_KEY='gatewarden.save.v1';
 function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true},maps:{ruins:true,frost:true,hell:true},ach:{},
-  settings:{musicOn:true,master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0,intro:false,unl:{},tips:{}};}
+  settings:{musicOn:true,master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0,intro:false,unl:{},tips:{},rxp:0,login:{day:'',streak:0}};}
 function readRaw(){if(NATIVE){try{return NATIVE.loadSave()||null;}catch(e){return null;}}try{return localStorage.getItem(SAVE_KEY);}catch(e){return null;}}
 function loadP(){const d=defaultP();try{const s=JSON.parse(readRaw()||'null');if(s){for(const k in d){if(s[k]===undefined)continue;if(d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k])&&s[k]&&typeof s[k]==='object')d[k]=Object.assign(d[k],s[k]);else d[k]=s[k];}}}catch(e){}return d;}
 let P=loadP();
@@ -2104,6 +2117,24 @@ function initTouch(){if(!TOUCH)return;document.documentElement.classList.add('to
   cv.addEventListener('touchstart',e=>{e.preventDefault();AU.init();for(const t of e.changedTouches){const p=tp(t);if(armed){castAbility(armed,p.x+CAM.x,p.y+CAM.y);continue;}if(TJ.id===null&&p.x<VW*0.55){TJ.id=t.identifier;TJ.ox=TJ.x=p.x;TJ.oy=TJ.y=p.y;}}},{passive:false});
   cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===TJ.id){const p=tp(t);TJ.x=p.x;TJ.y=p.y;const dx=(p.x-TJ.ox)/70,dy=(p.y-TJ.oy)/70,l=Math.hypot(dx,dy);PAD.mx=l>1?dx/l:dx;PAD.my=l>1?dy/l:dy;}},{passive:false});
   cv.addEventListener('touchend',end);cv.addEventListener('touchcancel',end);}
+/* ================= retention: rank, daily bonus, records, missions ================= */
+const RANK_TITLES=['Recruit','Sentinel','Guardian','Champion','Warlord','Legend'];
+const rankNeed=L=>150+70*(L-1);
+function rankInfo(){let x=P.rxp||0,l=1;while(x>=rankNeed(l)){x-=rankNeed(l);l++;}return {l,x,need:rankNeed(l),title:RANK_TITLES[Math.min(RANK_TITLES.length-1,Math.floor((l-1)/5))]};}
+function rankBarHTML(extra){const r=rankInfo();return `<div class="rankBar"><div class="rl"><b>RANK ${r.l}</b> · ${r.title.toUpperCase()}${extra||''}</div><div class="qbar"><i style="width:${Math.round(r.x/r.need*100)}%"></i></div><div class="rx">${r.x} / ${r.need} XP · next rank: +${20+5*r.l} shards</div></div>`;}
+function addRankXp(v){const b=rankInfo().l;P.rxp=(P.rxp||0)+v;const a=rankInfo().l;let sh=0;for(let l=b;l<a;l++)sh+=20+5*l;P.shards+=sh;return {up:a>b?a:0,sh};}
+const dayKey=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+function loginInfo(){const t=dayKey(new Date()),y=dayKey(new Date(Date.now()-864e5)),L=P.login;const ready=L.day!==t,streak=ready?(L.day===y?L.streak+1:1):L.streak;return {ready,streak,reward:15+10*Math.min(streak,7)};}
+function claimLogin(){const i=loginInfo();if(!i.ready)return;P.login={day:dayKey(new Date()),streak:i.streak};P.shards+=i.reward;saveP();AU.chest();toast(`Daily bonus: +${i.reward} Soul Shards · day ${i.streak} streak`,'good');}
+function retainHTML(){let h='';
+  const reached=S.wave-(S.won?0:1);
+  if(!S.daily&&reached>(S.prevBest||0)&&reached>0){if(!S.recPaid){S.recPaid=10+5*reached;P.shards+=S.recPaid;saveP();}h+=`<div class="shardLine" style="margin-top:8px;background:rgba(255,209,102,.12);border-color:rgba(255,209,102,.5);color:#ffe9b0">🏆 NEW RECORD ON ${MAPS[S.map].name.toUpperCase()}: WAVE ${reached} · +${S.recPaid} SHARDS</div>`;}
+  const up=S.rankUp?` <span style="color:var(--teal)">· RANK UP! +${S.rankSh} SHARDS</span>`:` <span style="color:var(--muted)">· +${S.rxpGain||0} XP</span>`;
+  return h+rankBarHTML(up);}
+function showMissions(){MENU='missions';const li=loginInfo();overlay(`<div class="modal" style="width:1000px"><h2>MISSIONS</h2><p>Come back every day: a new Daily Challenge, fresh bounties and a growing login bonus.</p>
+  <div class="shardLine" style="margin-top:14px">🎁 LOGIN STREAK: DAY ${li.streak} · ${li.ready?`+${li.reward} SHARDS READY`:'CLAIMED TODAY — COME BACK TOMORROW'}</div>
+  ${li.ready?'<div class="mbtns" style="margin-top:10px"><button class="btn mbtn pink small" data-act="login">CLAIM DAILY BONUS</button></div>':''}
+  <div class="missWrap">${sideHTML(true)}</div><div class="mbtns"><button class="btn mbtn primary" data-act="back">BACK</button></div></div>`);}
 function update(h){updateCam(h);if(F.castFlash>0)F.castFlash-=h;
   F.t+=h;F.shake=Math.max(0,F.shake-h*30);F.coreFlash=Math.max(0,F.coreFlash-h);
   if(F.comboT>0){F.comboT-=h;if(F.comboT<=0)F.combo=0;}
@@ -2575,6 +2606,7 @@ function finishRun(won){
   if(!S.counted){S.counted=true;P.stats.runs++;}
   P.stats.kills+=S.stats.kills-(S.killsCounted||0);S.killsCounted=S.stats.kills;
   P.best[S.map]=Math.max(P.best[S.map]||0,S.wave-(won?0:1));
+  {const rt=Math.round(S.wave*22+S.stats.kills*0.25+S.stats.bosses*50+(S.won?250:0)),rg=rt-(S.rxpAwarded||0);if(rg>0){S.rxpAwarded=rt;const r=addRankXp(rg);S.rxpGain=(S.rxpGain||0)+rg;if(r.up){S.rankUp=r.up;S.rankSh=(S.rankSh||0)+r.sh;}}}
   // hero mastery
   const before=mLevel(S.hero), gx=Math.round(S.stats.kills*0.5+S.wave*25+S.stats.bosses*60)-(S.mxpAwarded||0);
   if(gx>0){P.hxp[S.hero]=(P.hxp[S.hero]||0)+gx;S.mxpAwarded=(S.mxpAwarded||0)+gx;}
@@ -2623,7 +2655,7 @@ function dailyInfo(){const d=new Date();const key=d.getFullYear()+'-'+(d.getMont
   const r=()=>{h=(Math.imul(h,1103515245)+12345)>>>0;return h/4294967296;};const ks=Object.keys(DAILY_MODS);const m1=ks[Math.floor(r()*ks.length)];let m2=m1;let g=0;while(m2===m1&&g++<20)m2=ks[Math.floor(r()*ks.length)];
   const HL=DEMO?DEMO_HEROES:HERO_ORDER,ML=DEMO?DEMO_MAPS:MAP_ORDER;return {key,hero:HL[Math.floor(r()*HL.length)],map:ML[Math.floor(r()*ML.length)],mods:[m1,m2]};}
 function endHTML(sh){
-  let h=shardHTML(sh)+unlockHTML();
+  const rh=unlockHTML()+retainHTML();let h=shardHTML(sh)+rh;
   if(S.mxpGain>0){const lv=mLevel(S.hero),x=P.hxp[S.hero]||0,cur=MASTERY_XP[lv-1]||0,nx=MASTERY_XP[lv]||cur,pc=lv>=10?100:Math.round((x-cur)/(nx-cur)*100);
     h+=`<div class="mastery" style="max-width:560px;margin:12px auto 0"><img src="${IMG[S.hero]}" style="width:40px;height:40px"><div class="mb2"><div class="ml" style="color:${HEROES[S.hero].col}">${HEROES[S.hero].name.toUpperCase()} MASTERY ${lv} · +${S.mxpGain} XP</div><div class="qbar"><i style="width:${pc}%"></i></div><div class="mt">${S.mLvUp?`LEVEL UP! Unlocked: ${MASTERY_REW[S.mLvUp-1]}`:lv<10?`Next (LV ${lv+1}): ${MASTERY_REW[lv]}`:'MAX MASTERY'}</div></div></div>`;}
   if(S.questsDone&&S.questsDone.length)h+=`<div style="margin-top:10px">${S.questsDone.map(q=>`<div class="shardLine" style="margin-top:6px;background:rgba(62,242,208,.1);border-color:rgba(62,242,208,.45);color:#b8fff0">📜 Bounty complete: ${questText(q)} · +${q.r}</div>`).join('')}</div>`;
@@ -2657,7 +2689,7 @@ function startWave(){
   hideOverlay();AU.horn();
   const b=bossFor(S.wave);
   if(b){spawnEnemy(b,CORE.x+900,CORE.y);}
-  else banner(`WAVE ${S.wave}`,S.wave===1?'Defend the Gate! Enemies come from every side.':S.wave===2?'Watch for red circles on the ground — step out!':WV.theme?THEMES[WV.theme]:'Survive until the timer runs out.','#8b6cff');
+  else banner(`WAVE ${S.wave}`,S.wave===1?(S.prevBest>0&&!S.daily?`Your record here is wave ${S.prevBest} — beat it!`:'Defend the Gate! Enemies come from every side.'):S.wave===2?'Watch for red circles on the ground — step out!':WV.theme?THEMES[WV.theme]:'Survive until the timer runs out.','#8b6cff');
   syncMusic();renderAll();
 }
 function endWave(){
@@ -2716,7 +2748,7 @@ function newRun(hero,map,opt){
   opt=opt||{};hideOverlay();const sp=S.speed;hero=hero||P.last.hero;map=map||P.last.map;
   if(!opt.daily){if(!P.heroes[hero]||fullOnly(hero))hero='captain';if(!P.maps[map]||fullOnly(map))map='ruins';P.last={hero,map};}
   P.run=null;saveP();
-  S=newState(hero,map);S.speed=sp;HSC=null;resetField();buildBG(map);
+  S=newState(hero,map);S.prevBest=P.best[map]||0;S.speed=sp;HSC=null;resetField();buildBG(map);
   S.asc=opt.daily?2:Math.min(P.ascSel[map]||0,P.asc[map]||0);S.daily=!!opt.daily;S.mods=opt.mods||[];
   F.hero=makeHero();S.pending=1;
   S.gold=30+15*P.perm.purse;S.army=[];summon('knight',1);summon('archer',1);S.lastNew=0;
@@ -2753,12 +2785,13 @@ function showTitle(){
   const r=P.run;
   overlay(`<div class="titleWrap"><div class="modal menu" style="background:linear-gradient(180deg,rgba(30,38,104,.86),rgba(16,22,66,.9))">
   <div class="bigLogo" style="font-size:62px">GATE<span>WARDEN</span></div><p class="tagline">Hordes from every side. One hero. Hold the Gate.</p>
-  <div class="titleMeta">${DEMO?'<div class="demoTag">FREE DEMO</div>':''}<div class="shardLine">${ICON_SHARD} ${P.shards} SOUL SHARDS</div></div>
+  <div class="titleMeta">${DEMO?'<div class="demoTag">FREE DEMO</div>':''}<div class="shardLine">${ICON_SHARD} ${P.shards} SOUL SHARDS</div></div>${rankBarHTML()}
   <div class="menuBtns">
    ${r?`<button class="btn mbtn primary" data-act="continue">CONTINUE<span class="contInfo">WAVE ${r.wave+1} · ${HEROES[r.hero].name.toUpperCase()} · ${MAPS[r.map].name.toUpperCase()}</span></button>`:''}
    <button class="btn mbtn ${r?'ghost':'primary'}" data-act="play">${r?'NEW RUN':'PLAY'}${HERO_ORDER.some(k=>!P.heroes[k]&&P.shards>=HEROES[k].cost)?'<span class="contInfo" style="color:#ff5fa2">NEW HERO READY TO UNLOCK</span>':''}</button>
    ${DEMO?wishBtn('pink'):''}
-   <button class="btn mbtn ${DEMO?'ghost':'pink'}" data-act="sanctum">SANCTUM · UPGRADES</button>
+   ${loginInfo().ready?`<button class="btn mbtn ghost small loginBtn" style="width:340px" data-act="login">🎁 DAILY BONUS · +${loginInfo().reward} SHARDS</button>`:''}
+   <div style="display:flex;gap:12px;width:340px"><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="sanctum">SANCTUM</button><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="missions">MISSIONS</button></div>
    <button class="btn mbtn ghost" data-act="achievements">ACHIEVEMENTS ${Object.keys(P.ach).length}/${ACH.length}</button>
    <div style="display:flex;gap:12px;width:340px"><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="settings">SETTINGS</button><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="how">HOW TO PLAY</button></div>
    <button class="btn mbtn ghost small" style="width:340px" data-act="music">♪ MUSIC: ${P.settings.musicOn===false?'OFF':'ON'} <span style="opacity:.55">· M</span></button>
@@ -2766,8 +2799,8 @@ function showTitle(){
   </div>
   <div class="keys"><span><kbd>WASD</kbd>move</span><span><kbd>CLICK / SPACE</kbd>attack</span><span><kbd>SHIFT</kbd>dash</span><span><kbd>Q E R F</kbd>skills</span><span><kbd>G</kbd>army orders</span><span><kbd>M</kbd>music</span><span>🎮 controller supported</span></div></div>${sideHTML()}</div><div class="ver">${VERSION}</div>`);
 }
-function sideHTML(){
-  ensureQuests();if(!NATIVE)return '';const di=dailyInfo(),done=P.daily.claimed===di.key,best=P.daily.key===di.key?P.daily.best:0;
+function sideHTML(force){
+  ensureQuests();if(!NATIVE&&!force)return '';const di=dailyInfo(),done=P.daily.claimed===di.key,best=P.daily.key===di.key?P.daily.best:0;
   const q=P.quests.map(q=>`<div class="qrow"><div class="qt"><span>${questText(q)}</span><b>${ICON_SHARD} ${q.r}</b></div><div class="qbar"><i style="width:${Math.round(q.prog/q.n*100)}%"></i></div><div class="qp">${Math.floor(q.prog)} / ${q.n}</div></div>`).join('');
   return `<div class="side"><div class="panel"><h3>📅 DAILY CHALLENGE <small>${done?'CLAIMED ✓':'+100 · WAVE 10'}</small></h3>
   <div style="display:flex;gap:10px;align-items:center"><img src="${IMG[di.hero]}" style="width:44px;height:44px"><div style="font-size:13px;color:#cfd4ff"><b style="color:${HEROES[di.hero].col}">${HEROES[di.hero].name}</b> · ${MAPS[di.map].name}<br><span style="color:var(--muted);font-size:12px">Ascension 2 · Best today: wave ${best}</span></div></div>
@@ -2950,6 +2983,8 @@ function doAct(a,arg){
   else if(a==='how'){overlay(howHTML('back'));MENU='how';}
   else if(a==='howp')overlay(howHTML('pauseMenu'));
   else if(a==='back')showTitle();
+  else if(a==='missions')showMissions();
+  else if(a==='login'){claimLogin();if(MENU==='missions')showMissions();else showTitle();}
   else if(a==='title'){S.paused=false;toTitle();}
   else if(a==='resume')resume();
   else if(a==='pauseMenu'){if(S.paused)overlay(pauseHTML());else togglePause();}
