@@ -237,7 +237,7 @@ button{font-family:inherit}
 .tabs{display:flex;gap:6px;margin:14px 0 14px}
 .tab{flex:1;height:36px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Silkscreen',monospace;font-size:12px;cursor:pointer}
 .tab.active{color:#fff;background:linear-gradient(180deg,rgba(139,108,255,.42),rgba(139,108,255,.15));border-color:rgba(139,108,255,.75)}
-.heroGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.heroGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
 .hcard{position:relative;padding:14px 12px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:2px solid var(--line);cursor:pointer;transition:.15s;text-align:center}
 .hcard:hover{transform:translateY(-3px);border-color:var(--line2)}
 .hcard.sel{border-color:var(--hc);box-shadow:0 0 0 1px var(--hc),0 12px 34px -12px var(--hc);background:rgba(255,255,255,.07)}
@@ -349,7 +349,7 @@ button{font-family:inherit}
 .pbuy:disabled svg path{fill:var(--muted);stroke:var(--muted)}
 .syn:last-child:nth-child(odd){grid-column:1/-1}
 .achList{grid-template-columns:repeat(3,1fr);max-height:none;overflow:visible;gap:7px}
-.ach{padding:6px 12px;border-color:var(--line2)}
+.ach{padding:3px 12px;border-color:var(--line2)}
 .ach .ai{width:34px;height:34px;font-size:19px}
 .touch #cv{touch-action:none}
 .touch #skillBar{transform:translateX(-50%) scale(1.7);transform-origin:50% 100%}
@@ -369,6 +369,7 @@ button{font-family:inherit}
 .missWrap .side .panel{flex:1;box-shadow:none}
 .menuBtns{margin-top:18px;gap:10px}
 .menu{padding:26px 40px}
+.lockTag{white-space:nowrap}
 .pactRow{display:flex;gap:16px;justify-content:center;margin-top:20px}
 .pactRow .card{flex:1;max-width:280px}
 .recRow{margin-top:10px;gap:8px}
@@ -430,7 +431,7 @@ const NATIVE=window.gwNative||null;
 const CFG=window.GW_CONFIG||{};
 const DEV=NATIVE?!!NATIVE.dev:(CFG.dev===true||/[?&]dev\b/.test(location.search)||location.protocol==='file:');
 const DEMO=!NATIVE&&!!CFG.demo;
-const DEMO_WAVES=CFG.demoWaves||10, DEMO_HEROES=['captain','ranger'], DEMO_MAPS=['ruins','cave','frost','dunes','marsh','grave','storm','hell'];
+const DEMO_WAVES=CFG.demoWaves||10, DEMO_HEROES=['captain','ranger','shade'], DEMO_MAPS=['ruins','cave','frost','dunes','marsh','grave','storm','hell'];
 const STEAM_URL=CFG.steamUrl||'';
 const fullOnly=k=>DEMO&&!DEMO_HEROES.includes(k)&&!DEMO_MAPS.includes(k);
 
@@ -475,23 +476,28 @@ const ED = {
   icegiant:{name:'Ice Giant',base:'brute',tint:'hue-rotate(160deg) saturate(.8) brightness(1.25)',sc:1.2,hp:230,atk:17,range:30,cd:1.4,spd:40,gold:2.4,xp:6,r:23,h:62,tgt:'core',heavy:true,chill:2},
   imp:{name:'Fire Imp',base:'goblin',tint:'hue-rotate(-60deg) saturate(2) brightness(1.05)',sc:.85,hp:18,atk:6,range:20,cd:0.8,spd:118,gold:.3,xp:1,r:12,h:40,tgt:'hero'},
   magma:{name:'Magma Brute',base:'brute',tint:'hue-rotate(-60deg) saturate(1.8) brightness(1.1)',hp:150,atk:15,range:28,cd:1.3,spd:48,gold:2,xp:5,r:20,h:62,tgt:'core',heavy:true,deathBoom:true},
-  wisp:{name:'Grave Wisp',base:'bat',tint:'hue-rotate(250deg) saturate(1.4) brightness(1.3)',hp:16,atk:5,range:18,cd:0.8,spd:135,gold:.3,xp:1,r:12,h:40,tgt:'core',fly:true},
+  wisp:{name:'Grave Wisp',base:'ghost',sc:.7,tint:'sepia(1) saturate(4) hue-rotate(120deg) brightness(1.1)',hp:16,atk:5,range:18,cd:0.8,spd:135,gold:.3,xp:1,r:12,h:40,tgt:'core',fly:true},
   sentinel:{name:'Stone Sentinel',base:'shield',tint:'saturate(.35) brightness(1.15)',sc:1.1,hp:120,atk:10,range:24,cd:1.1,spd:46,gold:1.6,xp:4,r:18,h:54,tgt:'core',shield:true,heavy:true},
   leech:{name:'Bog Leech',base:'bat',tint:'hue-rotate(120deg) saturate(1.2) brightness(.9)',hp:20,atk:5,range:18,cd:0.7,spd:140,gold:.3,xp:1,r:12,h:40,tgt:'hero',fly:true,leech:true},
   toad:{name:'Bog Hulk',base:'slime',tint:'hue-rotate(-50deg) saturate(1.3) brightness(.85)',sc:1.4,hp:140,atk:11,range:24,cd:1,spd:54,gold:1.4,xp:4,r:22,h:34,tgt:'core',split:'slime'},
   shardbat:{name:'Shard Bat',base:'bat',tint:'sepia(1) saturate(5) hue-rotate(140deg) brightness(1.1)',hp:15,atk:4,range:18,cd:0.8,spd:160,gold:.3,xp:1,r:12,h:40,tgt:'hero',fly:true},
-  geode:{name:'Geode Golem',base:'brute',tint:'sepia(1) saturate(4) hue-rotate(230deg)',sc:1.15,hp:260,atk:15,range:30,cd:1.4,spd:38,gold:2.6,xp:7,r:22,h:62,tgt:'core',heavy:true},
-  scarab:{name:'Scarab',base:'wolf',tint:'sepia(1) saturate(4) brightness(1.05)',sc:.8,hp:14,atk:4,range:18,cd:0.7,spd:150,gold:.22,xp:1,r:11,h:30,tgt:'core'},
+  geode:{name:'Geode Golem',base:'crystalgolem',sc:1.2,hp:260,atk:15,range:30,cd:1.4,spd:38,gold:2.6,xp:7,r:22,h:62,tgt:'core',heavy:true},
+  scarab:{name:'Scarab',base:'beetle',sc:.85,hp:14,atk:4,range:18,cd:0.7,spd:150,gold:.22,xp:1,r:12,h:24,tgt:'core'},
   sandbrute:{name:'Dune Tusker',base:'charger',tint:'sepia(1) saturate(3) hue-rotate(-15deg)',sc:1.15,hp:110,atk:14,range:26,cd:1.2,spd:66,gold:1.8,xp:5,r:21,h:40,tgt:'hero',charge:true,heavy:true},
-  ghoul:{name:'Ghoul',base:'goblin',tint:'saturate(.25) brightness(1.35)',hp:40,atk:7,range:22,cd:0.9,spd:84,gold:.5,xp:2,r:14,h:40,tgt:'hero',leech:true},
+  ghoul:{name:'Grave Wraith',base:'ghost',hp:40,atk:7,range:22,cd:0.9,spd:84,gold:.5,xp:2,r:14,h:46,tgt:'hero',leech:true},
   boneknight:{name:'Bone Knight',base:'skel',tint:'sepia(1) saturate(3) hue-rotate(240deg)',sc:1.25,hp:90,atk:11,range:210,cd:1.4,spd:56,gold:1.6,xp:4,r:17,h:40,tgt:'core',proj:'bone',heavy:true},
   stormhawk:{name:'Storm Hawk',base:'bat',tint:'sepia(1) saturate(6) hue-rotate(10deg) brightness(1.2)',hp:18,atk:6,range:18,cd:0.7,spd:175,gold:.35,xp:2,r:12,h:40,tgt:'hero',fly:true,chill:0.8},
   thunderer:{name:'Storm Caller',base:'shaman',tint:'sepia(1) saturate(4) hue-rotate(170deg)',hp:70,atk:4,range:180,cd:1.8,spd:56,gold:1.6,xp:5,r:14,h:46,tgt:'core',heal:22,deathBoom:true},
   nest:{name:'Goblin Nest',hp:150,atk:0,range:0,cd:9,spd:0,gold:12,xp:14,r:30,h:56,tgt:'none',nest:true,heavy:true},
-  king:{name:'Goblin King',hp:900,atk:22,range:36,cd:1.2,spd:42,gold:40,xp:40,r:32,h:46,sc:2.0,boss:true,tgt:'core',summon:'goblin',summonN:4,heavy:true,pats:['slam','charge','summon','slam']},
-  colossus:{name:'Bone Colossus',hp:2300,atk:30,range:40,cd:1.5,spd:34,gold:60,xp:60,r:38,h:72,sc:1.7,boss:true,tgt:'core',summon:'skel',summonN:3,heavy:true,pats:['rain','ring','summon','rain']},
-  witch:{name:'Hex Witch',hp:3300,atk:18,range:240,cd:1.0,spd:40,gold:80,xp:80,r:30,h:88,sc:1.5,boss:true,tgt:'core',proj:'hex',summon:'bat',summonN:5,heavy:true,pats:['radial','rain','blink','summon','radial']},
-  demon:{name:'DEMON LORD',hp:7400,atk:40,range:48,cd:1.4,spd:30,gold:150,xp:150,r:46,h:106,sc:1.4,boss:true,tgt:'core',summon:'brute',summonN:2,heavy:true,pats:['slam','charge','radial','rain','summon','ring']},
+  king:{name:'Goblin King',tier:0,hp:900,atk:22,range:36,cd:1.2,spd:42,gold:40,xp:40,r:32,h:46,sc:2.0,boss:true,tgt:'core',summon:'goblin',summonN:4,heavy:true,pats:['slam','charge','summon','slam']},
+  colossus:{name:'Bone Colossus',tier:1,hp:2300,atk:30,range:40,cd:1.5,spd:34,gold:60,xp:60,r:38,h:72,sc:1.7,boss:true,tgt:'core',summon:'skel',summonN:3,heavy:true,pats:['rain','ring','summon','rain']},
+  witch:{name:'Hex Witch',tier:2,hp:3300,atk:18,range:240,cd:1.0,spd:40,gold:80,xp:80,r:30,h:88,sc:1.5,boss:true,tgt:'core',proj:'hex',summon:'bat',summonN:5,heavy:true,pats:['radial','rain','blink','summon','radial']},
+  crystalcol:{name:'Crystal Colossus',base:'colossus',tint:'sepia(1) saturate(4) hue-rotate(230deg)',tier:1,hp:2300,atk:30,range:40,cd:1.5,spd:34,gold:60,xp:60,r:38,h:72,sc:1.7,boss:true,tgt:'core',summon:'shardbat',summonN:5,heavy:true,pats:['ring','rain','ring','summon']},
+  frostwitch:{name:'Frost Witch',base:'witch',tint:'sepia(1) saturate(4) hue-rotate(150deg) brightness(1.1)',tier:2,hp:3300,atk:18,range:240,cd:1.0,spd:40,gold:80,xp:80,r:30,h:88,sc:1.5,boss:true,tgt:'core',proj:'hex',summon:'frostwolf',summonN:4,heavy:true,pats:['radial','blink','rain','summon','radial']},
+  sandking:{name:'Sand King',base:'king',tint:'sepia(1) saturate(3.5) brightness(1.05)',tier:0,hp:900,atk:22,range:36,cd:1.2,spd:46,gold:40,xp:40,r:32,h:46,sc:2.0,boss:true,tgt:'core',summon:'scarab',summonN:6,heavy:true,pats:['charge','slam','charge','summon']},
+  plaguewitch:{name:'Plague Witch',base:'witch',tint:'sepia(1) saturate(4) hue-rotate(60deg)',tier:2,hp:3300,atk:18,range:240,cd:1.0,spd:40,gold:80,xp:80,r:30,h:88,sc:1.5,boss:true,tgt:'core',proj:'hex',summon:'leech',summonN:5,heavy:true,pats:['rain','radial','summon','blink','rain']},
+  stormlord:{name:'Storm Lord',base:'demon',tint:'sepia(1) saturate(4) hue-rotate(180deg) brightness(1.15)',tier:3,hp:7400,atk:40,range:48,cd:1.4,spd:32,gold:150,xp:150,r:46,h:106,sc:1.4,boss:true,tgt:'core',summon:'stormhawk',summonN:4,heavy:true,pats:['radial','charge','rain','ring','radial','summon']},
+  demon:{name:'DEMON LORD',tier:3,hp:7400,atk:40,range:48,cd:1.4,spd:30,gold:150,xp:150,r:46,h:106,sc:1.4,boss:true,tgt:'core',summon:'brute',summonN:2,heavy:true,pats:['slam','charge','radial','rain','summon','ring']},
 };
 const BOSS_BY_WAVE={5:'king',10:'colossus',15:'witch',20:'demon'};
 const BOSS_CYCLE=['king','colossus','witch','demon'];
@@ -501,13 +507,16 @@ const HEROES={
   ranger:{name:'Ranger',title:'MOONLIT ARCHER',col:'#a6f56b',cost:120,hp:100,atk:12,spd:250,weapon:'bow',ult:'storm',skills:{q:'volley',e:'trap'},desc:'Piercing arrows from range. Every 4th shot fires a 5-arrow fan.',stats:[2,3,4]},
   arcanist:{name:'Arcanist',title:'STARFIRE MAGE',col:'#b48cff',cost:240,hp:110,atk:26,spd:215,weapon:'staff',ult:'hole',skills:{q:'meteor',e:'frost'},desc:'Exploding star orbs. Every 3rd cast erupts in a nova.',stats:[1,5,2]},
   warden:{name:'Warden',title:'IRONCLAD BULWARK',col:'#5cc8ff',cost:360,hp:160,atk:17,spd:195,weapon:'hammer',ult:'quake',skills:{q:'charge',e:'bastion'},armor:0.85,desc:'Crushing hammer smashes with knockback. Takes 15% less damage.',stats:[5,4,1]},
+  shade:{name:'Shade',title:'TWIN-BLADE ASSASSIN',col:'#ff5fa2',cost:200,hp:95,atk:13,spd:265,weapon:'sword',ult:'shadow',skills:{q:'tornado',e:'poison'},crit:0.2,spr:'rogue',desc:'Fast and fragile, with +20% critical chance. Strike first, strike hard.',stats:[2,3,5]},
 };
-const HERO_ORDER=['captain','ranger','arcanist','warden'];
+const HERO_ORDER=['captain','ranger','shade','arcanist','warden'];
+const sprOf = t => (HEROES[t]&&HEROES[t].spr)||t;
 const WEAP={sword:{cd:0.34,range:80,heavy:3},bow:{cd:0.3,range:640,heavy:4},staff:{cd:0.5,range:540,heavy:3},hammer:{cd:0.7,range:80,heavy:3}};
 const ULTS={
   shock:{icon:'💥',name:'Shockwave',cd:9,col:'#ffd166',desc:'Blast every enemy around you away and stun them.'},
   storm:{icon:'🏹',name:'Arrow Storm',cd:14,col:'#a6f56b',desc:'Rain arrows on the target area for 3 seconds.'},
   hole:{icon:'🌀',name:'Black Hole',cd:15,col:'#b48cff',desc:'A singularity pulls enemies in, then detonates.'},
+  shadow:{icon:'🗡️',name:'Death Mark',cd:13,col:'#ff5fa2',desc:'Vanish and strike the 8 nearest enemies for massive critical damage.'},
   quake:{icon:'🌋',name:'Earthquake',cd:16,col:'#ff7a59',desc:'Shake the whole arena: damage and stun every enemy.'},
 };
 const RAR={common:{col:'#9fb0ff',w:10,lbl:'COMMON'},rare:{col:'#5cc8ff',w:6,lbl:'RARE'},epic:{col:'#b48cff',w:2.6,lbl:'EPIC'},legend:{col:'#ff7a59',w:1,lbl:'LEGENDARY'}};
@@ -546,6 +555,7 @@ const CARDS = [
   {id:'hc',icon:'🌀',name:'Blade Dancer',max:3,rar:'epic',req:()=>S.hero==='captain',d:l=>'CAPTAIN — spin attack: +30% radius and +40% damage.'},
   {id:'hr',icon:'🏹',name:'Multishot',max:2,rar:'epic',req:()=>S.hero==='ranger',d:l=>'RANGER — every shot fires 2 extra arrows.'},
   {id:'ha',icon:'🌟',name:'Supernova',max:3,rar:'epic',req:()=>S.hero==='arcanist',d:l=>'ARCANIST — star orbs explode 35% wider, novas deal +50% damage.'},
+  {id:'hs',icon:'🩸',name:'Assassinate',max:3,rar:'epic',req:()=>S.hero==='shade',d:l=>'SHADE — critical hits deal +60% damage.'},
   {id:'hw',icon:'🔨',name:'Earthshaker',max:3,rar:'epic',req:()=>S.hero==='warden',d:l=>'WARDEN — hammer smashes are 25% wider and stun 0.3s longer.'},
 ];
 const EVOS=[
@@ -587,17 +597,17 @@ const SYN=[
 ];
 const MAPS={
   ruins:{name:'Moonlit Ruins',d:'Where every Gatewarden begins.',hp:1,shard:1,spawn:1,pal:['#21506a','#173852','#0a1528'],grass:'80,215,175',deco:'#2a3266',glow:'62,242,208',amb:'fireflies',unlock:null,extra:{wisp:[2,3.5],sentinel:[5,2]}},
-  frost:{name:'Frozen Pass',d:'Wolf packs & shield walls · Enemies +35% HP · Shards ×1.5',hp:1.35,shard:1.5,spawn:1.1,pal:['#4a7ca6','#29507a','#0e1c38'],grass:'210,240,255',deco:'#3d5488',glow:'155,232,255',amb:'snow',unlock:null,bias:{wolf:1.8,shield:1.6},extra:{frostwolf:[2,4],icegiant:[5,1.8]}},
-  marsh:{name:'Witchmarsh',d:'Toxic pools & leeches · Enemies +20% HP · Shards ×1.3',hp:1.2,shard:1.3,spawn:1.05,pal:['#2f5a4a','#1d3b3a','#0b1622'],grass:'150,230,140',deco:'#3a3560',glow:'180,140,255',amb:'fireflies',unlock:null,bias:{slime:1.8,shaman:1.6},extra:{leech:[2,4],toad:[4,2]}},
-  cave:{name:'Crystal Caverns',d:'Mana pools recharge your skills · Enemies +10% HP · Shards ×1.15',hp:1.1,shard:1.15,spawn:1.02,pal:['#3d3275','#261e4e','#0c0a20'],grass:'190,150,255',deco:'#3b3470',glow:'200,130,255',gate:'#c77dff',amb:'fireflies',unlock:null,bias:{bat:1.8,skel:1.4},extra:{shardbat:[2,4],geode:[5,2]},
+  frost:{name:'Frozen Pass',d:'Wolf packs & shield walls · Enemies +35% HP · Shards ×1.5',hp:1.35,shard:1.5,spawn:1.1,pal:['#4a7ca6','#29507a','#0e1c38'],grass:'210,240,255',deco:'#3d5488',glow:'155,232,255',amb:'snow',unlock:null,bias:{wolf:1.8,shield:1.6},extra:{frostwolf:[2,4],icegiant:[5,1.8]},mus:[-2,.92]},
+  marsh:{name:'Witchmarsh',d:'Toxic pools & leeches · Enemies +20% HP · Shards ×1.3',hp:1.2,shard:1.3,spawn:1.05,pal:['#2f5a4a','#1d3b3a','#0b1622'],grass:'150,230,140',deco:'#3a3560',glow:'180,140,255',amb:'fireflies',unlock:null,bias:{slime:1.8,shaman:1.6},extra:{leech:[2,4],toad:[4,2]},mus:[-4,.9]},
+  cave:{name:'Crystal Caverns',d:'Mana pools recharge your skills · Enemies +10% HP · Shards ×1.15',hp:1.1,shard:1.15,spawn:1.02,pal:['#3d3275','#261e4e','#0c0a20'],grass:'190,150,255',deco:'#3b3470',glow:'200,130,255',mus:[3,.95],gate:'#c77dff',amb:'fireflies',unlock:null,bias:{bat:1.8,skel:1.4},extra:{shardbat:[2,4],geode:[5,2]},
     kit:{pool:['190,120,255','rgba(10,8,30,.7)'],items:[['crystal',26,'#c77dff'],['crystal',18,'#5ce1e6'],['mushroom',18,'#5ce1e6']]}},
-  dunes:{name:'Sunscar Dunes',d:'Quicksand slows everyone · Enemies +25% HP · Shards ×1.35',hp:1.25,shard:1.35,spawn:1.06,pal:['#6b4a2e','#432b20','#170e10'],grass:'230,190,120',deco:'#5a3d2a',glow:'255,190,110',gate:'#ffb86b',amb:'embers',unlock:null,bias:{charger:1.8,wolf:1.4},extra:{scarab:[1,5],sandbrute:[5,2]},
+  dunes:{name:'Sunscar Dunes',d:'Quicksand slows everyone · Enemies +25% HP · Shards ×1.35',hp:1.25,shard:1.35,spawn:1.06,pal:['#6b4a2e','#432b20','#170e10'],grass:'230,190,120',deco:'#5a3d2a',glow:'255,190,110',mus:[5,1.05],gate:'#ffb86b',amb:'embers',unlock:null,bias:{charger:1.8,wolf:1.4},extra:{scarab:[1,5],sandbrute:[5,2]},
     kit:{pool:['214,170,96','rgba(40,24,12,.6)'],items:[['mound',22,'rgba(230,190,120,.2)'],['bones',20],['cactus',30,'#3f7a4a'],['dead',16,'#3a2416']]}},
-  grave:{name:'Bloodmoon Graveyard',d:'Spirit wells empower you · Enemies +40% HP · Shards ×1.6',hp:1.4,shard:1.6,spawn:1.1,pal:['#4d2a4c','#2e1932','#100814'],grass:'200,140,190',deco:'#463a5e',glow:'255,95,162',gate:'#ff5fa2',amb:'fireflies',unlock:null,bias:{skel:2,shaman:1.5},extra:{ghoul:[2,4],boneknight:[4,2.4]},
+  grave:{name:'Bloodmoon Graveyard',d:'Spirit wells empower you · Enemies +40% HP · Shards ×1.6',hp:1.4,shard:1.6,spawn:1.1,pal:['#4d2a4c','#2e1932','#100814'],grass:'200,140,190',deco:'#463a5e',glow:'255,95,162',mus:[-5,.97],gate:'#ff5fa2',amb:'fireflies',unlock:null,bias:{skel:2,shaman:1.5},extra:{ghoul:[2,4],boneknight:[4,2.4]},
     kit:{pool:['255,95,162','rgba(16,6,18,.7)'],items:[['bones',14],['tomb',40,'#5a4e78'],['dead',20,'#1c1024'],['arch',10]]}},
-  storm:{name:'Stormpeak',d:'Charged water shocks enemies · Enemies +45% HP · Shards ×1.75',hp:1.45,shard:1.75,spawn:1.12,pal:['#3e4a68','#273048','#0b0e1a'],grass:'170,200,255',deco:'#39425e',glow:'255,224,102',gate:'#ffe066',amb:'snow',unlock:null,bias:{bat:1.6,charger:1.5},extra:{stormhawk:[2,4],thunderer:[5,1.8]},
+  storm:{name:'Stormpeak',d:'Charged water shocks enemies · Enemies +45% HP · Shards ×1.75',hp:1.45,shard:1.75,spawn:1.12,pal:['#3e4a68','#273048','#0b0e1a'],grass:'170,200,255',deco:'#39425e',glow:'255,224,102',mus:[2,1.08],gate:'#ffe066',amb:'snow',unlock:null,bias:{bat:1.6,charger:1.5},extra:{stormhawk:[2,4],thunderer:[5,1.8]},
     kit:{pool:['255,221,102','rgba(10,12,26,.7)'],items:[['pine',36,'#2a4466'],['crystal',14,'#ffe066'],['spike',20,'#2a2f48']]}},
-  hell:{name:'Hellforge',d:'Boomshrooms & Tuskers · Enemies +55% HP · Shards ×2',hp:1.55,shard:2,spawn:1.15,pal:['#5e2440','#391634','#16081a'],grass:'255,150,90',deco:'#4c1f3c',glow:'255,122,89',amb:'embers',unlock:null,bias:{bomber:1.8,charger:1.6,brute:1.3},extra:{imp:[1,5],magma:[4,2]}},
+  hell:{name:'Hellforge',d:'Boomshrooms & Tuskers · Enemies +55% HP · Shards ×2',hp:1.55,shard:2,spawn:1.15,pal:['#5e2440','#391634','#16081a'],grass:'255,150,90',deco:'#4c1f3c',glow:'255,122,89',amb:'embers',unlock:null,bias:{bomber:1.8,charger:1.6,brute:1.3},extra:{imp:[1,5],magma:[4,2]},mus:[-7,1.1]},
 };
 const MAP_ORDER=['ruins','cave','frost','dunes','marsh','grave','storm','hell'];
 const PERM={
@@ -717,7 +727,9 @@ const skName = k => {const id=skillOf(k);return id?SKILLS[id].name:'Skill';};
 const SK_POW=1.25,SK_CD=0.8;
 const skP = k => SK_POW*(1+0.4*cl(k+'m'));
 const interestCap = () => 5 + (has('piggy')?5:0);
-const bossFor = w => BOSS_BY_WAVE[w] || (w>20 && w%5===0 ? BOSS_CYCLE[((w/5)-1)%4] : null);
+const LAND_BOSS={ruins:'king',cave:'crystalcol',frost:'frostwitch',dunes:'sandking',marsh:'plaguewitch',grave:'colossus',storm:'stormlord',hell:'witch'};
+const sceneAt = w => MAP_ORDER[(MAP_ORDER.indexOf(S.map)+w-1)%MAP_ORDER.length];
+const bossFor = w => (w===5||w===10||w===15) ? LAND_BOSS[sceneAt(w)] : BOSS_BY_WAVE[w] || (w>20 && w%5===0 ? BOSS_CYCLE[((w/5)-1)%4] : null);
 const synCount = k => S.army.filter(u=>u.type===k).length;
 const coreMax = () => Math.round((350*(1+0.25*cl('fort'))+(has('gate')?150:0)+40*S.train.gate+30*P.perm.fortress)*(S.asc>=3?0.8:1));
 const TRAIN={atk:{icon:'🗡️',name:'Weapon Drill',d:'+8% hero damage',base:25,g:1.35},hp:{icon:'💪',name:'Endurance',d:'+15 hero max HP',base:20,g:1.33},gate:{icon:'🧱',name:'Masonry',d:'+40 Gate max HP',base:30,g:1.38}};
@@ -754,7 +766,7 @@ function hs(){
   const buffed=bp>0;atk*=1+bp;
   if(has('berserk')&&hr&&hr.hp<hr.maxHp*0.5)atk*=1.35;
   const v={maxHp,atk,buffed,cd:W.cd/(1+0.15*cl('speed'))/(1+bp*0.75)/(F.buff&&F.buff.haste>0?1.3:1),range:W.range*(1+0.18*cl('reach')),area:1+0.18*cl('reach'),spd:H.spd*(1+0.1*cl('fleet'))*(1+0.04*pm.swift)*(modOn('haste')?1.2:1)*(F.buff&&F.buff.haste>0?1.35:1)*(F.onIce?1.3:1)*(F.heroSlow>0?0.65:1),
-    crit:0.05+0.08*cl('crit')+(has('edge')?0.2:0),critMul:has('edge')?2.5:2,leech:0.02*cl('leech')+(has('vamp')?0.06:0),
+    crit:0.05+(H.crit||0)+0.08*cl('crit')+(has('edge')?0.2:0),critMul:(has('edge')?2.5:2)+0.6*cl('hs'),leech:0.02*cl('leech')+(has('vamp')?0.06:0),
     taken:Math.pow(0.9,cl('skin'))*(H.armor||1),magnet:has('magnetc')?3000:90*(1+0.4*cl('magnet')),heavyEvery:Math.max(2,W.heavy-cl('whirl'))};
   HSC={t:F.t,v};return v;
 }
@@ -806,14 +818,14 @@ const TRACKS={
 };
 const MUS={gain:null,track:null,step:0,nextT:0,timer:null,
   init(){if(!AU.ctx||this.gain)return;this.gain=AU.ctx.createGain();this.gain.gain.value=musVol()*0.45;this.gain.connect(AU.out);},
-  note(m){return 440*Math.pow(2,(m-69)/12);},
+  note(m){return 440*Math.pow(2,(m+(this.tr||0)-69)/12);},
   voice(f,t,d,type,v,cut){const c=AU.ctx;const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+d);let n=o;if(cut){const fl=c.createBiquadFilter();fl.type='lowpass';fl.frequency.value=cut;o.connect(fl);n=fl;}n.connect(g);g.connect(this.gain);o.start(t);o.stop(t+d+0.05);},
   drum(kind,t){const c=AU.ctx;
     if(kind==='k'){const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(45,t+0.12);g.gain.setValueAtTime(0.55,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.16);o.connect(g);g.connect(this.gain);o.start(t);o.stop(t+0.2);return;}
     if(!this.nb){const b=c.createBuffer(1,c.sampleRate*0.3,c.sampleRate);const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;this.nb=b;}
     const len=kind==='s'?0.14:0.035,s=c.createBufferSource();s.buffer=this.nb;const f=c.createBiquadFilter();f.type=kind==='s'?'bandpass':'highpass';f.frequency.value=kind==='s'?1800:7000;const g=c.createGain();g.gain.setValueAtTime(kind==='s'?0.26:0.07,t);g.gain.exponentialRampToValueAtTime(0.0001,t+len);s.connect(f);f.connect(g);g.connect(this.gain);s.start(t);s.stop(t+len+0.02);},
   play(name){if(!AU.ctx)return;this.init();if(this.track===name)return;this.track=name;this.step=0;this.nextT=AU.ctx.currentTime+0.08;if(!this.timer)this.timer=setInterval(()=>this.tick(),40);},
-  tick(){if(!this.track||!AU.ctx||musVol()<=0.001)return;const T=TRACKS[this.track];const spb=60/T.bpm/4;if(this.nextT<AU.ctx.currentTime-0.5)this.nextT=AU.ctx.currentTime+0.05;while(this.nextT<AU.ctx.currentTime+0.2){this.sched(T,this.step,this.nextT,spb);this.step++;this.nextT+=spb;}},
+  tick(){if(!this.track||!AU.ctx||musVol()<=0.001)return;const T=TRACKS[this.track];const spb=60/(T.bpm*(this.bm||1))/4;if(this.nextT<AU.ctx.currentTime-0.5)this.nextT=AU.ctx.currentTime+0.05;while(this.nextT<AU.ctx.currentTime+0.2){this.sched(T,this.step,this.nextT,spb);this.step++;this.nextT+=spb;}},
   sched(T,st,t,spb){const bar=Math.floor(st/16)%T.prog.length,s=st%16,ch=T.prog[bar];
     const b=T.bass[s];if(b&&b!=='.'){const n=ch[0]-12+(b==='o'?12:0);this.voice(this.note(n),t,spb*1.7,'triangle',0.26,1000);}
     const a=T.arp&&T.arp[s];if(a&&a!=='.'){const idx=+a;const n=ch[idx%3]+(idx>=3?12:0)+12;this.voice(this.note(n),t,spb*0.9,'square',0.04,2600);}
@@ -1010,6 +1022,28 @@ function drawEnemy(c,type,t,atk){
     for(const [x,y,a] of [[-26,-34,-0.7],[-6,-54,-0.15],[18,-48,0.5],[32,-24,1.0]]){c.save();c.translate(x,y);c.rotate(a);c.beginPath();c.moveTo(-5,2);c.lineTo(0,-16);c.lineTo(5,2);c.closePath();fs(c,'#3a1d32',2.4);c.restore();}
     ell(c,0,-14,15,13);fs(c,'#1c0a16',2.6);c.fillStyle=atk?'#ffd166':'#ff5fa2';circ(c,-5,-17,3);c.fill();circ(c,6,-15,3);c.fill();
     c.restore();break;}
+  case 'ghost':{
+    const fl=Math.sin(t*5)*3;c.save();c.translate(0,-14+fl);
+    c.beginPath();c.moveTo(-15,8);c.quadraticCurveTo(-18,-34,0,-36);c.quadraticCurveTo(18,-34,15,8);c.lineTo(9,2);c.lineTo(4,9);c.lineTo(-1,2);c.lineTo(-6,9);c.lineTo(-10,2);c.closePath();fs(c,'#cfd4ff',2.6);
+    c.fillStyle='rgba(120,130,200,.35)';c.beginPath();c.moveTo(-15,8);c.quadraticCurveTo(-17,-18,-8,-30);c.quadraticCurveTo(-11,-10,-10,2);c.closePath();c.fill();
+    c.save();c.translate(11,-14);c.rotate(atk?-0.9:0.2);rr(c,0,-3,14,6,3);fs(c,'#cfd4ff',2.2);c.restore();
+    c.fillStyle='#1c0a2e';ell(c,3,-21,3.2,4.4);c.fill();ell(c,11,-21,2.8,4);c.fill();c.fillStyle=atk?'#ff5fa2':'#3ef2d0';circ(c,3.5,-21,1.4);c.fill();circ(c,11.3,-21,1.3);c.fill();
+    c.restore();break;}
+  case 'beetle':{
+    const lg=Math.sin(t*14)*4;c.strokeStyle=OL;c.lineWidth=2.6;for(const [x,s] of [[-8,1],[0,-1],[8,1]]){c.beginPath();c.moveTo(x,-6);c.lineTo(x-3+lg*s,2);c.stroke();c.beginPath();c.moveTo(x,-8);c.lineTo(x+4-lg*s,2);c.stroke();}
+    ell(c,0,-12,17,10);fs(c,'#8a5a2c',2.6);c.strokeStyle='rgba(20,10,5,.6)';c.lineWidth=2;c.beginPath();c.moveTo(-2,-22);c.lineTo(-2,-2);c.stroke();
+    c.fillStyle='rgba(255,255,255,.18)';ell(c,-6,-16,7,3);c.fill();
+    ell(c,15,-11,7,6);fs(c,'#5a3a1c',2.4);const pn=atk?0.5:0;c.strokeStyle=OL;c.lineWidth=2.6;c.beginPath();c.moveTo(19,-14);c.quadraticCurveTo(27,-18-pn*6,25,-10);c.moveTo(19,-8);c.quadraticCurveTo(27,-4+pn*6,25,-11);c.stroke();
+    c.fillStyle='#ffd166';circ(c,17,-13,1.6);c.fill();break;}
+  case 'crystalgolem':{
+    c.save();c.translate(0,bob);
+    rr(c,-12,-10,9,10,2);fs(c,'#4a3d8a');rr(c,3,-10,9,10,2);fs(c,'#4a3d8a');
+    c.beginPath();c.moveTo(-18,-12);c.lineTo(-14,-40);c.lineTo(0,-50);c.lineTo(15,-40);c.lineTo(18,-12);c.closePath();fs(c,'#8b6cff',3);
+    for(const [x,y,h2,w2] of [[-10,-44,16,6],[2,-50,20,7],[12,-42,13,5]]){c.beginPath();c.moveTo(x-w2,y);c.lineTo(x,y-h2);c.lineTo(x+w2,y);c.closePath();fs(c,'#c9a0ff',2.4);}
+    c.save();c.translate(16,-32);c.rotate(atk?-0.9:0.15);c.beginPath();c.moveTo(0,-5);c.lineTo(20,-2);c.lineTo(22,6);c.lineTo(0,6);c.closePath();fs(c,'#8b6cff',2.6);c.restore();
+    c.fillStyle='rgba(255,255,255,.3)';c.beginPath();c.moveTo(-12,-16);c.lineTo(-9,-38);c.lineTo(-2,-44);c.lineTo(-4,-16);c.closePath();c.fill();
+    c.fillStyle=atk?'#ffd166':'#3ef2d0';circ(c,-3,-30,2.4);c.fill();circ(c,7,-30,2.4);c.fill();
+    c.restore();break;}
   case 'goblin':case 'shaman':case 'king':{
     const k=type==='king', sh=type==='shaman';
     const skin=sh?'#6fcf8a':'#6cc24a';
@@ -1181,7 +1215,7 @@ function portrait(col,drawFn){
 const sprScale = k => (ED[k].sc||1)*(ED[k].boss?1.1:1.25);
 function buildImages(){
   for(const k of ORDER){IMG[k]=portrait(UNIT[k].col,c=>{const sc=k==='dragon'?1.05:k==='mage'?1.12:1.35;c.translate(k==='dragon'?46:48,k==='mage'?86:83);c.scale(sc,sc);drawHero(c,k,0.26,0);});}
-  for(const k of HERO_ORDER){IMG[k]=portrait(HEROES[k].col,c=>{const sc=k==='arcanist'?1.08:k==='warden'?1.18:1.28;c.translate(46,k==='arcanist'?88:86);c.scale(sc,sc);drawHero(c,k,0.3,0);});}
+  for(const k of HERO_ORDER){IMG[k]=portrait(HEROES[k].col,c=>{const sc=k==='arcanist'?1.08:k==='warden'?1.18:1.28;c.translate(46,k==='arcanist'?88:86);c.scale(sc,sc);drawHero(c,sprOf(k),0.3,0);});}
   for(const k of Object.keys(ED)){
     const cv=document.createElement('canvas');cv.width=cv.height=104;const c=cv.getContext('2d');c.scale(2,2);const d=ED[k];const sc=Math.min(0.9,40/d.h);c.translate(26,48);c.scale(-sc,sc);c.filter=d.tint||'none';drawEnemy(c,d.base||k,0.3,0);EIMG[k]=cv.toDataURL();
     const s=sprScale(k), w=Math.ceil(150*s), h=Math.ceil((d.h+44)*s), ox=w/2, oy=h-12*s, per=(d.base||k)==='bat'?Math.PI*2/20:Math.PI*2/7;
@@ -1192,7 +1226,7 @@ function buildImages(){
     for(let a=0;a<3;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);drawHero(x,k,f/6*per,a*0.5);USPR[k].frames.push(fc);}}
   {const s=1.25,w=Math.ceil(80*s),h=Math.ceil(60*s),ox=w/2,oy=h-8*s,per=Math.PI*2/7;WSPR={ox,oy,per,frames:[]};
     for(let a=0;a<2;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);x.filter='hue-rotate(150deg) brightness(1.4) saturate(1.3)';drawEnemy(x,'wolf',f/6*per,a?0.85:0);WSPR.frames.push(fc);}}
-  for(const k of HERO_ORDER){const s=1.45,w=Math.ceil(110*s),h=Math.ceil(100*s);const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(w/2,h-10*s);x.scale(s,s);drawHero(x,k,0,0.6);x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-atop';const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#ffffff');g.addColorStop(0.35,HEROES[k].col);g.addColorStop(1,HEROES[k].col);x.fillStyle=g;x.globalAlpha=0.92;x.fillRect(0,0,w,h);GHOSTS[k]={img:fc,ox:w/2,oy:h-10*s};}
+  for(const k of HERO_ORDER){const s=1.45,w=Math.ceil(110*s),h=Math.ceil(100*s);const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(w/2,h-10*s);x.scale(s,s);drawHero(x,sprOf(k),0,0.6);x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-atop';const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#ffffff');g.addColorStop(0.35,HEROES[k].col);g.addColorStop(1,HEROES[k].col);x.fillStyle=g;x.globalAlpha=0.92;x.fillRect(0,0,w,h);GHOSTS[k]={img:fc,ox:w/2,oy:h-10*s};}
   for(const [k,col,sz] of [['g1','#a6f56b',4.5],['g3','#5cc8ff',6],['g5','#b48cff',7]]){const S2=40,fc=document.createElement('canvas');fc.width=fc.height=S2;const x=fc.getContext('2d');x.translate(S2/2,S2/2);const g=x.createRadialGradient(0,0,1,0,0,16);g.addColorStop(0,hexA(col,.55));g.addColorStop(1,hexA(col,0));x.fillStyle=g;x.fillRect(-20,-20,40,40);x.beginPath();x.moveTo(0,-sz);x.lineTo(sz*0.75,0);x.lineTo(0,sz);x.lineTo(-sz*0.75,0);x.closePath();x.fillStyle=col;x.fill();x.fillStyle='rgba(255,255,255,.75)';x.beginPath();x.moveTo(0,-sz);x.lineTo(-sz*0.4,0);x.lineTo(0,-1);x.closePath();x.fill();GEMS[k]=fc;}
 }
 function glowSpr(col,r){const k=col+r;if(GLOW[k])return GLOW[k];const S2=Math.ceil(r*6),fc=document.createElement('canvas');fc.width=fc.height=S2;const x=fc.getContext('2d');const g=x.createRadialGradient(S2/2,S2/2,0,S2/2,S2/2,S2/2);g.addColorStop(0,hexA(col,.9));g.addColorStop(0.25,hexA(col,.55));g.addColorStop(1,hexA(col,0));x.fillStyle=g;x.fillRect(0,0,S2,S2);x.fillStyle='rgba(255,255,255,.9)';x.beginPath();x.arc(S2/2,S2/2,r*0.45,0,Math.PI*2);x.fill();return GLOW[k]=fc;}
@@ -1605,6 +1639,10 @@ function castUlt(x,y){
   }else if(u==='hole'){
     F.holes.push({x,y,r:270,er:r,t:2.6,max:2.6,tick:0,dmg:st.atk*4*um});
     AU.tone(80,1.2,'sine',.09,3);AU.noise(1,.05,500);
+  }else if(u==='shadow'){
+    const tg=F.enemies.filter(e=>e.alive&&dist(e,hr)<640).sort((a,b)=>dist(a,hr)-dist(b,hr)).slice(0,8);hr.inv=Math.max(hr.inv,0.7);
+    for(const e of tg){F.slashes.push({x:e.x,y:e.y-24,ang:rand(0,Math.PI*2),arc:Math.PI,range:70,life:.25,max:.25,big:true,dir:1,col:'#ff5fa2'});hitEnemy(e,st.atk*4.5*um,'shock',{crit:true});}
+    shake(14);F.hitStop=0.1;AU.swish(true);
   }else if(u==='quake'){
     const dmg=st.atk*2.1*um;
     for(const e of F.enemies){if(!e.alive)continue;hitEnemy(e,dmg,'quake',{});if(e.alive)e.stun=Math.max(e.stun,e.boss?0.4:1.2);}
@@ -1779,6 +1817,7 @@ function spawnEnemy(key,x,y,opts){
   const e={side:'e',id:F.eid++,type:key,x,y,r:d.r*(d.boss?1.1:1.25)*(d.sc||1),sc:sprScale(key),h:d.h,hp:d.hp*hm,maxHp:d.hp*hm,atk:d.atk*atkMult(w),
     cdT:rand(0,.6),range:d.range,spd:d.spd*rand(.9,1.1),alive:true,flash:0,atkAnim:0,anim:rand(0,6),face:x<CORE.x?1:-1,boss:!!d.boss,moving:true,frozen:0,stun:0,elite:false,oc:0,
     patT:2.5,patI:0,busy:0,chT:rand(1,2.5),state:null,slowT:0,taunt:0,wander:rand(0,Math.PI*2),life:d.treasure?14:0};
+  if(d.boss&&w<=20&&d.tier!==undefined){const t=clamp(Math.round(w/5)-1,0,3),BH=[900,2300,3300,7400],BA=[1,1.3,1.6,2];e.hp=e.maxHp=BH[t]*hm;e.atk=d.atk*BA[t]/BA[d.tier]*atkMult(w);}
   e.spd*=(S.asc>=4?1.12:1)*(modOn('haste')?1.2:1);
   if(opts&&opts.elite){e.elite=true;e.hp*=5;e.maxHp*=5;e.atk*=1.5;e.r*=1.3;e.affix=w>=3?['swift','armored','explosive','vampiric'][Math.floor(Math.random()*4)]:'swift';if(e.affix==='swift')e.spd*=1.6;if(opts.guaranteed)e.guaranteed=true;}
   if(d.boss){WV.bossEnt=e;AU.boss();banner(d.name,BOSS_LINE[key]||'has entered the arena','#ff5fa2');shake(10);}
@@ -2108,7 +2147,7 @@ function inPool(x,y){for(const p of POOLS){const dx=(x-p.x)/p.rx,dy=(y-p.y)/p.ry
 function pushOut(e,rr){for(const o of OBST){const dx=e.x-o.x,dy=(e.y-o.y)*1.6,R=o.r+rr;if(dx>R||dx<-R||dy>R||dy<-R)continue;const d2=dx*dx+dy*dy;if(d2<R*R){const d=Math.sqrt(d2)||0.01,k=(R-d)/d;e.x+=dx*k;e.y+=dy*k/1.6;}}}
 function freeSpot(dMin,dMax){for(let i=0;i<40;i++){const a=rand(0,Math.PI*2),d=rand(dMin,dMax),p={x:clamp(CORE.x+Math.cos(a)*d,AR.x0+60,AR.x1-60),y:clamp(CORE.y+Math.sin(a)*d*0.62,AR.y0+60,AR.y1-60)};if(inPool(p.x,p.y))continue;pushOut(p,34);return p;}return {x:CORE.x+520,y:CORE.y};}
 const SHRINES={fury:{icon:'⚔️',name:'SHRINE OF FURY',d:'+60% damage for 25 seconds',col:'#ff5fa2'},haste:{icon:'💨',name:'SHRINE OF HASTE',d:'+35% move and attack speed for 25 seconds',col:'#5cc8ff'},mend:{icon:'💚',name:'SHRINE OF MENDING',d:'Hero fully healed · Gate repaired 15%',col:'#7ff3e1'},fortune:{icon:'💰',name:'SHRINE OF FORTUNE',d:'A pile of gold!',col:'#ffd166'}};
-const BOSS_LINE={king:'"Your Gate will make a fine throne."',colossus:'"Bones remember. Bones return."',witch:'"I have seen your Gate fall in every future."',demon:'"I was sealed behind that Gate. Open it."'};
+const BOSS_LINE={king:'"Your Gate will make a fine throne."',colossus:'"Bones remember. Bones return."',witch:'"I have seen your Gate fall in every future."',demon:'"I was sealed behind that Gate. Open it."',crystalcol:'"The deep stone remembers you."',frostwitch:'"Winter does not bargain."',sandking:'"The dunes swallow every wall."',plaguewitch:'"Breathe deep, little warden."',stormlord:'"I am the thunder before the fall."'};
 function spawnWorld(){
   const w=S.wave;F.shrines=[];F.buff={};F.onIce=false;F.poolT=0;F.turT=1;
   const ks=shuffle(Object.keys(SHRINES));for(let i=0;i<2;i++){const p=freeSpot(520,1250);F.shrines.push({x:p.x,y:p.y,k:ks[i],t:rand(0,6)});}
@@ -2164,12 +2203,13 @@ const UNLOCKS=[
   {id:'hr',need:()=>mLevel('ranger')>=2,txt:'Reach Ranger Mastery 2'},
   {id:'ha',need:()=>mLevel('arcanist')>=2,txt:'Reach Arcanist Mastery 2'},
   {id:'hw',need:()=>mLevel('warden')>=2,txt:'Reach Warden Mastery 2'},
+  {id:'hs',need:()=>mLevel('shade')>=2,txt:'Reach Shade Mastery 2'},
 ];
 function isUnl(id){return !!P.unl[id]||!UNLOCKS.some(u=>u.id===id);}
 function checkUnlocks(){const got=[];for(const u of UNLOCKS)if(!P.unl[u.id]&&u.need()){P.unl[u.id]=1;got.push(u.id);}if(got.length)saveP();return got;}
 function unlockHTML(){const got=checkUnlocks();let h=got.map(id=>{const cd=CARDS.find(c=>c.id===id);return `<div class="shardLine" style="margin-top:8px;background:rgba(62,242,208,.1);border-color:rgba(62,242,208,.45);color:#b8fff0">🃏 NEW CARD UNLOCKED: ${cd.icon} ${cd.name.toUpperCase()}</div>`;}).join('');
   const nx=UNLOCKS.find(u=>!P.unl[u.id]&&!fullOnlyHero(u.id));if(nx){const cd=CARDS.find(c=>c.id===nx.id);h+=`<p style="font-size:13px;margin-top:10px">Next card to unlock: <b style="color:#dfe3ff">${cd.icon} ${cd.name}</b> — ${nx.txt}</p>`;}return h;}
-function fullOnlyHero(id){const m={ha:'arcanist',hw:'warden',hr:'ranger',hc:'captain'}[id];return !!m&&typeof fullOnly==='function'&&fullOnly(m);}
+function fullOnlyHero(id){const m={ha:'arcanist',hw:'warden',hr:'ranger',hc:'captain',hs:'shade'}[id];return !!m&&typeof fullOnly==='function'&&fullOnly(m);}
 function spawnPoint(){let p;for(let i=0;i<8;i++){p=edgePoint();if(p.x<CAM.x-70||p.x>CAM.x+VW+70||p.y<CAM.y-70||p.y>CAM.y+990)return p;}ring(p.x,p.y-10,'#b48cff',70,.45);burst(p.x,p.y-16,'#b48cff',14,200);return p;}
 const TOUCH=(()=>{try{return matchMedia('(pointer:coarse)').matches&&!matchMedia('(any-pointer:fine)').matches;}catch(e){return false;}})()||/[?&]touch\b/.test(location.search);
 const TJ={id:null,ox:0,oy:0,x:0,y:0};
@@ -2322,7 +2362,7 @@ function drawUnitEnt(c,e){
   if(!e.isHero&&e.star===3){c.fillStyle='rgba(255,209,102,.12)';ell(c,e.x,e.y+2,e.r*1.7,e.r*0.6);c.fill();}
   if(e.isHero){
     const ps=heroPose(e), lx=Math.cos(e.aimA||0)*ps.lunge, ly=Math.sin(e.aimA||0)*ps.lunge*0.6+ps.lift, br=Math.sin(F.t*3)*0.015;
-    const paint=x=>{x.scale(sc*e.face*ps.sx,sc*(ps.sy+br));x.rotate(ps.lean);if(ps.smear)drawSmear(x,e.type,ps.smear);drawHero(x,e.type,e.anim*(e.moving?1:0.35),ps.sw);};
+    const paint=x=>{x.scale(sc*e.face*ps.sx,sc*(ps.sy+br));x.rotate(ps.lean);if(ps.smear)drawSmear(x,e.type,ps.smear);drawHero(x,sprOf(e.type),e.anim*(e.moving?1:0.35),ps.sw);};
     const skin=SKINS[P.skin[e.type]||'default'];
     if(hs().buffed){const gb=glowSpr('#ffd166',24);c.globalAlpha=0.35+0.15*Math.sin(F.t*8);c.drawImage(gb,e.x-gb.width/2,e.y-40-gb.height/2);c.globalAlpha=1;}
     if(skin&&skin.f&&S.phase!=='title'){
@@ -2997,6 +3037,7 @@ function syncMusic(force){
   else if(S.phase==='battle'||S.phase==='collect')want=WV&&WV.boss&&WV.bossEnt&&WV.bossEnt.alive?'boss':'battle';
   else if(S.phase==='shop')want='shop';
   else if(S.phase==='victory')want='title';
+  {const mu=(want==='battle'||want==='boss')?(MAPS[scn()].mus||[0,1]):[0,1];MUS.tr=mu[0];MUS.bm=mu[1];}
   if(want!==MUS.track||force){if(want)MUS.play(want);else MUS.track=null;}
 }
 let prevGold=null;

@@ -1,6 +1,6 @@
 // Gatewarden web config — edit this file, no rebuild needed.
 window.GW_CONFIG = {
-  // true  = free DEMO (waves 1-10, Captain + Ranger, all 8 lands) with a "Wishlist on Steam" button.
+  // true  = free DEMO (waves 1-10, Captain + Ranger + Shade, all 8 lands) with a "Wishlist on Steam" button.
   // false = the FULL game in the browser (not recommended while you sell it on Steam).
   demo: true,
   demoWaves: 10,

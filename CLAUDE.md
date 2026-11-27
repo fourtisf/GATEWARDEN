@@ -197,6 +197,13 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 
 **Eight lands:** `MAP_ORDER` is ruins, cave, frost, dunes, marsh, grave, storm, hell. The four newer ones (cave, dunes, grave, storm) are data-driven: `MAPS[k].kit` = pool colours + a list of scenery items drawn by the generic branch at the top of `scenery()`; `MAPS[k].gate` is the Gate colour. Pool effects per land are in `worldTick` (cave: skills recharge faster; dunes: quicksand slows hero and ground enemies; grave: +30% damage, `F.inWell`; storm: shocks ground enemies). Each has two tinted exclusive enemies in `MAPS[k].extra`. The land picker on hero select is a compact 4×2 grid; the description of the selected land shows in the info line. Map thumbnails for all eight are built at boot (start-up about 1.7 s in headless Chromium). In the website copy `DEMO_MAPS` must be a literal list: it is declared before `MAP_ORDER`. Bot sims: Captain from ruins 10–20; Warden from storm 10–15; Arcanist from grave 7–15.
 
+**Land bosses, land music, new shapes, fifth hero:**
+- Bosses at waves 5, 10 and 15 depend on the land of that wave: `LAND_BOSS[sceneAt(w)]` in `bossFor`. Five are tinted variants (`crystalcol`, `frostwitch`, `sandking`, `plaguewitch`, `stormlord`) with their own patterns and summons. Any boss can appear at any of those waves, so `spawnEnemy` sets boss HP and attack from the wave tier (`BH`, `BA`, `ED[k].tier`), not from the boss type. Wave 20 is always the Demon Lord.
+- Music: `MAPS[k].mus=[semitones,tempoFactor]` transposes and re-times the battle and boss tracks per land (`MUS.tr`, `MUS.bm`, set in `syncMusic`). Still synthesised.
+- Three new enemy drawings in `drawEnemy`: `ghost`, `beetle`, `crystalgolem` (used by Grave Wraith, Grave Wisp, Scarab, Geode Golem).
+- Fifth hero `shade` (costs 200 shards, in the web demo too): uses the rogue unit sprite via `HEROES[k].spr` / `sprOf()`, sword weapon, +20% crit (`H.crit`), skills tornado and poison, new ultimate `shadow` (Death Mark) in `castUlt`, hero card `hs`.
+- Bot sims: Captain 9–20, Shade 9–12, Ranger from frost 7–13, Warden from hell 10–16, Arcanist from marsh 8–20.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
