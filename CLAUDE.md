@@ -182,6 +182,11 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - New-record bonus per map (`S.prevBest`, `retainHTML`) and a "beat your record" line in the wave 1 banner.
 - MISSIONS screen (`showMissions`) shows the Daily Challenge and Bounties in every build, so the web demo has them again without side panels on the title.
 
+**Pacts, training, records:**
+- After boss waves 5, 10 and 15 (`afterCollect` → `openPact`, not in daily runs) the player may take one of two pacts or walk away. A pact is one of `DAILY_MODS` pushed into `S.mods` for the rest of the run, plus 40 gold. Bot sims must answer the `pact` modal (`pickPact`).
+- First run only: a "Training" checklist (`TUT`, `F.tut`, `drawTut`) for move, kill, dash, skill, shrine; +30 gold when complete (`P.tips.tut`).
+- Records row on the Achievements screen (`P.rec`: best combo, most kills, highest level; best wave per map from `P.best`).
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

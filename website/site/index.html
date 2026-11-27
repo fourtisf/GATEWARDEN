@@ -363,6 +363,12 @@ button{font-family:inherit}
 .missWrap .side .panel{flex:1;box-shadow:none}
 .menuBtns{margin-top:18px;gap:10px}
 .menu{padding:26px 40px}
+.pactRow{display:flex;gap:16px;justify-content:center;margin-top:20px}
+.pactRow .card{flex:1;max-width:280px}
+.recRow{margin-top:10px;gap:8px}
+.recRow .sbox{padding:6px 14px;min-width:0;flex:1}
+.recRow .sbox .v{font-size:18px}
+.recRow .sbox .k{font-size:10px}
 </style>
 </head>
 <body>
@@ -651,7 +657,7 @@ const HERO_SRC=new Set(['hero','blade','wolf','bolt','wave','meteor','shock','fi
 /* ================= persistent save ================= */
 const SAVE_KEY='gatewarden.save.v1';
 function defaultP(){return {shards:0,best:{},perm:{might:0,vigor:0,fortress:0,fortune:0,insight:0,swift:0,purse:0,reroll:0},heroes:{captain:true},maps:{ruins:true,frost:true,hell:true},ach:{},
-  settings:{musicOn:true,master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0,intro:false,unl:{},tips:{},rxp:0,login:{day:'',streak:0}};}
+  settings:{musicOn:true,master:0.8,music:0.55,sfx:0.8,shake:true,numbers:true,fullscreen:true},stats:{runs:0,kills:0,wins:0,elites:0},run:null,last:{hero:'captain',map:'ruins'},asc:{ruins:0,frost:0,hell:0},ascSel:{ruins:0,frost:0,hell:0},hxp:{},skin:{},quests:[],daily:{key:'',best:0,claimed:''},bounties:0,intro:false,unl:{},tips:{},rec:{combo:0,kills:0,level:0},rxp:0,login:{day:'',streak:0}};}
 function readRaw(){if(NATIVE){try{return NATIVE.loadSave()||null;}catch(e){return null;}}try{return localStorage.getItem(SAVE_KEY);}catch(e){return null;}}
 function loadP(){const d=defaultP();try{const s=JSON.parse(readRaw()||'null');if(s){for(const k in d){if(s[k]===undefined)continue;if(d[k]&&typeof d[k]==='object'&&!Array.isArray(d[k])&&s[k]&&typeof s[k]==='object')d[k]=Object.assign(d[k],s[k]);else d[k]=s[k];}}}catch(e){}return d;}
 let P=loadP();
@@ -2063,7 +2069,7 @@ function worldTick(h){
     for(const s of F.shrines){if(Math.hypot(s.x-hr.x,(s.y-hr.y)*1.3)>54)continue;s.done=true;const D=SHRINES[s.k];
       if(s.k==='fury')b.fury=25;else if(s.k==='haste')b.haste=25;else if(s.k==='mend'){hr.hp=hr.maxHp;S.core.hp=Math.min(S.core.max,S.core.hp+S.core.max*0.15);}
       else{const g=25+7*S.wave;S.gold+=g;S.stats.goldEarned+=g;for(let i=0;i<18;i++)addPart({type:'coin',x:s.x,y:s.y-30,vx:rand(-220,220),vy:-rand(200,420),g:700,life:rand(.6,.9),max:.9});floatText(s.x,s.y-74,'+'+g+'g','#ffd166',20,1.2);}
-      castFX(s.x,s.y,D.col,true);banner(D.name,D.d,D.col);AU.chest();}
+      castFX(s.x,s.y,D.col,true);banner(D.name,D.d,D.col);AU.chest();F.shrineUsed=1;}
     F.shrines=F.shrines.filter(s=>!s.done);}
   for(const e of F.enemies){if(!e.alive||e.boss)continue;const d=ED[e.type];if(d.fly||d.nest)continue;pushOut(e,10);}
   for(const u of F.units)if(u.alive)pushOut(u,10);
@@ -2071,6 +2077,7 @@ function worldTick(h){
   if(!P.tips.shrine&&WV&&WV.t>7&&F.shrines.length&&!TEST.turbo){P.tips.shrine=1;saveP();banner('SHRINES','Follow the diamonds on the minimap — step on a shrine for a power boost','#b48cff');}
   if(hp&&!P.tips['pool'+S.map]&&!TEST.turbo){P.tips['pool'+S.map]=1;saveP();toast(S.map==='ruins'?'Healing spring — stand in it to recover HP':S.map==='frost'?'Ice — you move 30% faster on it':'Lava burns! Knock enemies into it',S.map==='hell'?'bad':'good');}
   if(TOUCH&&hr&&hr.alive&&!TEST.auto)touchAuto(hr);
+  if(F.tut&&!TEST.turbo)tutTick(hr);
   F.poolT-=h;if(F.poolT<=0){F.poolT=0.4;
     if(hp&&S.map==='ruins'&&hr.hp<hr.maxHp){healHero(hr.maxHp*0.014);addPart({type:'plus',x:hr.x+rand(-14,14),y:hr.y-30,vx:0,vy:-50,life:.6,max:.6});}
     if(S.map==='hell'){if(hp)damageAlly(hr,5+1.2*S.wave,null);for(const e of F.enemies){if(!e.alive||e.boss||ED[e.type].fly||ED[e.type].nest)continue;if(inPool(e.x,e.y))hitEnemy(e,e.maxHp*0.06+4,'fire',{});}}}
@@ -2135,6 +2142,22 @@ function showMissions(){MENU='missions';const li=loginInfo();overlay(`<div class
   <div class="shardLine" style="margin-top:14px">🎁 LOGIN STREAK: DAY ${li.streak} · ${li.ready?`+${li.reward} SHARDS READY`:'CLAIMED TODAY — COME BACK TOMORROW'}</div>
   ${li.ready?'<div class="mbtns" style="margin-top:10px"><button class="btn mbtn pink small" data-act="login">CLAIM DAILY BONUS</button></div>':''}
   <div class="missWrap">${sideHTML(true)}</div><div class="mbtns"><button class="btn mbtn primary" data-act="back">BACK</button></div></div>`);}
+/* ================= pacts, training checklist ================= */
+function openPact(){const ch=shuffle(Object.keys(DAILY_MODS).filter(m=>!S.mods.includes(m))).slice(0,2);if(!ch.length){S.pactWave=S.wave;openShop();return;}
+  S.modal='pact';S.pactCh=ch;AU.levelup();
+  overlay(`<div class="modal" style="width:960px;background:linear-gradient(180deg,rgba(52,30,96,.94),rgba(16,22,66,.96))"><div class="lvTitle" style="color:#d4c2ff">A PACT IS OFFERED</div><p>The boss is dead. Something in the dark offers you a bargain for the rest of this run.</p>
+  <div class="pactRow">${ch.map((m,i)=>`<div class="card" style="--rc:#b48cff;animation-delay:${i*0.06}s" data-act="pact" data-arg="${i}"><span class="ck">${i+1}</span><span class="cr">PACT</span><div class="ci">${DAILY_MODS[m].icon}</div><div class="cn">${DAILY_MODS[m].name}</div><div class="cl">+40 GOLD NOW</div><div class="cd">${DAILY_MODS[m].d}</div></div>`).join('')}
+  <div class="card" style="--rc:#8f98c9;animation-delay:.12s" data-act="pact" data-arg="2"><span class="ck">3</span><span class="cr">REFUSE</span><div class="ci">🚪</div><div class="cn">Walk Away</div><div class="cl">NO CHANGE</div><div class="cd">Keep the run exactly as it is.</div></div></div></div>`);}
+function pickPact(i){if(S.modal!=='pact')return;const m=S.pactCh[i];S.pactWave=S.wave;S.modal=null;hideOverlay();
+  if(m){S.mods.push(m);S.gold+=40;HSC=null;refreshHero(false);AU.evo();toast(`Pact sealed: ${DAILY_MODS[m].name}`,'good');}
+  renderBuild();openShop();}
+const TUT=[['move','Move',()=>TOUCH?'drag the left side':'W A S D'],['atk','Defeat an enemy',()=>TOUCH?'automatic when close':'hold click or SPACE'],['dash','Dash',()=>TOUCH?'tap the dash button':'SHIFT'],['skill','Use a skill',()=>TOUCH?'tap a skill button':'Q · E · R'],['shrine','Step on a shrine',()=>'◆ on the minimap']];
+function tutTick(hr){const t=F.tut;if(hr&&hr.moving)t.move=1;if(S.stats.heroKills>0)t.atk=1;if(S.cd.dash>0)t.dash=1;if(S.stats.casts>0)t.skill=1;if(F.shrineUsed)t.shrine=1;
+  if(TUT.every(x=>t[x[0]])){F.tut=null;P.tips.tut=1;S.gold+=30;saveP();banner('TRAINING COMPLETE','+30 gold — now hold the Gate!','#3ef2d0');AU.chest();}}
+function drawTut(c){const t=F.tut;if(!t||S.phase!=='battle')return;const x=18,y=112,w=318,h=40+TUT.length*26;c.save();c.fillStyle='rgba(8,10,34,.82)';rr(c,x,y,w,h,12);c.fill();c.strokeStyle='rgba(62,242,208,.5)';c.lineWidth=1.5;c.stroke();
+  c.textAlign='left';c.font='700 12px Silkscreen, monospace';c.fillStyle='#3ef2d0';c.fillText('TRAINING · +30 GOLD',x+14,y+24);
+  TUT.forEach((r,i)=>{const yy=y+50+i*26,ok=!!t[r[0]];c.strokeStyle=ok?'#3ef2d0':'rgba(255,255,255,.45)';c.lineWidth=2;rr(c,x+14,yy-12,14,14,3);c.stroke();if(ok){c.fillStyle='#3ef2d0';c.fill();}
+    c.font='600 13.5px Outfit, sans-serif';c.fillStyle=ok?'rgba(207,212,255,.5)':'#fff';c.fillText(r[1],x+38,yy);c.font='12px Outfit, sans-serif';c.fillStyle=ok?'rgba(143,152,201,.5)':'#aab2e0';c.textAlign='right';c.fillText(r[2](),x+w-14,yy);c.textAlign='left';});c.restore();}
 function update(h){updateCam(h);if(F.castFlash>0)F.castFlash-=h;
   F.t+=h;F.shake=Math.max(0,F.shake-h*30);F.coreFlash=Math.max(0,F.coreFlash-h);
   if(F.comboT>0){F.comboT-=h;if(F.comboT<=0)F.combo=0;}
@@ -2464,7 +2487,7 @@ function render(){
   if(F.warpT>0&&S.phase==='battle'){const a=Math.min(1,F.warpT)*0.16;c.fillStyle=`rgba(120,90,255,${a})`;c.fillRect(0,0,VW,900);}
   if(F.goldRushT>0&&S.phase==='battle'){const a=Math.min(1,F.goldRushT)*(0.25+0.1*Math.sin(F.t*6));const g=c.createRadialGradient(VW/2,450,380,VW/2,450,VW*0.6);g.addColorStop(0,'rgba(255,209,102,0)');g.addColorStop(1,`rgba(255,209,102,${a})`);c.fillStyle=g;c.fillRect(0,0,VW,900);}
   if(F.castFlash>0){c.fillStyle=hexA(F.castCol||'#ffffff',Math.min(.13,F.castFlash*0.4));c.fillRect(0,0,VW,900);}
-  drawMini(c);drawTouch(c);
+  drawMini(c);drawTouch(c);drawTut(c);
   if(WV&&WV.bossEnt&&WV.bossEnt.alive&&S.phase==='battle'){
     const b=WV.bossEnt,w=620,x=VW/2-w/2,y=118;
     c.fillStyle='rgba(8,10,34,.88)';rr(c,x-10,y-22,w+20,40,10);c.fill();c.strokeStyle=b.enraged?'rgba(255,59,92,.9)':'rgba(255,95,162,.55)';c.lineWidth=1.5;c.stroke();
@@ -2606,6 +2629,7 @@ function finishRun(won){
   if(!S.counted){S.counted=true;P.stats.runs++;}
   P.stats.kills+=S.stats.kills-(S.killsCounted||0);S.killsCounted=S.stats.kills;
   P.best[S.map]=Math.max(P.best[S.map]||0,S.wave-(won?0:1));
+  P.rec.combo=Math.max(P.rec.combo,S.stats.maxCombo);P.rec.kills=Math.max(P.rec.kills,S.stats.kills);P.rec.level=Math.max(P.rec.level,S.level);
   {const rt=Math.round(S.wave*22+S.stats.kills*0.25+S.stats.bosses*50+(S.won?250:0)),rg=rt-(S.rxpAwarded||0);if(rg>0){S.rxpAwarded=rt;const r=addRankXp(rg);S.rxpGain=(S.rxpGain||0)+rg;if(r.up){S.rankUp=r.up;S.rankSh=(S.rankSh||0)+r.sh;}}}
   // hero mastery
   const before=mLevel(S.hero), gx=Math.round(S.stats.kills*0.5+S.wave*25+S.stats.bosses*60)-(S.mxpAwarded||0);
@@ -2705,6 +2729,7 @@ function afterCollect(){
   if(S.pending>0){openLevelUp();return;}
   if(DEMO&&S.wave>=DEMO_WAVES){S.phase='victory';const sh=finishRun(false);P.best[S.map]=Math.max(P.best[S.map]||0,S.wave);saveP();showDemoEnd(sh);syncMusic();return;}
   if(S.wave===20&&!S.endless){S.phase='victory';finishRun(true);showVictory();syncMusic();return;}
+  if(S.wave%5===0&&S.wave<20&&!S.daily&&S.pactWave!==S.wave){openPact();return;}
   openShop();
 }
 function openShop(){
@@ -2750,7 +2775,7 @@ function newRun(hero,map,opt){
   P.run=null;saveP();
   S=newState(hero,map);S.prevBest=P.best[map]||0;S.speed=sp;HSC=null;resetField();buildBG(map);
   S.asc=opt.daily?2:Math.min(P.ascSel[map]||0,P.asc[map]||0);S.daily=!!opt.daily;S.mods=opt.mods||[];
-  F.hero=makeHero();S.pending=1;
+  F.hero=makeHero();S.pending=1;F.shrineUsed=0;F.tut=(P.tips.tut||opt.daily)?null:{};
   S.gold=30+15*P.perm.purse;S.army=[];summon('knight',1);summon('archer',1);S.lastNew=0;
   S.cardReroll=1+P.perm.reroll+(mLevel(hero)>=5?1:0);
   if(mLevel(hero)>=8){const r=RELICS[Math.floor(Math.random()*RELICS.length)];S.relics.push(r.id);if(r.id==='banner')S.armyMax++;setTimeout(()=>toast(`Mastery relic: ${r.icon} ${r.name}`,'good'),600);}
@@ -2853,7 +2878,8 @@ function showAch(){
   const list=ACH.map(a=>`<div class="ach ${P.ach[a.id]?'done':''}"><div class="ai">${a.icon}</div><div><div class="an">${a.name}</div><div class="ad">${a.d}</div></div><div class="ar">${P.ach[a.id]?'✓':`${ICON_SHARD} ${a.r}`}</div></div>`).join('');
   const st=P.stats;
   overlay(`<div class="modal" style="width:1280px"><h2>ACHIEVEMENTS</h2><p>${Object.keys(P.ach).length} / ${ACH.length} unlocked · ${st.runs} runs · ${st.wins} wins · ${st.kills} total kills</p>
-  <div class="achList" style="margin-top:14px">${list}</div><div class="sec" style="margin-top:16px;text-align:left;color:#cfd4ff">CARD COLLECTION <span style="color:var(--muted)">· ${UNLOCKS.filter(u=>P.unl[u.id]).length} / ${UNLOCKS.length} unlocked</span></div><div class="achList">${UNLOCKS.map(u=>{const cd=CARDS.find(c=>c.id===u.id),on=!!P.unl[u.id];return `<div class="ach ${on?'done':''}"><div class="ai">${cd.icon}</div><div><div class="an">${cd.name}</div><div class="ad">${on?cd.d(0):u.txt}</div></div><div class="ar">${on?'✓':'🔒'}</div></div>`;}).join('')}</div><div class="mbtns" style="margin-top:14px"><button class="btn mbtn primary" data-act="back">BACK</button></div></div>`);
+  <div class="statsRow recRow">${MAP_ORDER.map(k=>`<div class="sbox"><div class="v">${P.best[k]||0}</div><div class="k">BEST WAVE · ${MAPS[k].name.toUpperCase()}</div></div>`).join('')}<div class="sbox"><div class="v">${P.rec.combo}</div><div class="k">BEST COMBO</div></div><div class="sbox"><div class="v">${P.rec.kills}</div><div class="k">MOST KILLS IN A RUN</div></div><div class="sbox"><div class="v">${P.rec.level}</div><div class="k">HIGHEST LEVEL</div></div></div>
+  <div class="achList" style="margin-top:12px">${list}</div><div class="sec" style="margin-top:16px;text-align:left;color:#cfd4ff">CARD COLLECTION <span style="color:var(--muted)">· ${UNLOCKS.filter(u=>P.unl[u.id]).length} / ${UNLOCKS.length} unlocked</span></div><div class="achList">${UNLOCKS.map(u=>{const cd=CARDS.find(c=>c.id===u.id),on=!!P.unl[u.id];return `<div class="ach ${on?'done':''}"><div class="ai">${cd.icon}</div><div><div class="an">${cd.name}</div><div class="ad">${on?cd.d(0):u.txt}</div></div><div class="ar">${on?'✓':'🔒'}</div></div>`;}).join('')}</div><div class="mbtns" style="margin-top:14px"><button class="btn mbtn primary" data-act="back">BACK</button></div></div>`);
 }
 function showSettings(from){
   MENU='settings';SETFROM=from||SETFROM||'main';
@@ -2947,7 +2973,8 @@ function renderSkills(){
 function renderBuild(){
   const cards=Object.entries(S.cards).map(([id,l])=>{const ev=EVOS.find(v=>v.id===id);if(ev)return `<div class="bc relic" style="border-color:#ff7a59;box-shadow:0 0 12px -2px #ff7a59" data-tip="${esc(`EVOLUTION: ${ev.name}\n${ev.d}`)}">${ev.icon}</div>`;const cd=CARDS.find(x=>x.id===id);return `<div class="bc" data-tip="${esc(`${cd.name} — LV ${l}/${cd.max}\n${cd.d(Math.max(0,l-1))}`)}">${cd.icon}<span>${l}</span></div>`;}).join('');
   const rel=S.relics.map(id=>{const r=RELICS.find(x=>x.id===id);return `<div class="bc relic" data-tip="${esc(`${r.name}\n${r.desc}`)}">${r.icon}</div>`;}).join('');
-  $('#buildRow').innerHTML=cards+rel;
+  const pacts=(S.mods||[]).map(m=>`<div class="bc relic" style="border-color:#b48cff" data-tip="${esc(`PACT: ${DAILY_MODS[m].name}\n${DAILY_MODS[m].d}`)}">${DAILY_MODS[m].icon}</div>`).join('');
+  $('#buildRow').innerHTML=cards+rel+pacts;
 }
 function renderAll(){prevGold=null;renderHUD();renderBuild();}
 
@@ -2989,6 +3016,7 @@ function doAct(a,arg){
   else if(a==='resume')resume();
   else if(a==='pauseMenu'){if(S.paused)overlay(pauseHTML());else togglePause();}
   else if(a==='card')pickCard(+arg);
+  else if(a==='pact')pickPact(+arg);
   else if(a==='cardReroll')cardReroll();
   else if(a==='relic')pickRelic(+arg);
   else if(a==='buy')buyOffer(+arg);
@@ -3019,6 +3047,7 @@ document.addEventListener('keydown',e=>{
   const ov=!$('#overlay').classList.contains('hidden');
   if(S.modal==='levelup'){if(/^Digit[1-4]$/.test(e.code))pickCard(+e.code.slice(5)-1);else if(e.code==='KeyR')cardReroll();return;}
   if(S.modal==='chest'){if(/^Digit[1-3]$/.test(e.code))pickRelic(+e.code.slice(5)-1);return;}
+  if(S.modal==='pact'){if(/^Digit[1-3]$/.test(e.code))pickPact(+e.code.slice(5)-1);return;}
   if(S.phase==='shop'&&!S.paused){if(/^Digit[1-5]$/.test(e.code))buyOffer(+e.code.slice(5)-1);else if(e.code==='Enter')startWave();else if(e.code==='KeyG')toggleFormation();else if(e.code==='Escape')togglePause();return;}
   if(S.phase==='title'){if(e.code==='Escape'&&MENU!=='main')showTitle();return;}
   if(e.code==='F11'&&!NATIVE){e.preventDefault();toggleFS();return;}
@@ -3142,7 +3171,7 @@ function buildMapThumbs(last){const order=MAP_ORDER.filter(k=>k!==last).concat([
 function boot(){ensureQuests();fit();initTouch();if(NATIVE){try{for(const id in P.ach)NATIVE.achieve(id);}catch(e){}AU.init();}buildImages();buildMapThumbs(P.last.map||'ruins');buildSkillBar();$('#heroPortrait').src=IMG.captain;setupTitleScene();renderAll();showTitle();requestAnimationFrame(t=>{last=t;frame(t);});}
 const fontsReady=document.fonts&&document.fonts.ready?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve();
 fontsReady.then(()=>{boot();try{if(matchMedia('(pointer:coarse)').matches&&!matchMedia('(any-pointer:fine)').matches)overlay(`<div class="modal" style="width:640px"><h2>TOUCH CONTROLS</h2><p>Hold your device sideways. Drag on the <b>left side</b> of the screen to move — your hero attacks the nearest enemy automatically. Tap the <b>skill buttons</b> at the bottom to dash and cast.<br><br>Gatewarden is designed for PC, so menus are small on phones.</p><div class="mbtns"><button class="btn mbtn primary" data-act="back">PLAY</button></div></div>`);}catch(e){}});
-window.__G={drawHero,drawEnemy,IMG,HEROES,ACH,update,render,tryAttack,startDaily,dailyInfo,ensureQuests,buyTrain,trainCost,get S(){return S;},get P(){return P;},F,get WV(){return WV;},TEST,PERF,newRun,continueRun,startWave,pickCard,pickRelic,buyOffer,rerollShop,repairGate,unitCost,canRecruit,castAbility,setSpeed:n=>{S.speed=n;},spawnEnemy,endWave,toTitle,showSelect,showSanctum,showAch,showSettings,unlockHero,buyPerm,saveP,evoReady,doAct,toggleFormation,openChest};
+window.__G={drawHero,drawEnemy,IMG,HEROES,ACH,update,render,tryAttack,startDaily,dailyInfo,ensureQuests,buyTrain,trainCost,get S(){return S;},get P(){return P;},F,get WV(){return WV;},TEST,PERF,newRun,continueRun,startWave,pickCard,pickRelic,pickPact,buyOffer,rerollShop,repairGate,unitCost,canRecruit,castAbility,setSpeed:n=>{S.speed=n;},spawnEnemy,endWave,toTitle,showSelect,showSanctum,showAch,showSettings,unlockHero,buyPerm,saveP,evoReady,doAct,toggleFormation,openChest};
 })();
 </script>
 </body>
