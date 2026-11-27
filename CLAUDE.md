@@ -158,6 +158,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Mouse position is stored in screen space (`F.mouse.sx/sy`) and converted to world space every frame.
 - Music on/off: `P.settings.musicOn`, `toggleMusic()`, HUD button `#musicBtn`, title button, key M.
 
+**Skills (owner request):** `SK_POW=1.25` and `SK_CD=0.8` make every skill and ultimate 25% stronger with 20% shorter cooldowns; `castFX()` adds the cast burst, shake and a brief colour flash. Bot sims after this: median end wave 11.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

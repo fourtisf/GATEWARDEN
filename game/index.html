@@ -153,6 +153,33 @@ button{font-family:inherit}
 .statLine{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .chip{font-size:12px;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted)}
 .chip b{color:#fff;font-family:'Silkscreen',monospace;font-weight:400}
+.shop{width:1320px;max-width:96%;padding:28px 32px}
+.shop h2{font-size:28px}
+.shopHead{margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.shopHead p{font-size:14px;color:#aab2e0}
+.shopHead .stat{padding:10px 18px;border-radius:14px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.4)}
+.shopGrid{gap:28px;grid-template-columns:1.3fr 1fr}
+.shop .sec{font-size:13.5px;color:#cfd4ff}
+.shop .sec span{color:var(--muted);letter-spacing:1px}
+.rcard{min-height:228px;padding:12px 10px 10px;background:rgba(255,255,255,.055);border-color:var(--line2)}
+.rcard .rn{font-size:16px;margin-top:2px}
+.rcard .rs{font-size:12px;color:#aab2e0}
+.rcard .ro{font-size:12px;min-height:32px}
+.rbuy{height:36px;font-size:14px}
+.sbtn{height:46px;font-size:13px}
+.ucard{height:108px;background:rgba(255,255,255,.055);border-color:var(--line2)}
+.ucard .nm{font-size:12px}
+.ucard.empty{border-style:dashed;border-color:var(--line2);background:rgba(255,255,255,.02);opacity:.75}
+.ucard.empty.locked{opacity:.35;justify-content:center;padding-top:0;font-size:18px}
+.syns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:0}
+.syn{font-size:12.5px;padding:8px 11px;color:#aab2e0;border-color:var(--line2)}
+.syn b{color:#dfe3ff;margin-right:6px}
+.tbtn{padding:10px 12px}
+.tbtn .tt{font-size:13.5px}
+.tbtn .tt small{font-size:12px;color:#aab2e0}
+.tbtn .tc{font-size:13px}
+.shop .chip{font-size:12.5px;color:#aab2e0;border-color:var(--line2)}
+.shop .mbtns{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
 .howto{text-align:left;margin-top:16px;display:grid;gap:10px}
 .howto div{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;line-height:1.45;color:#cfd4ff}
 .howto b{color:#fff}
@@ -588,7 +615,8 @@ const evo = id => !!S.cards[id];
 const modOn = id => !!(S&&S.mods&&S.mods.includes(id));
 const skillOf = k => k==='q'?HEROES[S.hero].skills.q:k==='e'?HEROES[S.hero].skills.e:k==='f'?S.fskill:null;
 const skName = k => {const id=skillOf(k);return id?SKILLS[id].name:'Skill';};
-const skP = k => 1+0.4*cl(k+'m');
+const SK_POW=1.25,SK_CD=0.8;
+const skP = k => SK_POW*(1+0.4*cl(k+'m'));
 const interestCap = () => 5 + (has('piggy')?5:0);
 const bossFor = w => BOSS_BY_WAVE[w] || (w>20 && w%5===0 ? BOSS_CYCLE[((w/5)-1)%4] : null);
 const synCount = k => S.army.filter(u=>u.type===k).length;
@@ -605,9 +633,9 @@ const xpMult = () => (1+0.2*cl('wisdom'))*(1+0.08*P.perm.insight)*(modOn('giants
 function abilCd(k){
   if(k==='dash')return 1.8*Math.pow(0.8,cl('dashcd'))*(has('swift')?0.6:1);
   const g=(1-0.08*cl('cdr'))*(modOn('spells')?0.6:1);
-  if(k==='shock')return ULTS[HEROES[S.hero].ult].cd*g;
+  if(k==='shock')return ULTS[HEROES[S.hero].ult].cd*g*SK_CD;
   const id=skillOf(k);if(!id)return 1;
-  return SKILLS[id].cd*(1-0.15*cl(k+'m'))*g*(k==='q'&&evo('twincast')?0.75:1);
+  return SKILLS[id].cd*SK_CD*(1-0.15*cl(k+'m'))*g*(k==='q'&&evo('twincast')?0.75:1);
 }
 function abilInfo(k){
   if(k==='dash')return {key:'SHIFT',icon:'💨',name:'Dash',desc:'Dash in your move direction. Invulnerable while dashing. (Shift / right-click)',col:'#3ef2d0'};
@@ -1427,8 +1455,10 @@ function castAbility(k,x,y){
   else{const id=skillOf(k);if(!id)return;castSkill(id,k,x,y);if(k==='q'&&evo('twincast'))F.echo.push({id,k,x,y,t:0.45});}
   S.cd[k]=abilCd(k);S.stats.casts++;setArmed(null);
 }
+function castFX(x,y,col,big){ring(x,y-20,col,big?170:95,.45);ring(x,y-20,'#ffffff',big?100:55,.3);addPart({type:'flash',x,y:y-24,r:big?190:110,col,vx:0,vy:0,life:.24,max:.24});for(let i=0;i<(big?40:18);i++){const a=rand(0,Math.PI*2),sp=rand(120,big?480:320);addPart({type:'spark',x,y:y-20,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*0.7,g:200,life:rand(.3,.55),max:.55,col,size:rand(2.5,big?5:4)});}shake(big?16:6);F.hitStop=Math.max(F.hitStop,big?0.1:0.04);F.castFlash=big?.4:.18;F.castCol=col;}
 function castUlt(x,y){
-  const hr=F.hero, st=hs(), um=1+0.5*cl('shock'), u=HEROES[S.hero].ult, r=aRadius('shock');
+  const hr=F.hero, st=hs(), um=SK_POW*(1+0.5*cl('shock')), u=HEROES[S.hero].ult, r=aRadius('shock');
+  castFX(hr.x,hr.y,ULTS[u].col,true);if(x!==undefined&&ULTS[u].target)castFX(x,y,ULTS[u].col,false);banner(ULTS[u].name.toUpperCase()+'!','',ULTS[u].col);
   if(u==='shock'){
     const dmg=st.atk*2*um;
     for(const e of F.enemies){if(!e.alive)continue;const dx=e.x-hr.x,dy=e.y-hr.y,d=Math.hypot(dx,dy*1.2);if(d<r)hitEnemy(e,dmg,'shock',{kb:90,ang:Math.atan2(dy,dx),stun:0.7});}
@@ -1452,7 +1482,7 @@ function castUlt(x,y){
 function castSkill(id,k,x,y){
   const hr=F.hero, st=hs(), p=skP(k), ang=aimAngle(hr), sk=SKILLS[id];
   if(x===undefined){x=hr.x+Math.cos(ang)*200;y=hr.y+Math.sin(ang)*200;}
-  addPart({type:'rune',x:hr.x,y:hr.y,r:56,col:sk.col,vx:0,vy:0,life:.4,max:.4});
+  addPart({type:'rune',x:hr.x,y:hr.y,r:56,col:sk.col,vx:0,vy:0,life:.4,max:.4});castFX(hr.x,hr.y,sk.col,false);if(sk.target){ring(x,y,sk.col,sk.r||120,.5);addPart({type:'rune',x,y,r:(sk.r||120)*0.8,col:sk.col,vx:0,vy:0,life:.5,max:.5});}
   if(id==='rush'){
     hr.sdash={kind:'rush',vx:Math.cos(ang)*1500,vy:Math.sin(ang)*1500*0.8,t:0.22,hit:new Set(),dmg:st.atk*2.2*p,ang};hr.inv=0.4;hr.face=Math.cos(ang)>=0?1:-1;hr.aimA=ang;hr.atkAnim=1;hr.atkT=0;hr.atkDur=0.44;hr.atkBig=true;hr.atkW='sword';
     AU.dash();AU.swish(true);
@@ -1934,7 +1964,7 @@ function updateAmbient(h){
     else{p.x+=Math.cos(p.t*0.7+p.s)*18*h;p.y+=Math.sin(p.t*0.9+p.s)*14*h;}
     if(p.y>920)p.y=-10;if(p.y<-20)p.y=910;if(p.x>VW+20)p.x=-10;if(p.x<-20)p.x=VW+10;}
 }
-function update(h){updateCam(h);
+function update(h){updateCam(h);if(F.castFlash>0)F.castFlash-=h;
   F.t+=h;F.shake=Math.max(0,F.shake-h*30);F.coreFlash=Math.max(0,F.coreFlash-h);
   if(F.comboT>0){F.comboT-=h;if(F.comboT<=0)F.combo=0;}
   for(const e of F.units){
@@ -2256,6 +2286,7 @@ function render(){
   c.setTransform(1,0,0,1,0,0);
   if(F.warpT>0&&S.phase==='battle'){const a=Math.min(1,F.warpT)*0.16;c.fillStyle=`rgba(120,90,255,${a})`;c.fillRect(0,0,VW,900);}
   if(F.goldRushT>0&&S.phase==='battle'){const a=Math.min(1,F.goldRushT)*(0.25+0.1*Math.sin(F.t*6));const g=c.createRadialGradient(VW/2,450,380,VW/2,450,VW*0.6);g.addColorStop(0,'rgba(255,209,102,0)');g.addColorStop(1,`rgba(255,209,102,${a})`);c.fillStyle=g;c.fillRect(0,0,VW,900);}
+  if(F.castFlash>0){c.fillStyle=hexA(F.castCol||'#ffffff',Math.min(.13,F.castFlash*0.4));c.fillRect(0,0,VW,900);}
   drawMini(c);
   if(WV&&WV.bossEnt&&WV.bossEnt.alive&&S.phase==='battle'){
     const b=WV.bossEnt,w=620,x=VW/2-w/2,y=118;
@@ -2509,7 +2540,7 @@ function renderShop(){
     const ro=own1===2?'Buy → merges into ★★!':S.army.some(u=>u.type===o.t)?`You own ${S.army.filter(u=>u.type===o.t).length}`:U.desc;
     return `<div class="rcard ${o.sold?'sold':''} ${S.gold<c?'cant':''} ${full?'full':''}" data-act="buy" data-arg="${i}"><span class="kb">${i+1}</span><span class="role" style="color:${U.col}">${U.role}</span><img src="${IMG[o.t]}"><div class="rn">${U.name}</div><div class="rs">HP ${d.hp} · ATK ${d.atk}</div><div class="ro">${ro}</div><div class="rbuy">${o.sold?'SOLD':full?'ARMY FULL':ICON_COIN+c}</div></div>`;}).join('');
   let army='';for(let i=0;i<Math.max(S.armyMax,10);i++){const u=S.army[i];
-    if(i>=S.armyMax){army+='<div class="ucard empty" style="opacity:.12"></div>';continue;}
+    if(i>=S.armyMax){army+='<div class="ucard empty locked">🔒</div>';continue;}
     if(!u){army+='<div class="ucard empty"></div>';continue;}
     const same=S.army.filter(x=>x.type===u.type&&x.star===u.star).length,s=unitStats(u);
     army+=`<div class="ucard r${u.star}" data-tip="${esc(`${UNIT[u.type].name} ${'★'.repeat(u.star)}\nHP ${Math.round(s.hp)} · ATK ${Math.round(s.atk)}\n${UNIT[u.type].desc}\nSell for ${sellValue(u)} gold`)}"><button class="sell" data-sell="${u.uid}">×</button>${u.star<3?`<div class="mg">${same}/3</div>`:''}<img src="${IMG[u.type]}"><div class="nm">${UNIT[u.type].name}</div><div class="st">${'★'.repeat(u.star)}<span style="opacity:.22">${'★'.repeat(3-u.star)}</span></div></div>`;}
@@ -2518,9 +2549,8 @@ function renderShop(){
   overlay(`<div class="modal shop"><div class="shopHead"><div><h2>WAVE ${S.wave} CLEARED</h2><p>+${bonus} wave bonus · +${intr} interest (1 per 10 gold banked, max ${interestCap()}) · Level ${S.level} · ${S.stats.kills} kills · Progress saved</p></div><div class="stat">${ICON_COIN}${S.gold}</div></div>
   <div class="shopGrid"><div><div class="sec">RECRUIT <span>· 3 of a kind merge into ★★</span></div><div class="offers">${offers}</div>
   <div class="shopRow"><button class="sbtn" data-act="reroll" ${S.gold>=S.reroll?'':'disabled'}>REROLL · ${ICON_COIN}${S.reroll}</button><button class="sbtn" data-act="repair" ${S.core.hp<S.core.max&&S.gold>=repairCost()?'':'disabled'}>REPAIR GATE +35% · ${ICON_COIN}${repairCost()}</button></div>
-  <div class="sec" style="margin-top:16px">TRAINING <span>· permanent for this run, no limit</span></div><div class="trainRow">${Object.entries(TRAIN).map(([k,t])=>`<button class="tbtn" data-act="train" data-arg="${k}" ${S.gold>=trainCost(k)?'':'disabled'}><span class="ti">${t.icon}</span><span class="tt"><b>${t.name}</b> <i>LV ${S.train[k]}</i><br><small>${t.d}</small></span><span class="tc">${ICON_COIN}${trainCost(k)}</span></button>`).join('')}</div>
-  <div class="statLine"><span class="chip">GATE <b>${Math.ceil(S.core.hp)}/${S.core.max}</b></span><span class="chip">${H.name.toUpperCase()} DMG <b>${Math.round(hs().atk)}</b></span><span class="chip">HP <b>${Math.round(hs().maxHp)}</b></span><span class="chip">CARDS <b>${Object.values(S.cards).reduce((a,b)=>a+b,0)}</b></span><span class="chip">RELICS <b>${S.relics.length}</b></span>${ev}</div></div>
-  <div><div class="sec">YOUR ARMY <span>· ${S.army.length}/${S.armyMax}</span></div><div class="armyMini">${army}</div><div class="syns">${syn}</div></div></div>
+  <div class="sec" style="margin-top:16px">TRAINING <span>· permanent for this run, no limit</span></div><div class="trainRow">${Object.entries(TRAIN).map(([k,t])=>`<button class="tbtn" data-act="train" data-arg="${k}" ${S.gold>=trainCost(k)?'':'disabled'}><span class="ti">${t.icon}</span><span class="tt"><b>${t.name}</b> <i>LV ${S.train[k]}</i><br><small>${t.d}</small></span><span class="tc">${ICON_COIN}${trainCost(k)}</span></button>`).join('')}</div></div>
+  <div><div class="sec">YOUR ARMY <span>· ${S.army.length}/${S.armyMax}</span></div><div class="armyMini">${army}</div><div class="sec" style="margin-top:18px">SYNERGIES <span>· recruit 2 or 4 of a class</span></div><div class="syns">${syn}</div><div class="sec" style="margin-top:18px">THIS RUN</div><div class="statLine" style="margin-top:0"><span class="chip">GATE <b>${Math.ceil(S.core.hp)}/${S.core.max}</b></span><span class="chip">${H.name.toUpperCase()} DMG <b>${Math.round(hs().atk)}</b></span><span class="chip">HP <b>${Math.round(hs().maxHp)}</b></span><span class="chip">CARDS <b>${Object.values(S.cards).reduce((a,b)=>a+b,0)}</b></span><span class="chip">RELICS <b>${S.relics.length}</b></span>${ev}</div></div></div>
   <div class="mbtns"><button class="btn mbtn ghost" data-act="pauseMenu">MENU</button><button class="btn mbtn pink" data-act="next">${nb?`BOSS WAVE ${next}: ${ED[nb].name} ▶`:`START WAVE ${next} ▶`}</button></div></div>`);
 }
 function gameOver(){
