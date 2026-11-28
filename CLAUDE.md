@@ -234,6 +234,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 
 **Hero Shop (owner request):** `showHeroShop()` (`MENU='heroshop'`, title button `data-act="heroshop"`) lists all five heroes with stats, skills, quote and a buy button (`.shopBuy`, calls the existing `unlockHero`, which returns to the shop when opened from there). Hero select still sells heroes too.
 
+**Heroes for hire (owner request "heroes you can buy like army characters"):** five army units `xcaptain`, `xranger`, `xshade`, `xarcanist`, `xwarden` (`HIRE`, `UNIT[k].hero` = the hero whose artwork and voice they use; class via `cls`). `rollOffers` puts one in shop slot 5 whenever one is available (not the hero being played, not already in the army). Each is unique: no merging, needs a free army slot (`canRecruit`, `buyOffer`), costs 40–44 base gold, roughly a 2★ unit with a signature trait. Bot, Captain from Moonlit Ruins, 8 runs: 9–20 (median 14.5), unchanged within noise.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

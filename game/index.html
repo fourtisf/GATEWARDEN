@@ -379,6 +379,7 @@ button{font-family:inherit}
 @keyframes endBob{50%{transform:translateY(-6px)}}
 .hq{margin-top:3px;font-size:12.5px;font-style:italic;opacity:.9}
 .shopH{cursor:default}.shopH:hover{transform:none}.shopH.own{border-color:rgba(62,242,208,.35)}.shopBuy{display:block;width:100%;margin-top:10px;padding:9px 0;border-radius:10px;font-family:'Silkscreen',monospace;font-size:12px;letter-spacing:1px;text-align:center;background:rgba(180,140,255,.12);border:1px solid rgba(180,140,255,.45);color:#cfc2ff;cursor:pointer}.shopBuy.can{background:linear-gradient(180deg,#ff7ab4,#ff5fa2);border-color:#ff9cc2;color:#2a0b22}.shopBuy.owned{background:rgba(62,242,208,.08);border-color:rgba(62,242,208,.4);color:#3ef2d0;cursor:default}.shopBuy svg{vertical-align:-3px}
+.rcard.hire{border-color:var(--hc);background:linear-gradient(180deg,rgba(255,95,162,.12),rgba(139,108,255,.1));box-shadow:0 0 0 1px var(--hc),0 10px 26px -14px var(--hc)}.rcard.hire .role{background:var(--hc);color:#0b1030!important}
 </style>
 </head>
 <body>
@@ -453,8 +454,14 @@ const UNIT = {
   frostmage:{name:'Frost Mage',col:'#9be8ff',role:'CONTROL',cost:18,cls:'mage',base:'mage',own:1,desc:'Ice orbs splash and slow every enemy they hit.'},
   warpriest:{name:'War Priest',col:'#ff9cc2',role:'SUPPORT',cost:17,cls:'cleric',base:'cleric',own:1,desc:'Heals allies and blesses them with +25% damage for 4s.'},
   dragon:{name:'Dragon',col:'#ff7a59',role:'LEGEND',cost:60,unlock:6,desc:'LEGENDARY. Huge HP, fire breath burns groups.'},
+  xcaptain:{name:'Captain',col:'#3ef2d0',role:'HERO',cost:40,cls:'knight',hero:'captain',desc:'HERO. Armoured swordsman who hits hard and often crits.'},
+  xranger:{name:'Ranger',col:'#a6f56b',role:'HERO',cost:40,cls:'archer',hero:'ranger',desc:'HERO. Rapid long-range arrows, +50% damage to elites and bosses.'},
+  xshade:{name:'Shade',col:'#ff5fa2',role:'HERO',cost:42,cls:'rogue',hero:'shade',desc:'HERO. Lightning-fast assassin: 35% crit, heals with every hit.'},
+  xarcanist:{name:'Arcanist',col:'#b48cff',role:'HERO',cost:44,cls:'mage',hero:'arcanist',desc:'HERO. Star orbs with a huge splash that slows everything hit.'},
+  xwarden:{name:'Warden',col:'#5cc8ff',role:'HERO',cost:44,cls:'knight',hero:'warden',desc:'HERO. Unbreakable wall: massive HP, reflects 30% of damage.'},
 };
-const ORDER=['knight','archer','rogue','mage','cleric','paladin','sniper','berserker','frostmage','warpriest','dragon'];
+const ORDER=['knight','archer','rogue','mage','cleric','paladin','sniper','berserker','frostmage','warpriest','dragon','xcaptain','xranger','xshade','xarcanist','xwarden'];
+const HIRE=['xcaptain','xranger','xshade','xarcanist','xwarden'];
 const ucls = t => (UNIT[t]&&UNIT[t].cls)||t;
 const UDEF = {
   knight:{hp:150,atk:10,range:30, cd:1.0, spd:80,role:'front',r:16,h:50,armor:0.2},
@@ -468,6 +475,11 @@ const UDEF = {
   berserker:{hp:95,atk:11,range:28,cd:0.7,spd:125,role:'front',r:15,h:44,rage:1,leech:0.25},
   frostmage:{hp:60,atk:13,range:230,cd:1.3,spd:70,role:'back',r:15,h:66,proj:'orb',splash:70,slow:1.5},
   warpriest:{hp:80,atk:6,range:200,cd:1.3,spd:75,role:'back',r:15,h:50,proj:'spark',heal:12,bless:1},
+  xcaptain:{hp:330,atk:22,range:34,cd:0.9,spd:95,role:'front',r:17,h:52,armor:0.2,crit:0.2},
+  xranger:{hp:150,atk:24,range:330,cd:0.7,spd:80,role:'back',r:15,h:50,proj:'arrow',elite:1.5},
+  xshade:{hp:190,atk:24,range:28,cd:0.5,spd:135,role:'front',r:15,h:48,crit:0.35,leech:0.2},
+  xarcanist:{hp:140,atk:32,range:250,cd:1.3,spd:72,role:'back',r:15,h:62,proj:'orb',splash:85,slow:1.2},
+  xwarden:{hp:480,atk:18,range:32,cd:1.2,spd:70,role:'front',r:19,h:56,armor:0.3,thorn:0.3},
 };
 const STAR_MULT=[1,1.9,3.5];
 const ED = {
@@ -1301,8 +1313,9 @@ function portrait(col,drawFn){
 }
 const sprScale = k => (ED[k].sc||1)*(ED[k].boss?1.1:1.25);
 function buildImages(){
-  for(const k of ORDER){const bk=UNIT[k].base||k;IMG[k]=portrait(UNIT[k].col,c=>{const sc=bk==='dragon'?1.05:bk==='mage'?1.12:1.35;c.translate(bk==='dragon'?46:48,bk==='mage'?86:83);c.scale(sc,sc);drawHero(c,UNIT[k].own?k:bk,0.26,0);});}
+  for(const k of ORDER){const bk=UNIT[k].base||k;IMG[k]=portrait(UNIT[k].col,c=>{const sc=bk==='dragon'?1.05:bk==='mage'?1.12:1.35;c.translate(bk==='dragon'?46:48,bk==='mage'?86:83);c.scale(sc,sc);drawHero(c,UNIT[k].hero||(UNIT[k].own?k:bk),0.26,0);});}
   for(const k of HERO_ORDER){IMG[k]=portrait(HEROES[k].col,c=>{const sc=k==='arcanist'?1.08:k==='warden'?1.18:1.28;c.translate(46,k==='arcanist'?88:86);c.scale(sc,sc);drawHero(c,sprOf(k),0.3,0);});}
+  for(const k of HIRE)IMG[k]=IMG[UNIT[k].hero];
   for(const k of Object.keys(ED)){
     const cv=document.createElement('canvas');cv.width=cv.height=104;const c=cv.getContext('2d');c.scale(2,2);const d=ED[k];const sc=Math.min(0.9,40/d.h);c.translate(26,48);c.scale(-sc,sc);c.filter=d.tint||'none';drawEnemy(c,d.base||k,0.3,0);EIMG[k]=cv.toDataURL();
     const s=sprScale(k), w=Math.ceil(150*s), h=Math.ceil((d.h+44)*s), ox=w/2, oy=h-12*s, per=(d.base||k)==='bat'?Math.PI*2/20:Math.PI*2/7;
@@ -1310,7 +1323,7 @@ function buildImages(){
     for(let a=0;a<2;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);x.filter=d.tint||'none';drawEnemy(x,d.base||k,f/6*per,a?0.85:0);SPR[k].frames.push(fc);}
   }
   for(const k of [...ORDER,'golem']){const s=1.3*1.28,w=Math.ceil(130*s),h=Math.ceil(110*s),ox=w/2,oy=h-14*s,per=Math.PI*2/6;USPR[k]={ox,oy,per,base:s,frames:[]};
-    for(let a=0;a<3;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);drawHero(x,(UNIT[k]&&!UNIT[k].own&&UNIT[k].base)||k,f/6*per,a*0.5);USPR[k].frames.push(fc);}}
+    for(let a=0;a<3;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);drawHero(x,(UNIT[k]&&UNIT[k].hero)||(UNIT[k]&&!UNIT[k].own&&UNIT[k].base)||k,f/6*per,a*0.5);USPR[k].frames.push(fc);}}
   {const s=1.25,w=Math.ceil(80*s),h=Math.ceil(60*s),ox=w/2,oy=h-8*s,per=Math.PI*2/7;WSPR={ox,oy,per,frames:[]};
     for(let a=0;a<2;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);x.filter='hue-rotate(150deg) brightness(1.4) saturate(1.3)';drawEnemy(x,'wolf',f/6*per,a?0.85:0);WSPR.frames.push(fc);}}
   for(const k of HERO_ORDER){const s=1.45,w=Math.ceil(110*s),h=Math.ceil(100*s);const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(w/2,h-10*s);x.scale(s,s);drawHero(x,sprOf(k),0,0.6);x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-atop';const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#ffffff');g.addColorStop(0.35,HEROES[k].col);g.addColorStop(1,HEROES[k].col);x.fillStyle=g;x.globalAlpha=0.92;x.fillRect(0,0,w,h);GHOSTS[k]={img:fc,ox:w/2,oy:h-10*s};}
@@ -2258,7 +2271,7 @@ const UNAMES=['Aldric','Brenna','Corwin','Dalia','Edric','Faye','Garrick','Hilde
 function unitName(){const used=new Set((S.army||[]).map(u=>u.nm));const free=UNAMES.filter(n=>!used.has(n));const L=free.length?free:UNAMES;return L[Math.floor(Math.random()*L.length)];}
 function say(ent,txt,col,who){if(TEST.turbo||!ent||!txt)return;const B=F.barks||(F.barks=[]);for(let i=B.length-1;i>=0;i--)if(B[i].e===ent)B.splice(i,1);if(B.length>=3)B.shift();B.push({e:ent,txt,col:col||'#3ef2d0',who:who||'',t:0,life:2.2+txt.length*0.035});}
 function barkHero(k){const hr=F.hero;if(!hr||!hr.alive)return;const L=(BARK[S.hero]||{})[k];if(!L)return;say(hr,L[Math.floor(Math.random()*L.length)],HEROES[S.hero].col);}
-function barkUnit(){const L=(F.units||[]).filter(e=>e.alive&&e.uid>=0&&UBARK[e.type]);if(!L.length)return;const e=L[Math.floor(Math.random()*L.length)],u=(S.army||[]).find(a=>a.uid===e.uid),T=UBARK[e.type];say(e,T[Math.floor(Math.random()*T.length)],'#b48cff',u&&u.nm||UNIT[e.type].name);}
+function barkUnit(){const L=(F.units||[]).filter(e=>e.alive&&e.uid>=0&&(UBARK[e.type]||UNIT[e.type].hero));if(!L.length)return;const e=L[Math.floor(Math.random()*L.length)],u=(S.army||[]).find(a=>a.uid===e.uid),T=UBARK[e.type]||BARK[UNIT[e.type].hero].start;say(e,T[Math.floor(Math.random()*T.length)],'#b48cff',u&&u.nm||UNIT[e.type].name);}
 function barkLater(d,f){(F.barkQ||(F.barkQ=[])).push({t:d,f});}
 function barkTick(h){const Q=F.barkQ;if(Q&&Q.length){for(const q of Q)q.t-=h;for(let i=Q.length-1;i>=0;i--)if(Q[i].t<=0){const q=Q.splice(i,1)[0];if(S.phase==='battle'||S.phase==='victory')q.f();}}
   const B=F.barks;if(B&&B.length){for(const b of B)b.t+=h;F.barks=B.filter(b=>b.t<b.life&&b.e.alive!==false);}
@@ -2767,7 +2780,7 @@ function render(){
 
 
 /* ================= army ================= */
-function summon(type,star){const u={uid:S.uid++,type,star,nm:unitName()};S.army.push(u);S.lastNew=u.uid;mergeAll();}
+function summon(type,star){const u={uid:S.uid++,type,star,nm:UNIT[type].hero?'':unitName()};S.army.push(u);S.lastNew=u.uid;mergeAll();}
 function mergeAll(){
   let changed=true;
   while(changed){changed=false;
@@ -2778,16 +2791,18 @@ function mergeAll(){
     }}
   }
 }
-function canRecruit(t){if(S.army.length<S.armyMax)return true;return S.army.filter(u=>u.type===t&&u.star===1).length>=2;}
+function canRecruit(t){if(S.army.length<S.armyMax)return true;if(UNIT[t].hero)return false;return S.army.filter(u=>u.type===t&&u.star===1).length>=2;}
 function rollOffers(){
   const pool={knight:10,archer:10,rogue:9,mage:9,cleric:8,paladin:6,sniper:6,berserker:6,frostmage:6,warpriest:6,dragon:S.wave>=6?3:0};
   for(const u of S.army)if(pool[u.type]&&u.star<3)pool[u.type]=Math.max(pool[u.type],22);
   const out=[],cnt={};for(let i=0;i<5;i++){let k=null;for(let t=0;t<14;t++){k=wpick(pool);const n=cnt[k]||0;if(n===0||(n<2&&S.army.some(u=>u.type===k)))break;}cnt[k]=(cnt[k]||0)+1;out.push({t:k,sold:false});}
+  {const av=HIRE.filter(k=>UNIT[k].hero!==S.hero&&!S.army.some(u=>u.type===k));if(av.length)out[4]={t:av[Math.floor(Math.random()*av.length)],sold:false};}
   return out;
 }
 function buyOffer(i){
   const o=S.offers[i];if(!o||o.sold||S.phase!=='shop')return;
   const U=UNIT[o.t];if(U.unlock&&S.wave<U.unlock)return;
+  if(U.hero&&S.army.some(u=>u.type===o.t)){toast(`${U.name} already fights for you`,'bad');AU.err();return;}
   const c=unitCost(o.t);
   if(S.gold<c){toast('Not enough gold','bad');AU.err();return;}
   if(!canRecruit(o.t)){toast('Army full — sell a unit, or buy a 3rd copy to merge','bad');AU.err();return;}
@@ -3013,16 +3028,16 @@ function renderShop(){
   const [bonus,intr]=S.lastBonus, next=S.wave+1, nb=bossFor(next), H=HEROES[S.hero];
   const offers=S.offers.map((o,i)=>{const U=UNIT[o.t],d=UDEF[o.t],c=unitCost(o.t),own1=S.army.filter(u=>u.type===o.t&&u.star===1).length,full=!canRecruit(o.t);
     const nOwn=S.army.filter(u=>u.type===o.t).length,ro=(own1===2?'<b style="color:#ffd166">Buy → merges into ★★!</b><br>':nOwn?`<b style="color:#dfe3ff">You own ${nOwn}</b> · `:'')+U.desc;
-    return `<div class="rcard ${o.sold?'sold':''} ${S.gold<c?'cant':''} ${full?'full':''}" data-act="buy" data-arg="${i}"><span class="kb">${i+1}</span><span class="role" style="color:${U.col}">${U.role}</span><img src="${IMG[o.t]}"><div class="rn">${U.name}</div><div class="rs">HP ${d.hp} · ATK ${d.atk}</div><div class="ro">${ro}</div><div class="rbuy">${o.sold?'SOLD':full?'ARMY FULL':ICON_COIN+c}</div></div>`;}).join('');
+    return `<div class="rcard ${U.hero?'hire':''} ${o.sold?'sold':''} ${S.gold<c?'cant':''} ${full?'full':''}" style="${U.hero?`--hc:${U.col}`:''}" data-act="buy" data-arg="${i}"><span class="kb">${i+1}</span><span class="role" style="color:${U.col}">${U.role}</span><img src="${IMG[o.t]}"><div class="rn">${U.name}</div><div class="rs">HP ${d.hp} · ATK ${d.atk}</div><div class="ro">${ro}</div><div class="rbuy">${o.sold?'SOLD':full?'ARMY FULL':ICON_COIN+c}</div></div>`;}).join('');
   let army='';for(let i=0;i<Math.max(S.armyMax,10);i++){const u=S.army[i];
     if(i>=S.armyMax){army+='<div class="ucard empty locked">🔒</div>';continue;}
     if(!u){army+='<div class="ucard empty"></div>';continue;}
     const same=S.army.filter(x=>x.type===u.type&&x.star===u.star).length,s=unitStats(u);
-    army+=`<div class="ucard r${u.star}" data-tip="${esc(`${u.nm?u.nm+' the ':''}${UNIT[u.type].name} ${'★'.repeat(u.star)}\nHP ${Math.round(s.hp)} · ATK ${Math.round(s.atk)}\n${UNIT[u.type].desc}\nSell for ${sellValue(u)} gold`)}"><button class="sell" data-sell="${u.uid}">×</button>${u.star<3?`<div class="mg">${same}/3</div>`:''}<img src="${IMG[u.type]}"><div class="nm">${UNIT[u.type].name}</div><div class="st">${'★'.repeat(u.star)}<span style="opacity:.22">${'★'.repeat(3-u.star)}</span></div></div>`;}
+    army+=`<div class="ucard r${u.star}" data-tip="${esc(`${u.nm?u.nm+' the ':''}${UNIT[u.type].name} ${'★'.repeat(u.star)}\nHP ${Math.round(s.hp)} · ATK ${Math.round(s.atk)}\n${UNIT[u.type].desc}\nSell for ${sellValue(u)} gold`)}"><button class="sell" data-sell="${u.uid}">×</button>${UNIT[u.type].hero?'<div class="mg" style="color:#ff9cc2">HERO</div>':u.star<3?`<div class="mg">${same}/3</div>`:''}<img src="${IMG[u.type]}"><div class="nm">${UNIT[u.type].name}</div><div class="st">${'★'.repeat(u.star)}<span style="opacity:.22">${'★'.repeat(3-u.star)}</span></div></div>`;}
   const syn=SYN.map(s=>{const c=synCount(s.k),tier=c>=4?2:c>=2?1:0;return `<div class="syn ${tier?'on':''}" style="${tier?`color:${UNIT[s.k].col}`:''}"><b>${s.name.toUpperCase()}</b>${c}/${tier>=1?4:2} · ${tier?s.t[tier-1]:s.t[0]}</div>`;}).join('');
   const ev=evoReady().length?'<span class="chip" style="color:#ff7a59;border-color:rgba(255,122,89,.6)">EVOLUTION READY — next level-up!</span>':'';
   overlay(`<div class="modal shop"><div class="shopHead"><div><h2>WAVE ${S.wave} CLEARED</h2><p>+${bonus} wave bonus · +${intr} interest (1 per 10 gold banked, max ${interestCap()}) · Level ${S.level} · ${S.stats.kills} kills · Progress saved</p></div><div class="stat">${ICON_COIN}${S.gold}</div></div>
-  <div class="shopGrid"><div><div class="sec">RECRUIT <span>· 3 of a kind merge into ★★</span></div><div class="offers">${offers}</div>
+  <div class="shopGrid"><div><div class="sec">RECRUIT <span>· 3 of a kind merge into ★★ · slot 5 = hero for hire</span></div><div class="offers">${offers}</div>
   <div class="shopRow"><button class="sbtn" data-act="reroll" ${S.gold>=S.reroll?'':'disabled'}>REROLL · ${ICON_COIN}${S.reroll}</button><button class="sbtn" data-act="repair" ${S.core.hp<S.core.max&&S.gold>=repairCost()?'':'disabled'}>REPAIR GATE +35% · ${ICON_COIN}${repairCost()}</button></div>
   <div class="sec" style="margin-top:16px">TRAINING <span>· permanent for this run, no limit</span></div><div class="trainRow">${Object.entries(TRAIN).map(([k,t])=>`<button class="tbtn" data-act="train" data-arg="${k}" ${S.gold>=trainCost(k)?'':'disabled'}><span class="ti">${t.icon}</span><span class="tt"><b>${t.name}</b> <i>LV ${S.train[k]}</i><br><small>${t.d}</small></span><span class="tc">${ICON_COIN}${trainCost(k)}</span></button>`).join('')}</div></div>
   <div><div class="sec">YOUR ARMY <span>· ${S.army.length}/${S.armyMax}</span></div><div class="armyMini">${army}</div><div class="sec" style="margin-top:18px">SYNERGIES <span>· recruit 2 or 4 of a class</span></div><div class="syns">${syn}</div><div class="sec" style="margin-top:18px">THIS RUN</div><div class="statLine" style="margin-top:0"><span class="chip">GATE <b>${Math.ceil(S.core.hp)}/${S.core.max}</b></span><span class="chip">${H.name.toUpperCase()} DMG <b>${Math.round(hs().atk)}</b></span><span class="chip">HP <b>${Math.round(hs().maxHp)}</b></span><span class="chip">CARDS <b>${Object.values(S.cards).reduce((a,b)=>a+b,0)}</b></span><span class="chip">RELICS <b>${S.relics.length}</b></span>${ev}</div></div></div>
