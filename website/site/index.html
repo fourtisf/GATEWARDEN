@@ -179,7 +179,8 @@ button{font-family:inherit}
 .rcard{min-height:228px;padding:12px 10px 10px;background:rgba(255,255,255,.055);border-color:var(--line2)}
 .rcard .rn{font-size:16px;margin-top:2px}
 .rcard .rs{font-size:12px;color:#aab2e0}
-.rcard .ro{font-size:12px;min-height:32px}
+.rcard .ro{font-size:11.5px;min-height:62px}
+.rcard{min-height:250px}
 .rbuy{height:36px;font-size:14px}
 .sbtn{height:46px;font-size:13px}
 .ucard{height:108px;background:rgba(255,255,255,.055);border-color:var(--line2)}
@@ -343,6 +344,7 @@ button{font-family:inherit}
 .ctrlHint2{font-size:12px;color:var(--dim);margin-top:14px}
 #toasts{right:auto;left:50%;top:auto;bottom:156px;transform:translateX(-50%);align-items:center}
 #stage.ovOpen #toasts{bottom:10px}
+#stage.ovOpen #toasts .toast:not(:last-child){display:none}
 .modal h1{font-size:38px;letter-spacing:2px;white-space:nowrap}
 .toast{font-size:14.5px;padding:9px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
 .btn:disabled,.pbuy:disabled,.rcard.cant .rbuy{filter:none;background:rgba(255,255,255,.06);color:var(--muted);box-shadow:none;border:1px solid var(--line2);cursor:not-allowed}
@@ -464,9 +466,15 @@ const UNIT = {
   rogue:{name:'Rogue',col:'#ff5fa2',role:'STRIKER',cost:14,desc:'Fast melee striker with critical hits.'},
   mage:{name:'Mage',col:'#a98bff',role:'SPLASH',cost:16,desc:'Arcane orbs that splash groups.'},
   cleric:{name:'Cleric',col:'#7ff3e1',role:'HEALER',cost:14,desc:'Heals the most wounded ally — including you.'},
+  paladin:{name:'Paladin',col:'#ffd166',role:'GUARDIAN',cost:16,cls:'knight',base:'knight',tint:'sepia(1) saturate(3.5) brightness(1.1)',desc:'Holy guard. Reflects 40% of the damage it takes.'},
+  sniper:{name:'Sniper',col:'#5ce1e6',role:'MARKSMAN',cost:17,cls:'archer',base:'archer',tint:'sepia(1) saturate(4) hue-rotate(140deg)',desc:'Extreme range, slow heavy shots. Double damage to elites and bosses.'},
+  berserker:{name:'Berserker',col:'#ff5f5f',role:'BRAWLER',cost:16,cls:'rogue',base:'rogue',tint:'sepia(1) saturate(5) hue-rotate(-40deg)',desc:'Attacks faster as it loses health, and heals with every hit.'},
+  frostmage:{name:'Frost Mage',col:'#9be8ff',role:'CONTROL',cost:18,cls:'mage',base:'mage',tint:'sepia(1) saturate(4) hue-rotate(160deg) brightness(1.15)',desc:'Ice orbs splash and slow every enemy they hit.'},
+  warpriest:{name:'War Priest',col:'#ff9cc2',role:'SUPPORT',cost:17,cls:'cleric',base:'cleric',tint:'sepia(1) saturate(4) hue-rotate(290deg)',desc:'Heals allies and blesses them with +25% damage for 4s.'},
   dragon:{name:'Dragon',col:'#ff7a59',role:'LEGEND',cost:60,unlock:6,desc:'LEGENDARY. Huge HP, fire breath burns groups.'},
 };
-const ORDER=['knight','archer','rogue','mage','cleric','dragon'];
+const ORDER=['knight','archer','rogue','mage','cleric','paladin','sniper','berserker','frostmage','warpriest','dragon'];
+const ucls = t => (UNIT[t]&&UNIT[t].cls)||t;
 const UDEF = {
   knight:{hp:150,atk:10,range:30, cd:1.0, spd:80,role:'front',r:16,h:50,armor:0.2},
   rogue: {hp:85, atk:13,range:28, cd:0.6, spd:120,role:'front',r:15,h:44,crit:0.25},
@@ -474,6 +482,11 @@ const UDEF = {
   mage:  {hp:60, atk:17,range:230,cd:1.4, spd:70,role:'back', r:15,h:66,proj:'orb',splash:60},
   cleric:{hp:75, atk:6, range:200,cd:1.2, spd:75,role:'back', r:15,h:50,proj:'spark',heal:16},
   dragon:{hp:480,atk:26,range:190,cd:1.3, spd:85,role:'front',r:26,h:58,proj:'fire',splash:80},
+  paladin:{hp:170,atk:9,range:30,cd:1.0,spd:78,role:'front',r:16,h:50,armor:0.15,thorn:0.4},
+  sniper:{hp:55,atk:34,range:420,cd:1.9,spd:70,role:'back',r:15,h:48,proj:'arrow',elite:2},
+  berserker:{hp:95,atk:11,range:28,cd:0.7,spd:125,role:'front',r:15,h:44,rage:1,leech:0.25},
+  frostmage:{hp:60,atk:13,range:230,cd:1.3,spd:70,role:'back',r:15,h:66,proj:'orb',splash:70,slow:1.5},
+  warpriest:{hp:80,atk:6,range:200,cd:1.3,spd:75,role:'back',r:15,h:50,proj:'spark',heal:12,bless:1},
 };
 const STAR_MULT=[1,1.9,3.5];
 const ED = {
@@ -747,7 +760,7 @@ const interestCap = () => 5 + (has('piggy')?5:0);
 const LAND_BOSS={ruins:'king',cave:'crystalcol',frost:'frostwitch',dunes:'sandking',marsh:'plaguewitch',grave:'colossus',storm:'stormlord',hell:'witch'};
 const sceneAt = w => MAP_ORDER[(MAP_ORDER.indexOf(S.map)+w-1)%MAP_ORDER.length];
 const bossFor = w => (w===5||w===10||w===15) ? LAND_BOSS[w===S.wave?scn():sceneAt(w)] : BOSS_BY_WAVE[w] || (w>20 && w%5===0 ? BOSS_CYCLE[((w/5)-1)%4] : null);
-const synCount = k => S.army.filter(u=>u.type===k).length;
+const synCount = k => S.army.filter(u=>ucls(u.type)===k).length;
 const coreMax = () => Math.round((350*(1+0.25*cl('fort'))+(has('gate')?150:0)+40*S.train.gate+30*P.perm.fortress)*(S.asc>=3?0.8:1));
 const TRAIN={atk:{icon:'🗡️',name:'Weapon Drill',d:'+8% hero damage',base:25,g:1.35},hp:{icon:'💪',name:'Endurance',d:'+15 hero max HP',base:20,g:1.33},gate:{icon:'🧱',name:'Masonry',d:'+40 Gate max HP',base:30,g:1.38}};
 const trainCost = k => Math.round(TRAIN[k].base*Math.pow(TRAIN[k].g,S.train[k]));
@@ -1231,7 +1244,7 @@ function portrait(col,drawFn){
 }
 const sprScale = k => (ED[k].sc||1)*(ED[k].boss?1.1:1.25);
 function buildImages(){
-  for(const k of ORDER){IMG[k]=portrait(UNIT[k].col,c=>{const sc=k==='dragon'?1.05:k==='mage'?1.12:1.35;c.translate(k==='dragon'?46:48,k==='mage'?86:83);c.scale(sc,sc);drawHero(c,k,0.26,0);});}
+  for(const k of ORDER){const bk=UNIT[k].base||k;IMG[k]=portrait(UNIT[k].col,c=>{const sc=bk==='dragon'?1.05:bk==='mage'?1.12:1.35;c.translate(bk==='dragon'?46:48,bk==='mage'?86:83);c.scale(sc,sc);c.filter=UNIT[k].tint||'none';drawHero(c,bk,0.26,0);c.filter='none';});}
   for(const k of HERO_ORDER){IMG[k]=portrait(HEROES[k].col,c=>{const sc=k==='arcanist'?1.08:k==='warden'?1.18:1.28;c.translate(46,k==='arcanist'?88:86);c.scale(sc,sc);drawHero(c,sprOf(k),0.3,0);});}
   for(const k of Object.keys(ED)){
     const cv=document.createElement('canvas');cv.width=cv.height=104;const c=cv.getContext('2d');c.scale(2,2);const d=ED[k];const sc=Math.min(0.9,40/d.h);c.translate(26,48);c.scale(-sc,sc);c.filter=d.tint||'none';drawEnemy(c,d.base||k,0.3,0);EIMG[k]=cv.toDataURL();
@@ -1240,7 +1253,7 @@ function buildImages(){
     for(let a=0;a<2;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);x.filter=d.tint||'none';drawEnemy(x,d.base||k,f/6*per,a?0.85:0);SPR[k].frames.push(fc);}
   }
   for(const k of [...ORDER,'golem']){const s=1.3*1.28,w=Math.ceil(130*s),h=Math.ceil(110*s),ox=w/2,oy=h-14*s,per=Math.PI*2/6;USPR[k]={ox,oy,per,base:s,frames:[]};
-    for(let a=0;a<3;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);drawHero(x,k,f/6*per,a*0.5);USPR[k].frames.push(fc);}}
+    for(let a=0;a<3;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);x.filter=(UNIT[k]&&UNIT[k].tint)||'none';drawHero(x,(UNIT[k]&&UNIT[k].base)||k,f/6*per,a*0.5);USPR[k].frames.push(fc);}}
   {const s=1.25,w=Math.ceil(80*s),h=Math.ceil(60*s),ox=w/2,oy=h-8*s,per=Math.PI*2/7;WSPR={ox,oy,per,frames:[]};
     for(let a=0;a<2;a++)for(let f=0;f<6;f++){const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(ox,oy);x.scale(s,s);x.filter='hue-rotate(150deg) brightness(1.4) saturate(1.3)';drawEnemy(x,'wolf',f/6*per,a?0.85:0);WSPR.frames.push(fc);}}
   for(const k of HERO_ORDER){const s=1.45,w=Math.ceil(110*s),h=Math.ceil(100*s);const fc=document.createElement('canvas');fc.width=w;fc.height=h;const x=fc.getContext('2d');x.translate(w/2,h-10*s);x.scale(s,s);drawHero(x,sprOf(k),0,0.6);x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-atop';const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#ffffff');g.addColorStop(0.35,HEROES[k].col);g.addColorStop(1,HEROES[k].col);x.fillStyle=g;x.globalAlpha=0.92;x.fillRect(0,0,w,h);GHOSTS[k]={img:fc,ox:w/2,oy:h-10*s};}
@@ -1360,17 +1373,17 @@ function unitStats(u){
   let hp=d.hp*m*(1+0.05*S.wave), atk=d.atk*m*(1+0.25*cl('command'))*(1+0.04*S.wave), crit=d.crit||0, heal=(d.heal||0)*m, splash=d.splash||0, as=1;
   hp*=1+(kn>=4?0.3:kn>=2?0.15:0)+(has('rations')?0.25:0);
   if(has('drum'))as+=0.2;
-  if(u.type==='archer'){as+=ar>=4?0.5:ar>=2?0.25:0;if(has('quiver'))atk*=1.4;}
-  if(u.type==='mage'){atk*=1+(ma>=4?0.5:ma>=2?0.25:0);if(ma>=4)splash*=1.4;if(has('focus')){atk*=1.35;splash*=1.25;}}
-  if(u.type==='rogue'){crit+=ro>=4?0.4:ro>=2?0.2:0;}
-  if(u.type==='cleric'){heal*=1+(clc>=4?0.8:clc>=2?0.4:0)+(has('halo')?0.5:0);}
+  if(ucls(u.type)==='archer'){as+=ar>=4?0.5:ar>=2?0.25:0;if(has('quiver'))atk*=1.4;}
+  if(ucls(u.type)==='mage'){atk*=1+(ma>=4?0.5:ma>=2?0.25:0);if(ma>=4)splash*=1.4;if(has('focus')){atk*=1.35;splash*=1.25;}}
+  if(ucls(u.type)==='rogue'){crit+=ro>=4?0.4:ro>=2?0.2:0;}
+  if(ucls(u.type)==='cleric'){heal*=1+(clc>=4?0.8:clc>=2?0.4:0)+(has('halo')?0.5:0);}
   return {hp,atk,cd:d.cd/as,crit,heal,splash};
 }
 function makeUnitEnt(u){
   const d=UDEF[u.type], s=unitStats(u), sc=[1,1.14,1.28][u.star-1]*1.3;
   return {side:'u',uid:u.uid,type:u.type,star:u.star,role:d.role,x:0,y:0,homeX:0,homeY:0,r:d.r*sc,sc,h:d.h,
     hp:s.hp,maxHp:s.hp,atk:s.atk,cd:s.cd,cdT:rand(0,.5),range:d.range,spd:d.spd,crit:s.crit,heal:s.heal,splash:s.splash,
-    proj:d.proj,armor:d.armor||0,alive:true,flash:0,atkAnim:0,anim:rand(0,6),face:1,spawnDelay:0,pop:0,moving:false};
+    proj:d.proj,armor:d.armor||0,thorn:d.thorn,elite:d.elite,rage:d.rage,leech:d.leech,slow:d.slow,bless:d.bless,alive:true,flash:0,atkAnim:0,anim:rand(0,6),face:1,spawnDelay:0,pop:0,moving:false};
 }
 function posts(army){
   const melee=[],ranged=[];army.forEach((u,i)=>(UDEF[u.type].role==='back'?ranged:melee).push(i));
@@ -1795,7 +1808,7 @@ function gainXp(v){
 function damageAlly(t,amt,src){
   if(!t.alive)return;
   if(t.isHero){if(t.inv>0||t.dashT>0||t.sdash)return;amt*=hs().taken;if(src&&src.type&&ED[src.type]&&ED[src.type].chill)F.heroSlow=Math.max(F.heroSlow||0,ED[src.type].chill);if(t.shield>0){const ab=Math.min(t.shield,amt);t.shield-=ab;amt-=ab;if(amt<=0){floatText(t.x,t.y-t.h*t.sc-4,'BLOCK','#9be8ff',12,.4);return;}}floatText(t.x+rand(-6,6),t.y-t.h*t.sc-4,Math.round(amt),'#ff8a8a',13,.6);AU.hurt();if(S.phase==='battle')S.stats.hurtWave+=amt;shake(3);}
-  else if(t.armor)amt*=1-t.armor;
+  else{if(t.armor)amt*=1-t.armor;if(t.thorn&&src&&src.alive&&src.side==='e')hitEnemy(src,amt*t.thorn+2,'unit',{});}
   if(src&&src.alive&&(src.affix==='vampiric'||(ED[src.type]||{}).leech))src.hp=Math.min(src.maxHp,src.hp+amt*0.5);
   t.hp-=amt;t.flash=1;
   if(t.hp<=0){
@@ -1992,13 +2005,13 @@ function updateBattle(h){
     const bpu=F.banners.length?bannerPow(u.x,u.y):0;u.buffP=bpu;
     u.cdT-=h*(1+bpu*0.75);if(regen)u.hp=Math.min(u.maxHp,u.hp+u.maxHp*0.01*h);
     if(u.type==='cleric'&&u.cdT<=0){let best=null,br=0.96;for(const a of al){const r=a.hp/a.maxHp;if(r<br&&dist(u,a)<=u.range+80){br=r;best=a;}}
-      if(best){u.cdT=u.cd;u.atkAnim=1;F.proj.push({x:u.x+12,y:u.y-36,tgt:best,tx:best.x,ty:best.y,spd:500,kind:'spark',heal:u.heal,side:'u'});continue;}}
+      if(best){u.cdT=u.cd;u.atkAnim=1;F.proj.push({x:u.x+12,y:u.y-36,tgt:best,tx:best.x,ty:best.y,spd:500,kind:'spark',heal:u.heal,bless:u.bless,side:'u'});continue;}}
     let tgt=null,bd=1e9;
     const anchor=follow?hr:null;
     for(const e of foes){if(!e.alive)continue;if(anchor?dist(e,anchor)>340:coreDist(e)>320)continue;const d=dist(u,e);if(d<bd){bd=d;tgt=e;}}
     if(!tgt){moveTo(u,u.homeX,u.homeY,h,follow?1.4:0.8);continue;}
     const d=bd-tgt.r-u.r*0.5;
-    if(d<=u.range){u.moving=false;u.face=tgt.x>=u.x?1:-1;if(u.cdT<=0){u.cdT=u.cd*rand(.95,1.05);u.atkAnim=1;unitAttack(u,tgt);}}
+    if(d<=u.range){u.moving=false;u.face=tgt.x>=u.x?1:-1;if(u.cdT<=0){u.cdT=u.cd*rand(.95,1.05)*(u.rage?0.45+0.55*u.hp/u.maxHp:1);u.atkAnim=1;unitAttack(u,tgt);}}
     else{let tx=tgt.x,ty=tgt.y;if(!follow){const dc=Math.hypot(tx-CORE.x,(ty-CORE.y)*1.5);if(dc>260){const a=Math.atan2((ty-CORE.y)*1.5,tx-CORE.x);tx=CORE.x+Math.cos(a)*260;ty=CORE.y+Math.sin(a)*260/1.5;}}moveTo(u,tx,ty,h,follow?1.2:1);}
   }
   // orbit blades
@@ -2074,15 +2087,15 @@ function updateBattle(h){
   F.enemies=F.enemies.filter(e=>e.alive);
 }
 function unitAttack(u,tgt){
-  const bm=1+(u.buffP||0);
+  const bm=(1+(u.buffP||0))*(u.blessT>0?1.25:1);
   if(!u.proj){
     let dmg=u.atk*bm,crit=false;
     if(u.crit&&Math.random()<u.crit){dmg*=2;crit=true;}
-    hitEnemy(tgt,dmg,'unit',{crit});
+    hitEnemy(tgt,dmg,'unit',{crit});if(u.leech)u.hp=Math.min(u.maxHp,u.hp+dmg*u.leech);
     burst(tgt.x,tgt.y-tgt.h*tgt.sc*0.5,crit?'#ff5fa2':'#ffffff',crit?8:4,110);
   }else{
     const spd={arrow:780,orb:440,fire:480,spark:500}[u.proj]||500;
-    F.proj.push({x:u.x+u.face*12*u.sc,y:u.y-28*u.sc,tgt,tx:tgt.x,ty:tgt.y-20,spd,kind:u.proj,dmg:u.atk*bm,splash:u.splash,side:'u'});
+    F.proj.push({x:u.x+u.face*12*u.sc,y:u.y-28*u.sc,tgt,tx:tgt.x,ty:tgt.y-20,spd,kind:u.proj,dmg:u.atk*bm,splash:u.splash,slow:u.slow,elite:u.elite,side:'u'});
     AU.shoot();
   }
 }
@@ -2120,11 +2133,11 @@ function updateProj(h,foes){
   F.proj=F.proj.filter(p=>!p.done);
 }
 function projHit(p){
-  if(p.kind==='spark'&&p.heal){if(p.tgt&&p.tgt.alive)healAlly(p.tgt,p.heal);return;}
+  if(p.kind==='spark'&&p.heal){if(p.tgt&&p.tgt.alive){healAlly(p.tgt,p.heal);if(p.bless&&!p.tgt.isHero){p.tgt.blessT=4;ring(p.tgt.x,p.tgt.y-10,'#ff9cc2',34,.3);}}return;}
   if(p.side==='u'){
-    if(p.tgt&&p.tgt.alive&&p.tgt.side==='e')hitEnemy(p.tgt,p.dmg,'unit',{});
-    if(p.splash){for(const o of F.enemies){if(o.alive&&o!==p.tgt&&Math.hypot(o.x-p.tx,(o.y-o.h*o.sc*0.5)-p.ty)<p.splash)hitEnemy(o,p.dmg*0.6,'unit',{});}
-      const col=p.kind==='fire'?'#ff9a4d':'#b49bff';burst(p.tx,p.ty,col,12,160);ring(p.tx,p.ty,col,p.splash,.35);}
+    if(p.tgt&&p.tgt.alive&&p.tgt.side==='e'){if(p.slow&&!p.tgt.boss)p.tgt.slowT=Math.max(p.tgt.slowT,p.slow);hitEnemy(p.tgt,p.dmg*(p.elite&&(p.tgt.elite||p.tgt.boss)?p.elite:1),'unit',{});}
+    if(p.splash){for(const o of F.enemies){if(o.alive&&o!==p.tgt&&Math.hypot(o.x-p.tx,(o.y-o.h*o.sc*0.5)-p.ty)<p.splash){if(p.slow&&!o.boss)o.slowT=Math.max(o.slowT,p.slow);hitEnemy(o,p.dmg*0.6,'unit',{});}}
+      const col=p.kind==='fire'?'#ff9a4d':p.slow?'#9be8ff':'#b49bff';burst(p.tx,p.ty,col,12,160);ring(p.tx,p.ty,col,p.splash,.35);}
   }else{
     if(p.tgt===COREE)coreDamage(p.dmg,null,'proj:'+(p.src?p.src.type:'?'));
     else if(p.tgt&&p.tgt.alive)damageAlly(p.tgt,p.dmg,p.src);
@@ -2280,7 +2293,7 @@ function drawTut(c){const t=F.tut;if(!t||S.phase!=='battle')return;const x=18,y=
 /* ================= defenses: towers and traps ================= */
 const TOWERS={arrow:{icon:'🏹',name:'Arrow Tower',cost:35,d:'Shoots the nearest enemy in range.'},frost:{icon:'❄️',name:'Frost Pylon',cost:45,d:'Slows every enemy around it.'},spike:{icon:'🪤',name:'Spike Trap',cost:25,d:'Hurts ground enemies that walk over it.'}};
 const TW_KEYS=['arrow','frost','spike'];
-function towerHp(k,lv){return Math.round(({arrow:115,frost:90,spike:80})[k]*(0.6+0.4*lv)*(1+0.12*S.wave));}
+function towerHp(k,lv){return Math.round(({arrow:95,frost:75,spike:70})[k]*(0.6+0.4*lv)*(1+0.12*S.wave));}
 function towerNear(e){for(const t of S.towers||[]){if(t.k==='spike'||t.dead)continue;if(Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<56+e.r)return t;}return null;}
 function hitTower(t,dmg){if(t.dead)return;t.hp-=dmg;t.flash=1;if(t.hp<=0){t.dead=1;burst(t.x,t.y-24,'#c9d3f2',26,240);ring(t.x,t.y-10,'#ff5fa2',90,.5);shake(6);AU.boom();toast(`${TOWERS[t.k].name} destroyed!`,'bad');}}
 function towersNewWave(){for(const t of S.towers||[]){const m=towerHp(t.k,t.lv);t.maxHp=m;t.hp=Math.min(m,(t.hp===undefined?m:t.hp)+m*0.4);}}
@@ -2299,7 +2312,7 @@ function towerTick(h){const w=S.wave;if((S.towers||[]).some(t=>t.dead)){S.towers
     if(t.k!=='spike'&&WV&&WV.bossEnt&&WV.bossEnt.alive&&Math.hypot(WV.bossEnt.x-t.x,WV.bossEnt.y-t.y)<120){hitTower(t,99999);continue;}
     t.cd-=h;if(t.cd>0)continue;
   if(t.k==='arrow'){let b=null,bd=300+40*t.lv;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-t.x,e.y-t.y);if(d<bd){bd=d;b=e;}}
-    if(b){t.cd=0.9;F.bolts.push({x1:t.x,y1:t.y-58,x2:b.x,y2:b.y-b.h*b.sc*0.5,life:.14,max:.14});hitEnemy(b,(8+2.6*w)*(0.6+0.5*t.lv),'unit',{});}else t.cd=0.2;}
+    if(b){t.cd=0.9;F.bolts.push({x1:t.x,y1:t.y-58,x2:b.x,y2:b.y-b.h*b.sc*0.5,life:.14,max:.14});hitEnemy(b,(7+2.1*w)*(0.6+0.5*t.lv),'unit',{});}else t.cd=0.2;}
   else if(t.k==='frost'){t.cd=0.3;const r=150+30*t.lv;for(const e of F.enemies)if(e.alive&&!e.boss&&Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<r)e.slowT=Math.max(e.slowT,0.45);}
   else{t.cd=0.5;let n=0;for(const e of F.enemies){if(!e.alive||ED[e.type].fly)continue;if(Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<52){hitEnemy(e,(7+2.4*w)*(0.6+0.5*t.lv),'unit',{});n++;}}if(n)hitTower(t,1.5*(1+0.12*w));}}}
 function twStars(c,t,x,y){if(t.maxHp&&t.hp<t.maxHp){const w=44,p=clamp(t.hp/t.maxHp,0,1),by=y-(t.k==='spike'?52:108);c.fillStyle='rgba(5,8,26,.8)';rr(c,x-w/2-1,by-1,w+2,7,3);c.fill();c.fillStyle=p>0.4?'#3ef2d0':'#ff5f7a';rr(c,x-w/2,by,Math.max(2,w*p),5,2);c.fill();}
@@ -2325,7 +2338,7 @@ function update(h){updateCam(h);if(F.endFx)endTick(h);if(F.castFlash>0)F.castFla
   F.t+=h;F.shake=Math.max(0,F.shake-h*30);F.coreFlash=Math.max(0,F.coreFlash-h);
   if(F.comboT>0){F.comboT-=h;if(F.comboT<=0)F.combo=0;}
   for(const e of F.units){
-    e.anim+=h;e.flash=Math.max(0,e.flash-h*5);e.atkAnim=Math.max(0,e.atkAnim-h*5);if(e.pop>0)e.pop-=h;
+    e.anim+=h;e.flash=Math.max(0,e.flash-h*5);e.atkAnim=Math.max(0,e.atkAnim-h*5);if(e.pop>0)e.pop-=h;if(e.blessT>0)e.blessT-=h;
     if(e.spawnDelay>0){e.spawnDelay-=h;if(e.spawnDelay<=0){summonFX(e.x,e.y,UNIT[e.type].col);AU.summon();e.pop=0.35;if(e.star>1){floatText(e.x,e.y-e.h*e.sc-14,'★'.repeat(e.star),'#ffd166',22,1.2);AU.merge();}}}
   }
   for(const e of F.enemies){e.anim+=h;e.flash=Math.max(0,e.flash-h*5);e.atkAnim=Math.max(0,e.atkAnim-h*4);}
@@ -2680,8 +2693,9 @@ function mergeAll(){
 }
 function canRecruit(t){if(S.army.length<S.armyMax)return true;return S.army.filter(u=>u.type===t&&u.star===1).length>=2;}
 function rollOffers(){
-  const pool={knight:10,archer:10,rogue:9,mage:9,cleric:8,dragon:S.wave>=6?3:0};
-  const out=[];for(let i=0;i<5;i++){const k=wpick(pool);out.push({t:k,sold:false});}
+  const pool={knight:10,archer:10,rogue:9,mage:9,cleric:8,paladin:6,sniper:6,berserker:6,frostmage:6,warpriest:6,dragon:S.wave>=6?3:0};
+  for(const u of S.army)if(pool[u.type]&&u.star<3)pool[u.type]=Math.max(pool[u.type],22);
+  const out=[],cnt={};for(let i=0;i<5;i++){let k=null;for(let t=0;t<14;t++){k=wpick(pool);const n=cnt[k]||0;if(n===0||(n<2&&S.army.some(u=>u.type===k)))break;}cnt[k]=(cnt[k]||0)+1;out.push({t:k,sold:false});}
   return out;
 }
 function buyOffer(i){
@@ -2910,7 +2924,7 @@ function openShop(){
 function renderShop(){
   const [bonus,intr]=S.lastBonus, next=S.wave+1, nb=bossFor(next), H=HEROES[S.hero];
   const offers=S.offers.map((o,i)=>{const U=UNIT[o.t],d=UDEF[o.t],c=unitCost(o.t),own1=S.army.filter(u=>u.type===o.t&&u.star===1).length,full=!canRecruit(o.t);
-    const ro=own1===2?'Buy → merges into ★★!':S.army.some(u=>u.type===o.t)?`You own ${S.army.filter(u=>u.type===o.t).length}`:U.desc;
+    const nOwn=S.army.filter(u=>u.type===o.t).length,ro=(own1===2?'<b style="color:#ffd166">Buy → merges into ★★!</b><br>':nOwn?`<b style="color:#dfe3ff">You own ${nOwn}</b> · `:'')+U.desc;
     return `<div class="rcard ${o.sold?'sold':''} ${S.gold<c?'cant':''} ${full?'full':''}" data-act="buy" data-arg="${i}"><span class="kb">${i+1}</span><span class="role" style="color:${U.col}">${U.role}</span><img src="${IMG[o.t]}"><div class="rn">${U.name}</div><div class="rs">HP ${d.hp} · ATK ${d.atk}</div><div class="ro">${ro}</div><div class="rbuy">${o.sold?'SOLD':full?'ARMY FULL':ICON_COIN+c}</div></div>`;}).join('');
   let army='';for(let i=0;i<Math.max(S.armyMax,10);i++){const u=S.army[i];
     if(i>=S.armyMax){army+='<div class="ucard empty locked">🔒</div>';continue;}

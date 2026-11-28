@@ -223,6 +223,11 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Endings: `F.endFx` drives a short sequence before the result dialog (`endTick`, `drawEndFx`): defeat = the Gate shatters, red vignette, camera on the Gate, 3 s; victory or demo complete = fireworks, a light pillar on the Gate, 3.6 s. Result dialogs use `.endWin` / `.endLose`.
 - Heroes can be bought from the first minute: every save gets a one-time gift of 200 Soul Shards (`P.gift`, in `boot`), and all five heroes are purchasable in the web demo (`DEMO_HEROES`). The demo is now limited only by the 10-wave cap.
 
+**Army variety (owner request "different characters with different skills"):**
+- Five new recruitable units, tinted variants of the old sprites (`UNIT[k].base`, `.tint`, applied in `buildImages`): Paladin (`thorn`: reflects damage, in `damageAlly`), Sniper (`elite`: double damage to elites and bosses, long range), Berserker (`rage`: faster when hurt, `leech`), Frost Mage (`slow` on projectile hit and splash), War Priest (`bless`: healed units get `blessT`, +25% damage). Each belongs to an old class for synergies and relics via `UNIT[k].cls` / `ucls()` (`synCount`, `unitStats`).
+- `rollOffers`: no duplicate in one roll unless the player already owns that type (then at most two); owned types below 3 stars get a higher weight so merging stays reachable. Shop cards always show the unit's skill text.
+- Tower numbers after re-measuring with the new units: arrow damage `(7+2.1·wave)`, health bases 95/75/70. Bot, Captain from Moonlit Ruins, 8 runs: no towers 9–20 (median 15.5), with towers 7–20 (median 12.5); run-to-run variance is large.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
