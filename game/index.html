@@ -1412,7 +1412,7 @@ function buildBG(mapKey){
   const mc=MINI.getContext('2d');mc.clearRect(0,0,220,124);mc.drawImage(BG,0,0,WW,WH,0,0,220,124);for(const o of SCN)mc.drawImage(o.img,(o.x-o.ox)*220/WW,(o.y-o.oy)*124/WH,o.w*330/WW,o.hh*186/WH);
   F.amb=[];
 }
-const REGEN_WAIT=5,RESPAWN_T=4;
+const REGEN_WAIT=5,RESPAWN_T=4,BASE_R=200,BASE_HEAL_H=0.03,BASE_HEAL_U=0.012;
 function drawRespawn(c){const hr=F.hero;if(!hr||hr.alive||S.phase!=='battle'||F.endFx)return;const t=Math.max(0,F.heroRespawn),n=Math.max(1,Math.ceil(t)),col=HEROES[S.hero].col,x=VW/2,y=196,fr=1-clamp(t/RESPAWN_T,0,1),pop=1+Math.max(0,(t%1)-0.8)*1.2;c.save();
   c.fillStyle='rgba(8,10,34,.82)';rr(c,x-170,y-92,340,196,18);c.fill();c.strokeStyle=hexA(col,.55);c.lineWidth=2;c.stroke();
   c.textAlign='center';c.textBaseline='middle';c.font='700 15px Silkscreen, monospace';c.fillStyle='#ff9cc2';c.fillText('HERO DOWN',x,y-66);
@@ -1422,7 +1422,7 @@ function drawRespawn(c){const hr=F.hero;if(!hr||hr.alive||S.phase!=='battle'||F.
 function drawHeroBar(c){const e=F.hero;if(!e||!e.alive||(S.phase!=='battle'&&S.phase!=='collect'))return;const w=58,x=e.x,y=e.y-e.h*e.sc-14,p=clamp(e.hp/e.maxHp,0,1);c.save();
   c.fillStyle='rgba(5,8,26,.85)';rr(c,x-w/2-2,y-2,w+4,10,4);c.fill();c.fillStyle=e.flash>0?'#ffffff':p>0.5?'#ff5fa2':p>0.25?'#ffd166':'#ff3b5c';if(p>0){rr(c,x-w/2,y,Math.max(3,w*p),6,2.5);c.fill();}
   c.restore();}
-function drawCoreBar(c){if(S.phase!=='battle'&&S.phase!=='collect')return;const w=120,x=CORE.x,y=CORE.y-148,p=clamp(S.core.hp/S.core.max,0,1);c.save();
+function drawCoreBar(c){if(S.phase!=='battle'&&S.phase!=='collect')return;{c.save();c.strokeStyle=`rgba(125,255,176,${F.atBase?0.55+Math.sin(F.t*5)*0.15:0.2})`;c.lineWidth=F.atBase?3:2;c.setLineDash([10,9]);c.lineDashOffset=-F.t*14;ell(c,CORE.x,CORE.y,BASE_R,BASE_R/1.3);c.stroke();c.setLineDash([]);if(F.atBase&&F.hero.hp<F.hero.maxHp){c.font='700 11px Silkscreen, monospace';c.textAlign='center';c.lineWidth=3;c.strokeStyle='rgba(5,8,26,.9)';c.strokeText('HEALING',F.hero.x,F.hero.y+26);c.fillStyle='#7dffb0';c.fillText('HEALING',F.hero.x,F.hero.y+26);}c.restore();}const w=120,x=CORE.x,y=CORE.y-148,p=clamp(S.core.hp/S.core.max,0,1);c.save();
   c.fillStyle='rgba(5,8,26,.85)';rr(c,x-w/2-2,y-2,w+4,13,5);c.fill();c.fillStyle=F.coreFlash>0?'#ffffff':p>0.5?'#3ef2d0':p>0.25?'#ffd166':'#ff5f7a';if(p>0){rr(c,x-w/2,y,Math.max(4,w*p),9,3.5);c.fill();}
   c.font='700 11px Silkscreen, monospace';c.textAlign='center';c.textBaseline='alphabetic';c.lineWidth=3;c.strokeStyle='rgba(5,8,26,.9)';const tx=`GATE ${Math.ceil(S.core.hp)}/${S.core.max}`;c.strokeText(tx,x,y-6);c.fillStyle='#dfe3ff';c.fillText(tx,x,y-6);
   if(F.coreRegen){const b=(F.t*1.6)%1;c.globalAlpha=1-b;c.font='700 13px Silkscreen, monospace';c.strokeText('+',x+w/2+12,y+9-b*12);c.fillStyle='#7dffb0';c.fillText('+',x+w/2+12,y+9-b*12);}
@@ -2304,6 +2304,9 @@ function drawBarks(c){const B=F.barks;if(!B||!B.length)return;c.save();c.textAli
   c.restore();}
 function worldTick(h){
   barkTick(h);
+  if(S.phase==='battle'){const nearGate=e=>Math.hypot(e.x-CORE.x,(e.y-CORE.y)*1.3)<BASE_R;F.baseT=(F.baseT||0)-h;const pl=F.baseT<=0;if(pl)F.baseT=0.45;
+    const hr0=F.hero;F.atBase=!!(hr0&&hr0.alive&&nearGate(hr0));if(F.atBase&&hr0.hp<hr0.maxHp){healHero(hr0.maxHp*BASE_HEAL_H*h);if(pl)addPart({type:'plus',x:hr0.x+rand(-14,14),y:hr0.y-34,vx:0,vy:-50,life:.6,max:.6});}
+    for(const u of F.units)if(u.alive&&u.hp<u.maxHp&&nearGate(u)){u.hp=Math.min(u.maxHp,u.hp+u.maxHp*BASE_HEAL_U*h);if(pl&&Math.random()<0.5)addPart({type:'plus',x:u.x+rand(-10,10),y:u.y-30,vx:0,vy:-50,life:.6,max:.6});}}
   F.coreHitT=(F.coreHitT||0)+h;F.coreRegen=S.phase==='battle'&&F.coreHitT>REGEN_WAIT&&S.core.hp>0&&S.core.hp<S.core.max;if(F.coreRegen)S.core.hp=Math.min(S.core.max,S.core.hp+S.core.max*0.003*h);
   const hr=F.hero,b=F.buff||(F.buff={});
   if(b.fury>0)b.fury-=h;if(b.haste>0)b.haste-=h;if(F.heroSlow>0)F.heroSlow-=h;

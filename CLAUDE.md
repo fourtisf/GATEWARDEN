@@ -242,6 +242,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 
 **Revive countdown (owner request):** when the hero falls, `drawRespawn` shows a screen-space panel above the Gate with a ring and the seconds left (`F.heroRespawn`, `RESPAWN_T`=4). It replaces the old toast; the top-left bar still shows "RESPAWN Ns".
 
+**Healing at the Gate (owner idea):** inside `BASE_R` (200 px, the dashed green ring drawn in `drawCoreBar`) the hero regains `BASE_HEAL_H` = 3% of max health per second and army units `BASE_HEAL_U` = 1.2% per second (`worldTick`, `F.atBase`). Bot, Captain from Moonlit Ruins, 8 runs: 9–20 (median 12), within the usual spread.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
