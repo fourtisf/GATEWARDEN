@@ -244,6 +244,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 
 **Healing at the Gate (owner idea):** inside `BASE_R` (200 px, the dashed green ring drawn in `drawCoreBar`) the hero regains `BASE_HEAL_H` = 3% of max health per second and army units `BASE_HEAL_U` = 1.2% per second (`worldTick`, `F.atBase`). Bot, Captain from Moonlit Ruins, 8 runs: 9–20 (median 12), within the usual spread.
 
+**Easier start (owner feedback "too hard", lost at wave 3 after spending all gold):** on Normal (Ascension 0, not the daily) `ease(w)` = 0.55 at wave 1 rising to 1.0 at wave 10 scales the spawn rate and the damage the Gate takes. Once per run the Gate survives a killing blow (`S.lastStand`, in `coreDamage`): it returns to 35% health and a shockwave destroys normal enemies within 520 px (bosses lose 12%). Ascension 1+ and the daily are unchanged. Bot, Captain from Moonlit Ruins, 8 runs: 10–20 (median 14.5), one win. A human who struggles is the real test; none has been run.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

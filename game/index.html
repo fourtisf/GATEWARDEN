@@ -763,6 +763,7 @@ function unitCost(t){let c=UNIT[t].cost*(1+0.06*S.wave);if(has('discount'))c*=0.
 const sellValue = u => Math.floor(UNIT[u.type].cost*0.5*[1,3,9][u.star-1]);
 const repairCost = () => 12+3*S.wave;
 const EARLY_A=1.5,EARLY_B=0.3;
+const ease = w => (S.asc>0||S.daily)?1:clamp(0.5+0.05*w,0.5,1);
 const waveDur = w => Math.min(60,30+2*(w-1));
 const goldMult = () => (1+0.2*cl('greed'))*(has('chestr')?1.3:1)*(1+0.08*P.perm.fortune)*(modOn('golden')?2:1)*(modOn('elites')?1.5:1)*(F.goldRushT>0?2:1)*(S.danger?1.4:1);
 const xpMult = () => (1+0.2*cl('wisdom'))*(1+0.08*P.perm.insight)*(modOn('giants')?1.6:1);
@@ -1907,8 +1908,11 @@ function damageAlly(t,amt,src){
 function coreDamage(amt,src,tag){
   if(S.phase!=='battle')return;
   if(TEST.dmgLog){const k=tag||(src?src.type:'?');TEST.dmgLog[k]=(TEST.dmgLog[k]||0)+amt;}
-  S.core.hp-=amt;F.coreFlash=0.25;F.coreHitT=0;shake(3);
+  amt*=ease(S.wave);S.core.hp-=amt;F.coreFlash=0.25;F.coreHitT=0;shake(3);
   if(src&&src.alive&&cl('thorn'))hitEnemy(src,(10+3*S.wave)*cl('thorn'),'thorn',{});
+  if(S.core.hp<=0&&!S.lastStand&&!S.asc&&!S.daily){S.lastStand=1;S.core.hp=S.core.max*0.35;F.coreHitT=0;shake(22);AU.evo();castFX(CORE.x,CORE.y,'#3ef2d0',true);for(let i=0;i<4;i++)ring(CORE.x,CORE.y-20,i%2?'#ffffff':'#3ef2d0',160+i*110,.5+i*.12);burst(CORE.x,CORE.y-60,'#3ef2d0',70,520);
+    for(const e of F.enemies.slice()){if(!e.alive)continue;const d=Math.hypot(e.x-CORE.x,(e.y-CORE.y)*1.3);if(d<520)hitEnemy(e,ED[e.type].boss?e.maxHp*0.12:e.maxHp*2,'wrath',{});}
+    banner("THE GATE'S WRATH",'Last chance — the Gate will not save itself again','#3ef2d0');return;}
   if(S.core.hp<=0){S.core.hp=0;gameOver();}
 }
 function healAlly(t,amt){if(!t.alive)return;const real=Math.min(amt,t.maxHp-t.hp);t.hp+=real;if(real>=1){floatText(t.x,t.y-t.h*t.sc-4,'+'+Math.round(real),'#7ff3e1',12,.6);addPart({type:'plus',x:t.x+rand(-10,10),y:t.y-rand(10,40),vx:0,vy:-40,life:.6,max:.6});}}
@@ -1942,7 +1946,7 @@ function spawnEnemy(key,x,y,opts){
 }
 function spawnTick(h){
   const w=S.wave, prog=WV.boss?0.5:WV.t/WV.dur;
-  let rate=(1.0+0.33*w+prog*0.27*w+Math.max(0,EARLY_A-EARLY_B*w))*MAPS[S.map].spawn*(modOn('swarm')?1.4:1);if(WV.boss)rate*=0.45;if(WV.nestKill)rate*=Math.pow(0.8,WV.nestKill);
+  let rate=(1.0+0.33*w+prog*0.27*w+Math.max(0,EARLY_A-EARLY_B*w))*MAPS[S.map].spawn*(modOn('swarm')?1.4:1)*ease(w);if(WV.boss)rate*=0.45;if(WV.nestKill)rate*=Math.pow(0.8,WV.nestKill);
   WV.acc+=h*rate;
   const alive=F.enemies.length;
   if(alive>=150){WV.acc=Math.min(WV.acc,2);return;}
