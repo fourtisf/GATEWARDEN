@@ -228,6 +228,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - `rollOffers`: no duplicate in one roll unless the player already owns that type (then at most two); owned types below 3 stars get a higher weight so merging stays reachable. Shop cards always show the unit's skill text.
 - Tower numbers after re-measuring with the new units: arrow damage `(7+2.1·wave)`, health bases 95/75/70. Bot, Captain from Moonlit Ruins, 8 runs: no towers 9–20 (median 15.5), with towers 7–20 (median 12.5); run-to-run variance is large.
 
+**Own artwork for the newer characters:** `drawHero` has dedicated cases for `paladin`, `sniper`, `berserker`, `frostmage`, `warpriest` and the hero `shade`. Those units carry `UNIT[k].own=1` (no tint; `base` is kept only for portrait scaling), and Shade no longer borrows the rogue sprite (`HEROES.shade.spr` removed).
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
