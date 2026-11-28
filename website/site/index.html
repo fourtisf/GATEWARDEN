@@ -2319,7 +2319,7 @@ function barkLater(d,f){(F.barkQ||(F.barkQ=[])).push({t:d,f});}
 function barkTick(h){const Q=F.barkQ;if(Q&&Q.length){for(const q of Q)q.t-=h;for(let i=Q.length-1;i>=0;i--)if(Q[i].t<=0){const q=Q.splice(i,1)[0];if(S.phase==='battle'||S.phase==='victory')q.f();}}
   const B=F.barks;if(B&&B.length){for(const b of B)b.t+=h;F.barks=B.filter(b=>b.t<b.life&&b.e.alive!==false);}
   if(F.lowBark>0)F.lowBark-=h;const hr=F.hero;if(hr&&hr.alive&&S.phase==='battle'&&hr.hp<hr.maxHp*0.3&&!(F.lowBark>0)){F.lowBark=16;barkHero('low');}
-  if(S.phase==='battle'&&!TEST.turbo){F.chat=(F.chat==null?rand(14,22):F.chat)-h;if(F.chat<=0){F.chat=rand(16,26);barkUnit();}}}
+  if(S.phase==='battle'&&!TEST.turbo){F.chat=(F.chat==null?rand(14,22):F.chat)-h;if(F.chat<=0){F.chat=rand(16,26);if(F.enemies.length<50)barkUnit();}}}
 function drawBarks(c){const B=F.barks;if(!B||!B.length)return;c.save();c.textAlign='center';c.textBaseline='middle';
   for(const b of B){const e=b.e,a=Math.min(1,b.t*7,(b.life-b.t)*3.5);if(a<=0)continue;const pop=b.t<0.14?0.7+b.t*2.2:1;c.font='600 15px Outfit, sans-serif';const w=Math.max(c.measureText(b.txt).width,b.who?c.measureText(b.who).width*0.8:0)+24,hh=b.who?44:30;
     const x=clamp(e.x,CAM.x+w/2+8,CAM.x+VW-w/2-8),y=e.y-(e.h||70)*(e.sc||1.3)-34-hh/2;c.globalAlpha=a;c.translate(x,y);c.scale(pop,pop);
@@ -2351,6 +2351,9 @@ function worldTick(h){
   if(!P.tips.tower&&S.wave>=2&&WV&&WV.t>3&&!TEST.turbo){P.tips.tower=1;saveP();banner('BUILD DEFENSES','Press 1 · 2 · 3 to build a tower, pylon or trap where you stand','#3ef2d0');}
   if(TOUCH&&hr&&hr.alive&&!TEST.auto)touchAuto(hr);
   if(F.tut&&!TEST.turbo)tutTick(hr);
+  if(!TEST.turbo&&!F.tut&&S.phase==='battle'&&WV&&WV.t>6){
+    if(!P.tips.guard){if((S.towers||[]).some(t=>t.guard)){P.tips.guard=1;saveP();}else if(S.gold>=guardCost('arrow')){P.tips.guard=1;saveP();banner('GATE GUARDS','Press B — buy a cannon, tower or barricade to stand watch at the Gate','#3ef2d0');}}
+    else if(!P.tips.heal&&hr&&hr.alive&&hr.hp<hr.maxHp*0.45&&!F.atBase){P.tips.heal=1;saveP();toast('Low on health? Stand inside the green ring at the Gate to heal');}}
   F.poolT-=h;if(F.poolT<=0){F.poolT=0.4;
     if(hp&&scn()==='ruins'&&hr.hp<hr.maxHp){healHero(hr.maxHp*0.014);addPart({type:'plus',x:hr.x+rand(-14,14),y:hr.y-30,vx:0,vy:-50,life:.6,max:.6});}
     if(hp&&scn()==='cave'){for(const k of ['q','e','shock','f'])if(S.cd[k]>0)S.cd[k]=Math.max(0,S.cd[k]-0.5);addPart({type:'plus',x:hr.x+rand(-14,14),y:hr.y-30,vx:0,vy:-50,life:.6,max:.6});}
@@ -2429,7 +2432,7 @@ function openPact(){const ch=shuffle(Object.keys(DAILY_MODS).filter(m=>!S.mods.i
 function pickPact(i){if(S.modal!=='pact')return;const m=S.pactCh[i];S.pactWave=S.wave;S.modal=null;hideOverlay();
   if(m){S.mods.push(m);S.gold+=40;HSC=null;refreshHero(false);AU.evo();toast(`Pact sealed: ${DAILY_MODS[m].name}`,'good');}
   renderBuild();openShop();}
-const TUT=[['move','Move',()=>TOUCH?'drag the left side':'W A S D'],['atk','Defeat an enemy',()=>TOUCH?'automatic when close':'hold click or SPACE'],['dash','Dash',()=>TOUCH?'tap the dash button':'SHIFT'],['skill','Use a skill',()=>TOUCH?'tap a skill button':'Q · E · R'],['shrine','Step on a shrine',()=>'◆ on the minimap']];
+const TUT=[['move','Move',()=>TOUCH?'drag the left side':'W A S D'],['atk','Defeat an enemy',()=>TOUCH?'automatic when close':'hold click or SPACE'],['dash','Dash',()=>TOUCH?'tap the dash button':'SHIFT'],['skill','Use a skill',()=>TOUCH?'tap a skill button':'Q · E · R'],['shrine','Step on a shrine',()=>'◆ on the minimap'],['shop','Open the shop',()=>TOUCH?'tap SHOP':'B']];
 function tutTick(hr){const t=F.tut;if(hr&&hr.moving)t.move=1;if(S.stats.heroKills>0)t.atk=1;if(S.cd.dash>0)t.dash=1;if(S.stats.casts>0)t.skill=1;if(F.shrineUsed)t.shrine=1;
   if(TUT.every(x=>t[x[0]])){F.tut=null;P.tips.tut=1;S.gold+=30;saveP();banner('TRAINING COMPLETE','+30 gold — now hold the Gate!','#3ef2d0');AU.chest();}}
 function drawTut(c){const t=F.tut;if(!t||S.phase!=='battle')return;const x=18,y=152,w=318,h=40+TUT.length*26;c.save();c.fillStyle='rgba(8,10,34,.82)';rr(c,x,y,w,h,12);c.fill();c.strokeStyle='rgba(62,242,208,.5)';c.lineWidth=1.5;c.stroke();
@@ -2446,14 +2449,15 @@ function towersNewWave(){for(const t of S.towers||[]){if(t.guard){const gp=guard
 function towerMax(){return Math.min(10,3+Math.floor(S.wave/3));}
 function towerCost(k,up){const n=(S.towers||[]).filter(t=>t.k===k).length;return Math.round(TOWERS[k].cost*(up?0.8*up:1+0.35*n));}
 function renderTowerBar(){const el=$('#towerBar');if(!el)return;if(S.wave<2){el.innerHTML='';return;}const n=(S.towers||[]).filter(t=>!t.guard).length;el.innerHTML=`<div class="twLbl">DEFENSES ${n}/${towerMax()}</div>`+TW_KEYS.map((k,i)=>`<div class="bc tw" data-tw="${k}" data-tip="${esc(`${TOWERS[k].name} (${i+1}) — ${towerCost(k)} gold\n${TOWERS[k].d}\nBuilt where your hero stands. Stand on one and press again to upgrade or repair it. Enemies can destroy it.`)}">${TOWERS[k].icon}<span>${i+1}</span></div>`).join('');}
-const GUARD_KEYS=['cannon','arrow','frost','wall'],GUARD_SLOTS=8,GUARD_R=268,GUARD_NAME={cannon:'Cannon',arrow:'Guard Tower',frost:'Frost Pylon',wall:'Barricade'},TIMG={};
+const GUARD_KEYS=['cannon','arrow','frost','wall'],GUARD_STEP=0.3,GUARD_WAVE=0.05,GUARD_POW=0.85,GUARD_SLOTS=8,GUARD_R=268,GUARD_NAME={cannon:'Cannon',arrow:'Guard Tower',frost:'Frost Pylon',wall:'Barricade'},TIMG={};
 function guardPos(i){const a=Math.PI/8+i*Math.PI/4;return {x:CORE.x+Math.cos(a)*GUARD_R,y:CORE.y+Math.sin(a)*GUARD_R/1.3};}
 function timg(k){if(TIMG[k])return TIMG[k];const cv=document.createElement('canvas');cv.width=cv.height=144;const c=cv.getContext('2d');c.translate(72,k==='arrow'?141:k==='frost'?134:k==='wall'?128:110);const z=k==='arrow'?0.94:k==='frost'?1.42:k==='wall'?1.3:1.75;c.scale(z,z);drawTower(c,{k,lv:1,x:0,y:0,aim:-0.45,icon:1});return TIMG[k]=cv.toDataURL();}
-function guardInfo(k){const G=(S.towers||[]).filter(t=>t.guard);if(G.length<GUARD_SLOTS)return {c:towerCost(k),up:null};const m=G.filter(t=>t.k===k&&t.lv<3).sort((a,b)=>a.lv-b.lv)[0];return m?{c:towerCost(k,m.lv+1),up:m}:null;}
+function guardCost(k,up){const n=(S.guardN&&S.guardN[k])||0;return Math.round(TOWERS[k].cost*(up?0.9*up:1+GUARD_STEP*n)*(1+GUARD_WAVE*S.wave));}
+function guardInfo(k){const G=(S.towers||[]).filter(t=>t.guard);if(G.length<GUARD_SLOTS)return {c:guardCost(k),up:null};const m=G.filter(t=>t.k===k&&t.lv<3).sort((a,b)=>a.lv-b.lv)[0];return m?{c:guardCost(k,m.lv+1),up:m}:null;}
 function buyGuard(k){if(!shopOpen()||!GUARD_KEYS.includes(k))return;const g=guardInfo(k);if(!g){toast('No free guard post — all are at max level or taken','bad');AU.err();return;}
   if(S.gold<g.c){toast('Not enough gold','bad');AU.err();return;}S.gold-=g.c;S.towers=S.towers||[];
   if(g.up){g.up.lv++;g.up.maxHp=towerHp(k,g.up.lv);g.up.hp=g.up.maxHp;castFX(g.up.x,g.up.y,'#3ef2d0',false);toast(`${TOWERS[k].name} upgraded to level ${g.up.lv}`,'good');}
-  else{const used=new Set(S.towers.filter(t=>t.guard).map(t=>t.slot));let i=0;for(const o of [0,4,2,6,1,5,3,7])if(!used.has(o)){i=o;break;}const gp=guardPos(i),t={k,lv:1,guard:1,slot:i,x:gp.x,y:gp.y,cd:0.5};t.maxHp=towerHp(k,1);t.hp=t.maxHp;S.towers.push(t);castFX(t.x,t.y,'#ffd166',false);toast(`${TOWERS[k].name} now guards the Gate`,'good');}
+  else{const used=new Set(S.towers.filter(t=>t.guard).map(t=>t.slot));let i=0;for(const o of [0,4,2,6,1,5,3,7])if(!used.has(o)){i=o;break;}const gp=guardPos(i),t={k,lv:1,guard:1,slot:i,x:gp.x,y:gp.y,cd:0.5};t.maxHp=towerHp(k,1);t.hp=t.maxHp;S.towers.push(t);S.guardN=S.guardN||{};S.guardN[k]=(S.guardN[k]||0)+1;castFX(t.x,t.y,'#ffd166',false);toast(`${TOWERS[k].name} now guards the Gate`,'good');}
   AU.buy();renderTowerBar();renderShop();}
 function buildTower(k){const hr=F.hero;if(S.phase!=='battle'||!hr||!hr.alive||S.paused||S.modal)return;if(S.wave<2){toast('Defenses unlock in wave 2','bad');return;}S.towers=S.towers||[];
   const near=S.towers.find(t=>t.k===k&&!t.guard&&Math.hypot(t.x-hr.x,t.y-hr.y)<70);
@@ -2462,10 +2466,11 @@ function buildTower(k){const hr=F.hero;if(S.phase!=='battle'||!hr||!hr.alive||S.
   if(S.towers.filter(t=>!t.guard).length>=towerMax()){toast(`Defense limit reached (${towerMax()}) — stand on one to upgrade it`,'bad');return;}
   const c=towerCost(k);if(S.gold<c){toast(`Not enough gold — ${TOWERS[k].name} costs ${c}`,'bad');AU.err();return;}
   S.gold-=c;{const m=towerHp(k,1);S.towers.push({k,x:hr.x,y:hr.y+6,lv:1,cd:0,hp:m,maxHp:m});}castFX(hr.x,hr.y,'#3ef2d0',false);AU.buy();renderTowerBar();}
+function twSnd(n,gap){if(TEST.turbo)return;const k='tw_'+n;if(F.t-(F[k]||-9)>gap){F[k]=F.t;AU[n]();}}
 function tshot(t,k,e,sy,dmg,spd,arc,R){const d=Math.hypot(e.x-t.x,e.y-t.y);(F.tshots||(F.tshots=[])).push({k,e,sx:t.x,sy,tx:e.x,ty:e.y,t:0,dur:Math.max(0.12,d/spd),dmg,arc:arc||0,R:R||0});}
 function tshotPos(s,p){const e=s.e&&s.e.alive?s.e:null;if(e){s.tx=e.x;s.ty=e.y;s.th=s.k==='cannon'?0:e.h*e.sc*0.5;}const ty=s.ty-(s.th||0);return {x:s.sx+(s.tx-s.sx)*p,y:s.sy+(ty-s.sy)*p-Math.sin(Math.PI*p)*s.arc,gy:s.sy+40+(s.ty-s.sy-40)*p};}
 function tshotTick(h){const L=F.tshots;if(!L||!L.length)return;for(const s of L){s.t+=h;if(s.t<s.dur)continue;s.done=1;const e=s.e&&s.e.alive?s.e:null;
-    if(s.k==='cannon'){for(const o of F.enemies)if(o.alive&&Math.hypot(o.x-s.tx,(o.y-s.ty)*1.3)<s.R)hitEnemy(o,o===e?s.dmg:s.dmg*0.7,'unit',{});ring(s.tx,s.ty,'#ffd166',s.R,.4);ring(s.tx,s.ty,'#ffffff',s.R*0.55,.25);burst(s.tx,s.ty-10,'#ff9c59',18,300);burst(s.tx,s.ty-10,'#fff3c4',8,180);shake(2.5);if(!TEST.turbo)AU.boom();}
+    if(s.k==='cannon'){for(const o of F.enemies)if(o.alive&&Math.hypot(o.x-s.tx,(o.y-s.ty)*1.3)<s.R)hitEnemy(o,o===e?s.dmg:s.dmg*0.7,'unit',{});ring(s.tx,s.ty,'#ffd166',s.R,.4);ring(s.tx,s.ty,'#ffffff',s.R*0.55,.25);burst(s.tx,s.ty-10,'#ff9c59',18,300);burst(s.tx,s.ty-10,'#fff3c4',8,180);shake(1.2);twSnd('boom',0.3);}
     else if(e){hitEnemy(e,s.dmg,'unit',{});if(s.k==='frost'){e.slowT=Math.max(e.slowT,1.6);burst(e.x,e.y-e.h*e.sc*0.5,'#c4f4ff',8,160);}}}
   F.tshots=L.filter(s=>!s.done);}
 function drawTShots(c){const L=F.tshots;if(!L||!L.length)return;c.save();for(const s of L){const p=clamp(s.t/s.dur,0,1),a=tshotPos(s,p),b=tshotPos(s,Math.min(1,p+0.04)),an=Math.atan2(b.y-a.y,b.x-a.x);
@@ -2478,12 +2483,12 @@ function towerTick(h){const w=S.wave;tshotTick(h);if((S.towers||[]).some(t=>t.de
     if(t.k!=='spike'&&WV&&WV.bossEnt&&WV.bossEnt.alive&&Math.hypot(WV.bossEnt.x-t.x,WV.bossEnt.y-t.y)<120){hitTower(t,99999);continue;}
     t.cd-=h;if(t.cd>0)continue;
   if(t.k==='arrow'){let b=null,bd=300+40*t.lv;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-t.x,e.y-t.y);if(d<bd){bd=d;b=e;}}
-    if(b){t.cd=0.9;t.aim=Math.atan2(b.y-(t.y-79),b.x-t.x);t.shot=1;tshot(t,'arrow',b,t.y-79,(7+2.1*w)*(0.6+0.5*t.lv),760,14);if(!TEST.turbo)AU.click();}else t.cd=0.2;}
+    if(b){t.cd=0.9;t.aim=Math.atan2(b.y-(t.y-79),b.x-t.x);t.shot=1;tshot(t,'arrow',b,t.y-79,(7+2.1*w)*(0.6+0.5*t.lv)*(t.guard?GUARD_POW:1),760,14);twSnd('click',0.2);}else t.cd=0.2;}
   else if(t.k==='cannon'){let b=null,bd=330+30*t.lv;for(const e of F.enemies){if(!e.alive||ED[e.type].fly)continue;const d=Math.hypot(e.x-t.x,e.y-t.y);if(d<bd){bd=d;b=e;}}
-    if(b){t.cd=2.1;t.aim=Math.atan2(b.y-t.y,b.x-t.x);t.kick=1;tshot({x:t.x+Math.cos(t.aim)*40,y:t.y},'cannon',b,t.y-31+Math.sin(t.aim)*30,(13+3.6*w)*(0.6+0.5*t.lv),430,70,85+8*t.lv);burst(t.x+Math.cos(t.aim)*44,t.y-31+Math.sin(t.aim)*32,'#c9d3f2',12,150);burst(t.x+Math.cos(t.aim)*40,t.y-31+Math.sin(t.aim)*30,'#ffd166',6,220);ring(t.x+Math.cos(t.aim)*40,t.y-31+Math.sin(t.aim)*30,'#fff3c4',26,.2);if(!TEST.turbo)AU.boom();}else t.cd=0.25;}
-  else if(t.k==='wall'){const dm=(5+1.5*w)*(0.6+0.5*t.lv);let n=0,b=null,bd=250+25*t.lv;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-t.x,e.y-t.y);if(d<bd){bd=d;b=e;}if(!ED[e.type].fly&&Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<82+e.r){hitEnemy(e,dm,'unit',{});n++;}}
-    if(n){ring(t.x,t.y-10,'#3ef2d0',86,.28);t.kick=1;}if(b&&b.alive){t.aim=Math.atan2(b.y-(t.y-61),b.x-t.x);t.shot=1;tshot(t,'arrow',b,t.y-61,dm*1.2,720,10);if(!TEST.turbo)AU.click();}t.cd=b||n?1.1:0.25;}
-  else if(t.k==='frost'){t.cd=0.3;const r=150+30*t.lv;t.cd2=(t.cd2||0)-0.3;if(t.cd2<=0){let b=null,bd=r+60;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-t.x,e.y-t.y);if(d<bd){bd=d;b=e;}}if(b){t.cd2=1.5;t.kick=1;tshot(t,'frost',b,t.y-56,(5+1.6*w)*(0.6+0.5*t.lv),520,0);ring(t.x,t.y-52,'#9be8ff',34,.3);}}for(const e of F.enemies)if(e.alive&&!e.boss&&Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<r)e.slowT=Math.max(e.slowT,0.45);}
+    if(b){t.cd=2.1;t.aim=Math.atan2(b.y-t.y,b.x-t.x);t.kick=1;tshot({x:t.x+Math.cos(t.aim)*40,y:t.y},'cannon',b,t.y-31+Math.sin(t.aim)*30,(13+3.6*w)*(0.6+0.5*t.lv)*GUARD_POW,430,70,85+8*t.lv);burst(t.x+Math.cos(t.aim)*44,t.y-31+Math.sin(t.aim)*32,'#c9d3f2',12,150);burst(t.x+Math.cos(t.aim)*40,t.y-31+Math.sin(t.aim)*30,'#ffd166',6,220);ring(t.x+Math.cos(t.aim)*40,t.y-31+Math.sin(t.aim)*30,'#fff3c4',26,.2);}else t.cd=0.25;}
+  else if(t.k==='wall'){const dm=(5+1.5*w)*(0.6+0.5*t.lv)*GUARD_POW;let n=0,b=null,bd=250+25*t.lv;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-t.x,e.y-t.y);if(d<bd){bd=d;b=e;}if(!ED[e.type].fly&&Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<82+e.r){hitEnemy(e,dm,'unit',{});n++;}}
+    if(n){ring(t.x,t.y-10,'#3ef2d0',86,.28);t.kick=1;}if(b&&b.alive){t.aim=Math.atan2(b.y-(t.y-61),b.x-t.x);t.shot=1;tshot(t,'arrow',b,t.y-61,dm*1.2,720,10);twSnd('click',0.2);}t.cd=b||n?1.1:0.25;}
+  else if(t.k==='frost'){t.cd=0.3;const r=150+30*t.lv;t.cd2=(t.cd2||0)-0.3;if(t.cd2<=0){let b=null,bd=r+60;for(const e of F.enemies){if(!e.alive)continue;const d=Math.hypot(e.x-t.x,e.y-t.y);if(d<bd){bd=d;b=e;}}if(b){t.cd2=1.5;t.kick=1;tshot(t,'frost',b,t.y-56,(5+1.6*w)*(0.6+0.5*t.lv)*(t.guard?GUARD_POW:1),520,0);ring(t.x,t.y-52,'#9be8ff',34,.3);}}for(const e of F.enemies)if(e.alive&&!e.boss&&Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<r)e.slowT=Math.max(e.slowT,0.45);}
   else{t.cd=0.5;let n=0;for(const e of F.enemies){if(!e.alive||ED[e.type].fly)continue;if(Math.hypot(e.x-t.x,(e.y-t.y)*1.3)<52){hitEnemy(e,(7+2.4*w)*(0.6+0.5*t.lv),'unit',{});n++;}}if(n)hitTower(t,1.5*(1+0.12*w));}}}
 function twStars(c,t,x,y){if(t.maxHp){if(t.regen){const b=(F.t*1.6+t.x)%1;c.globalAlpha=1-b;c.font='700 12px Silkscreen, monospace';c.textAlign='center';c.fillStyle='#7dffb0';c.fillText('+',x+32,y-(t.k==='spike'?46:102)-b*10);c.globalAlpha=1;}const w=44,p=clamp(t.hp/t.maxHp,0,1),by=y-(t.k==='spike'?52:108);c.fillStyle='rgba(5,8,26,.8)';rr(c,x-w/2-1,by-1,w+2,7,3);c.fill();c.fillStyle=p>0.4?'#3ef2d0':'#ff5f7a';rr(c,x-w/2,by,Math.max(2,w*p),5,2);c.fill();for(let i=1;i<(t.lv||1);i++){c.fillStyle='#ffd166';c.fillRect(x-w/2+(i-1)*8,by+9,6,3);}}
   if(t.flash>0){c.fillStyle=`rgba(255,95,122,${0.35*t.flash})`;ell(c,x,y-(t.k==='spike'?22:40),30,t.k==='spike'?14:40);c.fill();}
@@ -2695,7 +2700,7 @@ function drawEnemyEnt(c,e){
   if(e.taunt>0&&!e.boss){c.font='700 12px Silkscreen, monospace';c.textAlign='center';c.fillStyle='#ff5f7a';c.fillText('!',e.x,e.y-e.h*e.sc*es-14);}
   if(e.frozen>0){c.fillStyle='rgba(150,230,255,.38)';ell(c,e.x,e.y-e.h*e.sc*0.45*es,e.r*1.2,e.h*e.sc*0.52*es);c.fill();c.strokeStyle='rgba(220,250,255,.75)';c.lineWidth=1.5;c.stroke();}
   else if(e.stun>0.15){c.fillStyle='#ffe27a';for(let i=0;i<3;i++){const a=F.t*7+i*2.1;circ(c,e.x+Math.cos(a)*12,e.y-e.h*e.sc*es-6+Math.sin(a)*4,2.2);c.fill();}}
-  if(!e.boss){const w=Math.max(24,e.r*1.8),top=e.y-e.h*e.sc*es-8;c.fillStyle='rgba(5,8,26,.85)';rr(c,e.x-w/2-1,top-1,w+2,5,2.5);c.fill();c.fillStyle=e.elite?AFFIX[e.affix].col:'#ff5f7a';rr(c,e.x-w/2,top,Math.max(1,w*clamp(e.hp/e.maxHp,0,1)),3,1.5);c.fill();
+  if(!e.boss){const w=Math.max(24,e.r*1.8),top=e.y-e.h*e.sc*es-8,dim=!e.elite&&e.hp>=e.maxHp&&F.enemies.length>40;if(dim)c.globalAlpha=0.35;c.fillStyle='rgba(5,8,26,.85)';rr(c,e.x-w/2-1,top-1,w+2,5,2.5);c.fill();c.fillStyle=e.elite?AFFIX[e.affix].col:'#ff5f7a';rr(c,e.x-w/2,top,Math.max(1,w*clamp(e.hp/e.maxHp,0,1)),3,1.5);c.fill();if(dim)c.globalAlpha=1;
     if(e.elite){c.font='700 10px Silkscreen, monospace';c.textAlign='center';c.lineWidth=3;c.strokeStyle='rgba(5,8,26,.9)';c.strokeText(AFFIX[e.affix].lbl,e.x,top-4);c.fillStyle=AFFIX[e.affix].col;c.fillText(AFFIX[e.affix].lbl,e.x,top-4);}}
 }
 function drawWolf(c,wf){
@@ -3139,7 +3144,7 @@ function toggleFieldShop(){
   if(S.modal==='fshop'){S.modal=null;hideOverlay();{const tp=document.getElementById('tooltip');if(tp)tp.style.display='none';}AU.click();return;}
   if(S.phase!=='battle'||S.paused||S.modal||F.endFx)return;
   if(!S.offers||!S.offers.length)S.offers=rollOffers();if(!S.reroll)S.reroll=2;
-  for(const k in K)K[k]=false;F.mouseDown=false;S.modal='fshop';AU.click();renderShop();
+  if(F.tut)F.tut.shop=1;for(const k in K)K[k]=false;F.mouseDown=false;S.modal='fshop';AU.click();renderShop();
 }
 function openShop(){
   S.phase='shop';
@@ -3320,10 +3325,12 @@ function howHTML(back){
     ['<b>SHIFT</b> / right-click to <b>dash</b> (invulnerable). Every hero has unique skills: <b>Q</b> and <b>E</b>, plus an <b>R</b> Ultimate. At level 5 you pick a 4th skill for <b>F</b>.'],
     ['<b>Red circles and lanes on the ground are attacks</b> about to land. Step out or dash through them! Shieldbearers block hits from the front — hit them from behind.'],
     ['Kills drop <b>XP gems</b>. Each level-up lets you pick an upgrade. Max a weapon card and own its partner card to unlock an <b>EVOLUTION</b>.'],
-    ['<b>Elites</b> drop chests with relics. Chain kills for a <b>combo</b> — big combos pay more gold. Spend gold in the <b>shop</b> on units (3 of a kind merge) and Training. Press <b>G</b> to make your army follow you.'],
-    ['The world is bigger than the screen — watch the <b>minimap</b>. <b>Shrines</b> (diamonds) give a timed boost when you step on them. <b>Nests</b> (orange squares) keep spawning enemies until you destroy them. Pools matter: healing springs in the Ruins, fast ice in Frozen Pass, burning lava in Hellforge.'],
+    ['<b>Elites</b> drop chests with relics. Chain kills for a <b>combo</b> — big combos pay more gold. Press <b>G</b> to make your army follow you.'],
+    ['The <b>shop</b> opens after every wave, and at any time with <b>B</b> (the battle pauses). Buy units (3 of a kind merge), a <b>hero for hire</b> in slot 5, Training, and <b>Gate guards</b>: a cannon, guard tower, frost pylon or barricade that takes a post outside the Gate ring by itself and fights for you.'],
+    ['Stand inside the <b>green ring</b> at the Gate to <b>heal</b> yourself and your army. The Gate and your defenses <b>repair themselves</b> when nothing hits them for 5 seconds. On Normal the Gate survives <b>one</b> killing blow per run.'],
+    ['The world is bigger than the screen — watch the <b>minimap</b>. <b>Shrines</b> (diamonds) give a timed boost when you step on them. <b>Nests</b> (orange squares) keep spawning enemies until you destroy them. Each land has pools with their own effect.'],
     ['<b>The battlefield changes every wave.</b> Each land has its own terrain, pools and enemies, so every wave plays differently. The land you pick sets where you start and how tough the enemies are.'],
-    ['<b>Build defenses</b> with <b>1 · 2 · 3</b>: an Arrow Tower, a Frost Pylon or a Spike Trap appears where your hero stands. Stand on one and press again to upgrade or repair it. Enemies attack your defenses and can destroy them. After every wave you <b>choose the road</b>: a safe land, or a dangerous one with better rewards.'],
+    ['From wave 2 you can also <b>build anywhere</b> with <b>1 · 2 · 3</b>: an Arrow Tower, a Frost Pylon or a Spike Trap appears where your hero stands (these are separate from the Gate guards). Stand on one and press again to upgrade or repair it. Enemies attack your defenses and can destroy them. After every wave you <b>choose the road</b>: a safe land, or a dangerous one with better rewards.'],
     ['Boss every 5 waves. Survive 20 waves and slay the <b>DEMON LORD</b>. Every run earns <b>Soul Shards</b>, hero <b>Mastery</b> (skins & bonuses) and progress on <b>Bounties</b>. Win a map to unlock <b>Ascension</b>; try the <b>Daily Challenge</b> every day.'],
   ];
   return `<div class="modal" style="width:860px"><h2>HOW TO PLAY</h2><div class="howto">${rows.map((r,i)=>`<div><span class="n">${i+1}</span><span>${r[0]}</span></div>`).join('')}</div><div class="mbtns"><button class="btn mbtn primary" data-act="${back}">${back==='pauseMenu'?'BACK':'GOT IT'}</button></div></div>`;
