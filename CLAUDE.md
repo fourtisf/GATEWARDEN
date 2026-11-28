@@ -246,6 +246,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 
 **Easier start (owner feedback "too hard", lost at wave 3 after spending all gold):** on Normal (Ascension 0, not the daily) `ease(w)` = 0.55 at wave 1 rising to 1.0 at wave 10 scales the spawn rate and the damage the Gate takes. Once per run the Gate survives a killing blow (`S.lastStand`, in `coreDamage`): it returns to 35% health and a shockwave destroys normal enemies within 520 px (bosses lose 12%). Ascension 1+ and the daily are unchanged. Bot, Captain from Moonlit Ruins, 8 runs: 10–20 (median 14.5), one win. A human who struggles is the real test; none has been run.
 
+**Gate guards (owner request "cannon or tower you can buy and place near the Gate"):** the shop (between waves and the field shop) has a GATE GUARDS row. `buyGuard(k)` (`GUARD_KEYS` = cannon, arrow) puts a defense on one of `GUARD_SLOTS` = 6 fixed posts around the Gate (`t.guard`, `t.slot`); when all posts are taken it upgrades the lowest-level guard of that kind (max level 3). Guards are ordinary `S.towers` entries (health, self-repair, enemies attack them) but do not count toward `towerMax()` and cannot be upgraded with keys 1·2·3. New defense `cannon` (`TOWERS.cannon`, 50 gold): a shell every 2.1 s that hits ground enemies in an 85+ px blast, `(13+3.6·wave)` damage; it exists only as a guard. The bot never buys guards, so bot numbers are unchanged; their strength in human hands is unmeasured.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
