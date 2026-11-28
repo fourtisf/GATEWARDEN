@@ -373,7 +373,7 @@ button{font-family:inherit}
 .hq{margin-top:3px;font-size:12.5px;font-style:italic;opacity:.9}
 .shopH{cursor:default}.shopH:hover{transform:none}.shopH.own{border-color:rgba(62,242,208,.35)}.shopBuy{display:block;width:100%;margin-top:10px;padding:9px 0;border-radius:10px;font-family:'Silkscreen',monospace;font-size:12px;letter-spacing:1px;text-align:center;background:rgba(180,140,255,.12);border:1px solid rgba(180,140,255,.45);color:#cfc2ff;cursor:pointer}.shopBuy.can{background:linear-gradient(180deg,#ff7ab4,#ff5fa2);border-color:#ff9cc2;color:#2a0b22}.shopBuy.owned{background:rgba(62,242,208,.08);border-color:rgba(62,242,208,.4);color:#3ef2d0;cursor:default}.shopBuy svg{vertical-align:-3px}
 .rcard.hire{border-color:var(--hc);background:linear-gradient(180deg,rgba(255,95,162,.12),rgba(139,108,255,.1));box-shadow:0 0 0 1px var(--hc),0 10px 26px -14px var(--hc)}.rcard.hire .role{background:var(--hc);color:#0b1030!important}
-#shopBtn{border-color:#ff5fa2;color:#ffd0e4;background:rgba(255,95,162,.16);font-size:12px;letter-spacing:1px}#shopBtn:hover{background:rgba(255,95,162,.32)}
+#shopBtn{left:16px;top:98px;height:42px;padding:0 12px 0 12px;display:flex;align-items:center;gap:9px;pointer-events:auto;cursor:pointer;border-radius:13px;border:1.5px solid rgba(255,95,162,.75);background:linear-gradient(180deg,rgba(60,26,84,.92),rgba(30,18,62,.92));color:#ffd0e4;font-family:'Silkscreen',monospace;font-size:14px;letter-spacing:2px;box-shadow:0 8px 22px -12px #ff5fa2;transition:.15s}#shopBtn:hover{border-color:#ff9cc2;background:linear-gradient(180deg,rgba(90,34,110,.95),rgba(44,22,80,.95));transform:translateY(-1px)}#shopBtn svg{color:#ff7ab4}#shopBtn kbd{font-family:'Silkscreen',monospace;font-size:10px;letter-spacing:0;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#cfd4ff}
 </style>
 </head>
 <body>
@@ -382,6 +382,7 @@ button{font-family:inherit}
   <canvas id="cv" width="1600" height="900"></canvas>
   <div id="lowHp"></div>
   <div id="flash"></div>
+  <button id="shopBtn" class="hud" data-tip="Recruit units and heroes, train and repair. The battle pauses while the shop is open."><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 4.6 4h14.8L21 9.5"/><path d="M3 9.5a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12.5V20h14v-7.5"/><path d="M10 20v-4.5h4V20"/></svg><span>SHOP</span><kbd>B</kbd></button>
   <div id="hudTL" class="hud glass">
     <img id="heroPortrait" alt="">
     <div class="bars">
@@ -395,7 +396,6 @@ button{font-family:inherit}
   <div id="hudTR" class="hud glass">
     <div class="stat" id="goldStat" data-tip="Gold — spend it in the shop (B) at any time."></div>
     <div class="gateBox" data-tip="The Gate. If it breaks, the run is over."><div class="barLbl"><span>GATE</span><b id="gateTxt"></b></div><div class="bar"><div id="gateFill"></div></div></div>
-    <button class="ibtn" id="shopBtn" data-tip="Shop (B): recruit units and heroes, train and repair — the battle pauses">SHOP</button>
     <button class="ibtn" id="armyBtn" data-tip="Army orders (G): guard the Gate or follow you into battle">🛡</button>
     <button class="ibtn" id="musicBtn" data-tip="Music on / off (M)">♪</button>
     <button class="ibtn" id="speedBtn" data-tip="Game speed (T)">1×</button>
@@ -2380,7 +2380,7 @@ function pickPact(i){if(S.modal!=='pact')return;const m=S.pactCh[i];S.pactWave=S
 const TUT=[['move','Move',()=>TOUCH?'drag the left side':'W A S D'],['atk','Defeat an enemy',()=>TOUCH?'automatic when close':'hold click or SPACE'],['dash','Dash',()=>TOUCH?'tap the dash button':'SHIFT'],['skill','Use a skill',()=>TOUCH?'tap a skill button':'Q · E · R'],['shrine','Step on a shrine',()=>'◆ on the minimap']];
 function tutTick(hr){const t=F.tut;if(hr&&hr.moving)t.move=1;if(S.stats.heroKills>0)t.atk=1;if(S.cd.dash>0)t.dash=1;if(S.stats.casts>0)t.skill=1;if(F.shrineUsed)t.shrine=1;
   if(TUT.every(x=>t[x[0]])){F.tut=null;P.tips.tut=1;S.gold+=30;saveP();banner('TRAINING COMPLETE','+30 gold — now hold the Gate!','#3ef2d0');AU.chest();}}
-function drawTut(c){const t=F.tut;if(!t||S.phase!=='battle')return;const x=18,y=112,w=318,h=40+TUT.length*26;c.save();c.fillStyle='rgba(8,10,34,.82)';rr(c,x,y,w,h,12);c.fill();c.strokeStyle='rgba(62,242,208,.5)';c.lineWidth=1.5;c.stroke();
+function drawTut(c){const t=F.tut;if(!t||S.phase!=='battle')return;const x=18,y=152,w=318,h=40+TUT.length*26;c.save();c.fillStyle='rgba(8,10,34,.82)';rr(c,x,y,w,h,12);c.fill();c.strokeStyle='rgba(62,242,208,.5)';c.lineWidth=1.5;c.stroke();
   c.textAlign='left';c.font='700 12px Silkscreen, monospace';c.fillStyle='#3ef2d0';c.fillText('TRAINING · +30 GOLD',x+14,y+24);
   TUT.forEach((r,i)=>{const yy=y+50+i*26,ok=!!t[r[0]];c.strokeStyle=ok?'#3ef2d0':'rgba(255,255,255,.45)';c.lineWidth=2;rr(c,x+14,yy-12,14,14,3);c.stroke();if(ok){c.fillStyle='#3ef2d0';c.fill();}
     c.font='600 13.5px Outfit, sans-serif';c.fillStyle=ok?'rgba(207,212,255,.5)':'#fff';c.fillText(r[1],x+38,yy);c.font='12px Outfit, sans-serif';c.fillStyle=ok?'rgba(143,152,201,.5)':'#aab2e0';c.textAlign='right';c.fillText(r[2](),x+w-14,yy);c.textAlign='left';});c.restore();}
@@ -3239,6 +3239,7 @@ let prevGold=null;
 function renderHUD(){
   const inGame=!['title'].includes(S.phase);
   ['#hudTL','#hudTC','#hudTR','#skillBar','#buildRow','#comboBox','#towerBar'].forEach(s=>$(s).style.display=inGame?'':'none');
+  $('#shopBtn').style.display=inGame&&S.phase==='battle'&&!F.endFx?'':'none';
   {const lb=$('#lvBtn'),show=inGame&&S.phase==='battle'&&S.pending>0&&!S.modal;lb.style.display=show?'':'none';if(show)lb.textContent=`⬆ LEVEL UP${S.pending>1?' ×'+S.pending:''} — PRESS C`;}
   if(!inGame)return;
   const hr=F.hero;
