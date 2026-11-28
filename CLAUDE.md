@@ -230,6 +230,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 
 **Own artwork for the newer characters:** `drawHero` has dedicated cases for `paladin`, `sniper`, `berserker`, `frostmage`, `warpriest` and the hero `shade`. Those units carry `UNIT[k].own=1` (no tint; `base` is kept only for portrait scaling), and Shade no longer borrows the rogue sprite (`HEROES.shade.spr` removed).
 
+**Character voices:** each hero has a quote (`HEROES[k].quote`, shown on hero select) and speech lines in `BARK[hero]` (start, low, boss, elite, shrine, win); units have lines in `UBARK[type]` and a personal name (`u.nm` from `UNAMES`, set in `summon`, kept through `mergeAll`, shown in the army tooltip; old saves without `nm` still work). `say(ent,txt,col,who)` adds a bubble to `F.barks` (max 3, one per entity), `barkLater` queues one, `barkTick` (called from `worldTick`) runs the queue, the low-health line and idle unit chatter, `drawBarks` draws in world space. Nothing is said while `TEST.turbo` is set.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

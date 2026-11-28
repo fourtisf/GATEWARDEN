@@ -370,6 +370,7 @@ button{font-family:inherit}
 @keyframes endPop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
 @keyframes endGlow{50%{text-shadow:0 0 34px currentColor}}
 @keyframes endBob{50%{transform:translateY(-6px)}}
+.hq{margin-top:3px;font-size:12.5px;font-style:italic;opacity:.9}
 </style>
 </head>
 <body>
@@ -505,11 +506,11 @@ const BOSS_BY_WAVE={5:'king',10:'colossus',15:'witch',20:'demon'};
 const BOSS_CYCLE=['king','colossus','witch','demon'];
 const AFFIX={swift:{lbl:'SWIFT',col:'#5cc8ff'},armored:{lbl:'ARMORED',col:'#ffd166'},explosive:{lbl:'EXPLOSIVE',col:'#ff7a59'},vampiric:{lbl:'VAMPIRIC',col:'#ff5fa2'}};
 const HEROES={
-  captain:{name:'Captain',title:'BLADE OF THE GATE',col:'#3ef2d0',cost:0,hp:140,atk:15,spd:230,weapon:'sword',ult:'shock',skills:{q:'rush',e:'banner'},desc:'Balanced swordsman. Wide slashes — every 3rd swing spins.',stats:[3,3,3]},
-  ranger:{name:'Ranger',title:'MOONLIT ARCHER',col:'#a6f56b',cost:120,hp:100,atk:12,spd:250,weapon:'bow',ult:'storm',skills:{q:'volley',e:'trap'},desc:'Piercing arrows from range. Every 4th shot fires a 5-arrow fan.',stats:[2,3,4]},
-  arcanist:{name:'Arcanist',title:'STARFIRE MAGE',col:'#b48cff',cost:240,hp:110,atk:26,spd:215,weapon:'staff',ult:'hole',skills:{q:'meteor',e:'frost'},desc:'Exploding star orbs. Every 3rd cast erupts in a nova.',stats:[1,5,2]},
-  warden:{name:'Warden',title:'IRONCLAD BULWARK',col:'#5cc8ff',cost:360,hp:160,atk:17,spd:195,weapon:'hammer',ult:'quake',skills:{q:'charge',e:'bastion'},armor:0.85,desc:'Crushing hammer smashes with knockback. Takes 15% less damage.',stats:[5,4,1]},
-  shade:{name:'Shade',title:'TWIN-BLADE ASSASSIN',col:'#ff5fa2',cost:200,hp:95,atk:13,spd:265,weapon:'sword',ult:'shadow',skills:{q:'tornado',e:'poison'},crit:0.2,desc:'Fast and fragile, with +20% critical chance. Strike first, strike hard.',stats:[2,3,5]},
+  captain:{name:'Captain',title:'BLADE OF THE GATE',quote:'I was born behind this Gate. I will die in front of it.',col:'#3ef2d0',cost:0,hp:140,atk:15,spd:230,weapon:'sword',ult:'shock',skills:{q:'rush',e:'banner'},desc:'Balanced swordsman. Wide slashes — every 3rd swing spins.',stats:[3,3,3]},
+  ranger:{name:'Ranger',title:'MOONLIT ARCHER',quote:'Every arrow has a name on it.',col:'#a6f56b',cost:120,hp:100,atk:12,spd:250,weapon:'bow',ult:'storm',skills:{q:'volley',e:'trap'},desc:'Piercing arrows from range. Every 4th shot fires a 5-arrow fan.',stats:[2,3,4]},
+  arcanist:{name:'Arcanist',title:'STARFIRE MAGE',quote:'The stars are just mana that learned to wait.',col:'#b48cff',cost:240,hp:110,atk:26,spd:215,weapon:'staff',ult:'hole',skills:{q:'meteor',e:'frost'},desc:'Exploding star orbs. Every 3rd cast erupts in a nova.',stats:[1,5,2]},
+  warden:{name:'Warden',title:'IRONCLAD BULWARK',quote:'I am the wall. Walls do not retreat.',col:'#5cc8ff',cost:360,hp:160,atk:17,spd:195,weapon:'hammer',ult:'quake',skills:{q:'charge',e:'bastion'},armor:0.85,desc:'Crushing hammer smashes with knockback. Takes 15% less damage.',stats:[5,4,1]},
+  shade:{name:'Shade',title:'TWIN-BLADE ASSASSIN',quote:'Gold first. Glory is for the dead.',col:'#ff5fa2',cost:200,hp:95,atk:13,spd:265,weapon:'sword',ult:'shadow',skills:{q:'tornado',e:'poison'},crit:0.2,desc:'Fast and fragile, with +20% critical chance. Strike first, strike hard.',stats:[2,3,5]},
 };
 const HERO_ORDER=['captain','ranger','shade','arcanist','warden'];
 const sprOf = t => (HEROES[t]&&HEROES[t].spr)||t;
@@ -1838,7 +1839,7 @@ function killEnemy(e,src,silent){
   if(d.deathBoom){F.tele.push({kind:'circle',x:e.x,y:e.y,r:100,t:0.9,max:0.9,dmg:e.atk*1.2,gate:true,col:'#ff7a59'});}
   if(e.affix==='explosive'){F.tele.push({kind:'circle',x:e.x,y:e.y,r:115,t:1.0,max:1.0,dmg:e.atk*1.4,gate:true,col:'#ff7a59'});AU.warn();}
   if(e.affix==='vampiric'){for(const o of F.enemies)if(o.alive&&o!==e&&dist(o,e)<180)healAlly(o,o.maxHp*0.25);ring(e.x,e.y-20,'#ff5fa2',180,.5);}
-  if(e.elite){S.stats.elites++;P.stats.elites++;if(P.stats.elites>=50)unlockAch('elite50');if(Math.random()<0.1||S.stats.elites===1||(e.guaranteed&&(S.asc<8||Math.random()<0.5)))F.chests.push({x:e.x,y:e.y,legend:false,t:0});floatText(e.x,e.y-70,'+'+Math.round(d.gold*m)+'g','#ffd166',16,1);AU.coin();}
+  if(e.elite){if(Math.random()<0.4)barkHero('elite');S.stats.elites++;P.stats.elites++;if(P.stats.elites>=50)unlockAch('elite50');if(Math.random()<0.1||S.stats.elites===1||(e.guaranteed&&(S.asc<8||Math.random()<0.5)))F.chests.push({x:e.x,y:e.y,legend:false,t:0});floatText(e.x,e.y-70,'+'+Math.round(d.gold*m)+'g','#ffd166',16,1);AU.coin();}
   if(e.boss){F.chests.push({x:e.x,y:e.y,legend:true,t:0});shake(22);AU.boss();toast(`${d.name} defeated!`,'good');ring(e.x,e.y-40,'#ff5fa2',180,.8);ring(e.x,e.y-40,'#ffffff',120,.6);F.hitStop=0.3;S.stats.bosses++;
     for(let i=0;i<6;i++)setTimeout(()=>{if(S.phase!=='battle'&&S.phase!=='collect')return;burst(e.x+rand(-60,60),e.y-rand(20,90),['#ff5fa2','#ffd166','#ffffff'][i%3],26,260);AU.boom();},120*i);
     F.tele=[];F.bullets=[];if(e.type==='demon')unlockAch('boss4');}
@@ -2235,14 +2236,43 @@ function spawnWorld(){
   if(w>=2&&Math.random()<0.4){const p=freeSpot(850,1400);F.chests.push({x:p.x,y:p.y,legend:false,t:0,far:true});setTimeout(()=>{if(S.phase==='battle'&&S.wave===w)toast('A lost chest appeared — check the minimap','good');},4200);}
 }
 function nestAI(e,h){e.moving=false;e.nT=(e.nT===undefined?3:e.nT)-h;if(e.nT<=0&&F.enemies.length<140){e.nT=2.6;const k=wpick(spawnPool(S.wave))||'goblin';const s=spawnEnemy(k,e.x+rand(-34,34),e.y+rand(12,34));s.stun=0.3;e.atkAnim=1;burst(e.x,e.y-30,'#ff5fa2',6,120);}}
+/* ---------- character voices ---------- */
+const BARK={
+ captain:{start:['Shields up. Hold the line!','Not one step back.','For the Gate!'],low:['Still standing…','I have had worse.'],boss:['That one is mine.','Big. Good. Easier to hit.'],elite:['Next!','Who else?'],shrine:['The old gods remember us.'],win:['The Gate stands!']},
+ ranger:{start:['Wind is with us.','I count them. Then I stop counting.','Stay quiet. Aim true.'],low:['Too close… too close!','I need distance!'],boss:['Big target. Hard to miss.','One arrow. One eye.'],elite:['Bullseye.','Told you.'],shrine:['Moonlight, guide my hand.'],win:['Quiver empty. Worth it.']},
+ shade:{start:['Let us make this quick.','Their pockets look heavy.','Try to keep up.'],low:['Tch. Lucky hit.','That will cost extra.'],boss:['Bet it drops something shiny.','Big purse on that one.'],elite:['Mine. All mine.','Too slow.'],shrine:['Free power? I will take it.'],win:['Now, about my payment…']},
+ arcanist:{start:['The stars are restless tonight.','Fascinating. More test subjects.','Stand behind me.'],low:['My wards are failing!','This was not in the books…'],boss:['Remarkable specimen.','Let us see how it burns.'],elite:['As calculated.','Ashes, as predicted.'],shrine:['Ah. Raw mana.'],win:['The heavens approve.']},
+ warden:{start:['I am the wall.','They shall not pass.','Come. Break upon me.'],low:['The wall… holds.','Cracked. Not broken.'],boss:['Finally. A worthy weight.','Bigger walls have fallen. Not this one.'],elite:['Rubble.','Stand down.'],shrine:['Strength for the wall.'],win:['The wall stands.']}
+};
+const UBARK={knight:['Shield wall!','Behind me!'],archer:['Loosing!','Arrows ready.'],rogue:['Easy coin.','Stab first.'],mage:['Burn!','Stand clear.'],cleric:['Light mend you.','Hold on, I am here.'],guard:['None shall pass.','Brace!'],
+ paladin:['Strike me. I dare you.','By oath and steel!'],sniper:['Target marked.','One shot.'],berserker:['MORE! MORE!','Blood makes me faster!'],frostmage:['Freeze.','Winter comes with me.'],warpriest:['Be blessed. Now fight!','Faith hits harder.']};
+const UNAMES=['Aldric','Brenna','Corwin','Dalia','Edric','Faye','Garrick','Hilde','Ivo','Jora','Kael','Lysa','Marek','Nessa','Orin','Petra','Quill','Rhea','Soren','Tilda','Ulric','Vanya','Wren','Yara','Bram','Cyra','Doran','Elsa','Finn','Greta','Hale','Isolde'];
+function unitName(){const used=new Set((S.army||[]).map(u=>u.nm));const free=UNAMES.filter(n=>!used.has(n));const L=free.length?free:UNAMES;return L[Math.floor(Math.random()*L.length)];}
+function say(ent,txt,col,who){if(TEST.turbo||!ent||!txt)return;const B=F.barks||(F.barks=[]);for(let i=B.length-1;i>=0;i--)if(B[i].e===ent)B.splice(i,1);if(B.length>=3)B.shift();B.push({e:ent,txt,col:col||'#3ef2d0',who:who||'',t:0,life:2.2+txt.length*0.035});}
+function barkHero(k){const hr=F.hero;if(!hr||!hr.alive)return;const L=(BARK[S.hero]||{})[k];if(!L)return;say(hr,L[Math.floor(Math.random()*L.length)],HEROES[S.hero].col);}
+function barkUnit(){const L=(F.units||[]).filter(e=>e.alive&&e.uid>=0&&UBARK[e.type]);if(!L.length)return;const e=L[Math.floor(Math.random()*L.length)],u=(S.army||[]).find(a=>a.uid===e.uid),T=UBARK[e.type];say(e,T[Math.floor(Math.random()*T.length)],'#b48cff',u&&u.nm||UNIT[e.type].name);}
+function barkLater(d,f){(F.barkQ||(F.barkQ=[])).push({t:d,f});}
+function barkTick(h){const Q=F.barkQ;if(Q&&Q.length){for(const q of Q)q.t-=h;for(let i=Q.length-1;i>=0;i--)if(Q[i].t<=0){const q=Q.splice(i,1)[0];if(S.phase==='battle'||S.phase==='victory')q.f();}}
+  const B=F.barks;if(B&&B.length){for(const b of B)b.t+=h;F.barks=B.filter(b=>b.t<b.life&&b.e.alive!==false);}
+  if(F.lowBark>0)F.lowBark-=h;const hr=F.hero;if(hr&&hr.alive&&S.phase==='battle'&&hr.hp<hr.maxHp*0.3&&!(F.lowBark>0)){F.lowBark=16;barkHero('low');}
+  if(S.phase==='battle'&&!TEST.turbo){F.chat=(F.chat==null?rand(14,22):F.chat)-h;if(F.chat<=0){F.chat=rand(16,26);barkUnit();}}}
+function drawBarks(c){const B=F.barks;if(!B||!B.length)return;c.save();c.textAlign='center';c.textBaseline='middle';
+  for(const b of B){const e=b.e,a=Math.min(1,b.t*7,(b.life-b.t)*3.5);if(a<=0)continue;const pop=b.t<0.14?0.7+b.t*2.2:1;c.font='600 15px Outfit, sans-serif';const w=Math.max(c.measureText(b.txt).width,b.who?c.measureText(b.who).width*0.8:0)+24,hh=b.who?44:30;
+    const x=clamp(e.x,CAM.x+w/2+8,CAM.x+VW-w/2-8),y=e.y-(e.h||70)*(e.sc||1.3)-34-hh/2;c.globalAlpha=a;c.translate(x,y);c.scale(pop,pop);
+    c.fillStyle='rgba(14,16,44,.94)';c.strokeStyle=b.col;c.lineWidth=2;c.beginPath();if(c.roundRect)c.roundRect(-w/2,-hh/2,w,hh,10);else c.rect(-w/2,-hh/2,w,hh);c.fill();c.stroke();
+    const tx=clamp(e.x-x,-w/2+16,w/2-16);c.beginPath();c.moveTo(tx-7,hh/2-1);c.lineTo(tx,hh/2+9);c.lineTo(tx+7,hh/2-1);c.closePath();c.fillStyle='rgba(14,16,44,.94)';c.fill();c.beginPath();c.moveTo(tx-7,hh/2);c.lineTo(tx,hh/2+9);c.lineTo(tx+7,hh/2);c.stroke();
+    if(b.who){c.font='700 11px Silkscreen, monospace';c.fillStyle=b.col;c.fillText(b.who.toUpperCase(),0,-hh/2+13);}
+    c.font='600 15px Outfit, sans-serif';c.fillStyle='#eef0ff';c.fillText(b.txt,0,b.who?7:1);c.setTransform(1,0,0,1,0,0);c.translate(-Math.round(CAM.x),-Math.round(CAM.y));}
+  c.restore();}
 function worldTick(h){
+  barkTick(h);
   const hr=F.hero,b=F.buff||(F.buff={});
   if(b.fury>0)b.fury-=h;if(b.haste>0)b.haste-=h;if(F.heroSlow>0)F.heroSlow-=h;
   if(hr&&hr.alive){pushOut(hr,12);
     for(const s of F.shrines){if(Math.hypot(s.x-hr.x,(s.y-hr.y)*1.3)>54)continue;s.done=true;const D=SHRINES[s.k];
       if(s.k==='fury')b.fury=25;else if(s.k==='haste')b.haste=25;else if(s.k==='mend'){hr.hp=hr.maxHp;S.core.hp=Math.min(S.core.max,S.core.hp+S.core.max*0.15);}
       else{const g=25+7*S.wave;S.gold+=g;S.stats.goldEarned+=g;for(let i=0;i<18;i++)addPart({type:'coin',x:s.x,y:s.y-30,vx:rand(-220,220),vy:-rand(200,420),g:700,life:rand(.6,.9),max:.9});floatText(s.x,s.y-74,'+'+g+'g','#ffd166',20,1.2);}
-      castFX(s.x,s.y,D.col,true);banner(D.name,D.d,D.col);AU.chest();F.shrineUsed=1;}
+      castFX(s.x,s.y,D.col,true);banner(D.name,D.d,D.col);AU.chest();F.shrineUsed=1;barkLater(0.5,()=>barkHero('shrine'));}
     F.shrines=F.shrines.filter(s=>!s.done);}
   for(const e of F.enemies){if(!e.alive||e.boss)continue;const d=ED[e.type];if(d.fly||d.nest)continue;pushOut(e,10);}
   for(const u of F.units)if(u.alive)pushOut(u,10);
@@ -2709,6 +2739,7 @@ function render(){
   c.restore();
   c.textAlign='center';c.textBaseline='alphabetic';
   for(const t of F.texts){const age=t.max-t.life,pop=age<0.12?1.55-age*4.6:1;c.font=`700 ${Math.round(t.size*pop)}px Silkscreen, monospace`;c.globalAlpha=clamp(t.life/t.max*1.6,0,1);c.lineWidth=4;c.strokeStyle='rgba(5,8,26,.85)';c.strokeText(t.txt,t.x,t.y);c.fillStyle=t.col;c.fillText(t.txt,t.x,t.y);}
+  c.globalAlpha=1;drawBarks(c);
   c.globalAlpha=1;
   c.setTransform(1,0,0,1,0,0);
   if(F.warpT>0&&S.phase==='battle'){const a=Math.min(1,F.warpT)*0.16;c.fillStyle=`rgba(120,90,255,${a})`;c.fillRect(0,0,VW,900);}
@@ -2728,13 +2759,13 @@ function render(){
 
 
 /* ================= army ================= */
-function summon(type,star){const u={uid:S.uid++,type,star};S.army.push(u);S.lastNew=u.uid;mergeAll();}
+function summon(type,star){const u={uid:S.uid++,type,star,nm:unitName()};S.army.push(u);S.lastNew=u.uid;mergeAll();}
 function mergeAll(){
   let changed=true;
   while(changed){changed=false;
     for(const t of ORDER){for(let s=1;s<=2;s++){
       const grp=S.army.filter(u=>u.type===t&&u.star===s);
-      if(grp.length>=3){const take=grp.slice(0,3),idx=S.army.indexOf(take[0]);const nu={uid:S.uid++,type:t,star:s+1};
+      if(grp.length>=3){const take=grp.slice(0,3),idx=S.army.indexOf(take[0]);const nu={uid:S.uid++,type:t,star:s+1,nm:take[0].nm||unitName()};
         S.army=S.army.filter(u=>!take.includes(u));S.army.splice(Math.min(idx,S.army.length),0,nu);S.lastNew=nu.uid;changed=true;S.stats.bestStar=Math.max(S.stats.bestStar,s+1);toast(`${UNIT[t].name} merged to ${'★'.repeat(s+1)}`,'good');AU.merge();if(s+1===3)unlockAch('star3');}
     }}
   }
@@ -2933,9 +2964,11 @@ function saveRun(){
 function startWave(pick){
   if(S.routeOpts&&!P.tips.route){P.tips.route=1;saveP();}
   const ro=(S.routeOpts||[])[pick||0];S.wave++;S.scene=ro?ro.k:MAP_ORDER[(MAP_ORDER.indexOf(S.map)+S.wave-1)%MAP_ORDER.length];S.danger=!!(ro&&ro.danger);S.routeOpts=null;buildBG(S.scene);S.phase='battle';S.modal=null;S.phoenixUsed=false;S.cardReroll=Math.max(S.cardReroll,1+P.perm.reroll+(mLevel(S.hero)>=5?1:0));S.stats.hurtWave=0;
+  F.barks=[];F.barkQ=[];F.chat=null;F.lowBark=6;
   WV={t:0,dur:waveDur(S.wave),acc:S.wave<=4?7:2,boss:!!bossFor(S.wave),bossEnt:null,elites:0,event:0,theme:pickTheme(S.wave)};
   F.enemies=[];F.proj=[];F.meteors=[];F.fires=[];F.gems=[];F.chests=[];F.tele=[];F.bullets=[];F.storms=[];F.holes=[];
   syncField(true);refreshHero(true);if(F.hero){F.hero.alive=true;F.hero.x=CORE.x;F.hero.y=CORE.y+120;}
+  barkLater(WV.boss?2.2:1.1,()=>barkHero(WV.boss?'boss':'start'));barkLater(WV.boss?4.6:3.4,barkUnit);
   S.core.max=coreMax();S.core.hp=Math.min(S.core.max,S.core.hp+S.core.max*0.1);
   S.cd.q=S.cd.e=S.cd.shock=S.cd.f=0;if(armed)setArmed(null);clearSkillFX();if(F.hero){F.hero.sdash=null;F.hero.shield=0;}
   towersNewWave();spawnWorld();renderTowerBar();
@@ -2956,7 +2989,7 @@ function endWave(){
 function afterCollect(){
   if(S.phase!=='collect')return;
   if(S.pending>0){openLevelUp();return;}
-  if(S.wave===20&&!S.endless){S.phase='victory';finishRun(true);F.endFx={k:'win',t:0};AU.evo();syncMusic();setTimeout(()=>{if(S.phase==='victory')showVictory();},TEST.turbo?20:3600);return;}
+  if(S.wave===20&&!S.endless){S.phase='victory';finishRun(true);F.endFx={k:'win',t:0};F.barks=[];barkLater(0.7,()=>barkHero('win'));AU.evo();syncMusic();setTimeout(()=>{if(S.phase==='victory')showVictory();},TEST.turbo?20:3600);return;}
   if(S.wave%5===0&&S.wave<20&&!S.daily&&S.pactWave!==S.wave){openPact();return;}
   openShop();
 }
@@ -2977,7 +3010,7 @@ function renderShop(){
     if(i>=S.armyMax){army+='<div class="ucard empty locked">🔒</div>';continue;}
     if(!u){army+='<div class="ucard empty"></div>';continue;}
     const same=S.army.filter(x=>x.type===u.type&&x.star===u.star).length,s=unitStats(u);
-    army+=`<div class="ucard r${u.star}" data-tip="${esc(`${UNIT[u.type].name} ${'★'.repeat(u.star)}\nHP ${Math.round(s.hp)} · ATK ${Math.round(s.atk)}\n${UNIT[u.type].desc}\nSell for ${sellValue(u)} gold`)}"><button class="sell" data-sell="${u.uid}">×</button>${u.star<3?`<div class="mg">${same}/3</div>`:''}<img src="${IMG[u.type]}"><div class="nm">${UNIT[u.type].name}</div><div class="st">${'★'.repeat(u.star)}<span style="opacity:.22">${'★'.repeat(3-u.star)}</span></div></div>`;}
+    army+=`<div class="ucard r${u.star}" data-tip="${esc(`${u.nm?u.nm+' the ':''}${UNIT[u.type].name} ${'★'.repeat(u.star)}\nHP ${Math.round(s.hp)} · ATK ${Math.round(s.atk)}\n${UNIT[u.type].desc}\nSell for ${sellValue(u)} gold`)}"><button class="sell" data-sell="${u.uid}">×</button>${u.star<3?`<div class="mg">${same}/3</div>`:''}<img src="${IMG[u.type]}"><div class="nm">${UNIT[u.type].name}</div><div class="st">${'★'.repeat(u.star)}<span style="opacity:.22">${'★'.repeat(3-u.star)}</span></div></div>`;}
   const syn=SYN.map(s=>{const c=synCount(s.k),tier=c>=4?2:c>=2?1:0;return `<div class="syn ${tier?'on':''}" style="${tier?`color:${UNIT[s.k].col}`:''}"><b>${s.name.toUpperCase()}</b>${c}/${tier>=1?4:2} · ${tier?s.t[tier-1]:s.t[0]}</div>`;}).join('');
   const ev=evoReady().length?'<span class="chip" style="color:#ff7a59;border-color:rgba(255,122,89,.6)">EVOLUTION READY — next level-up!</span>':'';
   overlay(`<div class="modal shop"><div class="shopHead"><div><h2>WAVE ${S.wave} CLEARED</h2><p>+${bonus} wave bonus · +${intr} interest (1 per 10 gold banked, max ${interestCap()}) · Level ${S.level} · ${S.stats.kills} kills · Progress saved</p></div><div class="stat">${ICON_COIN}${S.gold}</div></div>
@@ -3072,7 +3105,7 @@ function showSelect(){
   const maps=MAP_ORDER.map(k=>{const M=MAPS[k],own=P.maps[k];
     return `<div class="mcard ${MSEL===k?'sel':''} ${own?'':'locked'}" style="background:linear-gradient(90deg,rgba(10,14,40,1) 0%,rgba(10,14,40,.94) 40%,rgba(10,14,40,0) 62%),url(${MAPIMG[k]||''}) right center/auto 100% no-repeat,rgb(10,14,40)" data-act="${own?'selMap':'lockedMap'}" data-arg="${k}"><div class="mn">${own?'':'🔒 '}${M.name}</div><div class="md">${own?M.d:'Unlock: '+M.unlock}</div><div class="mb">${own?`BEST: WAVE ${P.best[k]||0}`:'LOCKED'}</div></div>`;}).join('');
   const H=HEROES[HSEL], own=P.heroes[HSEL], can=P.shards>=H.cost;
-  const info=own?`<b style="color:${H.col}">${H.name}</b> starts in <b>${MAPS[MSEL].name}</b> <span style="color:var(--muted)">— ${MAPS[MSEL].d}</span>`:`🔒 <b style="color:${H.col}">${H.name}</b> is locked — costs <b style="color:#e1d4ff">${H.cost} Soul Shards</b>, you have <b style="color:#e1d4ff">${P.shards}</b>. ${can?'Click UNLOCK to get this hero.':'Every run you play earns Soul Shards — even if you lose.'}`;
+  const info=own?`<b style="color:${H.col}">${H.name}</b> starts in <b>${MAPS[MSEL].name}</b> <span style="color:var(--muted)">— ${MAPS[MSEL].d}</span><div class="hq" style="color:${H.col}">“${H.quote}”</div>`:`🔒 <b style="color:${H.col}">${H.name}</b> is locked — costs <b style="color:#e1d4ff">${H.cost} Soul Shards</b>, you have <b style="color:#e1d4ff">${P.shards}</b>. ${can?'Click UNLOCK to get this hero.':'Every run you play earns Soul Shards — even if you lose.'}`;
   const startBtn=own?`<button class="btn mbtn primary" data-act="start">START RUN ▶</button>`:can?`<button class="btn mbtn pink" data-act="unlockHero" data-arg="${HSEL}">UNLOCK ${H.name.toUpperCase()} · ${ICON_SHARD} ${H.cost}</button>`:`<button class="btn mbtn primary" disabled>🔒 NEED ${H.cost} SHARDS</button>`;
   const ml=mLevel(HSEL),hx=P.hxp[HSEL]||0,cur=MASTERY_XP[ml-1]||0,nx=MASTERY_XP[ml]||cur,pc=ml>=10?100:Math.round((hx-cur)/Math.max(1,nx-cur)*100);
   const skins=Object.entries(SKINS).map(([k,sk])=>{const okS=ml>=sk.lv,sel=(P.skin[HSEL]||'default')===k;return `<div class="skinBtn ${sel?'sel':''} ${okS?'':'lock'}" style="background:${sk.col}" data-act="skin" data-arg="${k}" data-tip="${esc(sk.name+(okS?'':' — unlocks at Mastery '+sk.lv))}"></div>`;}).join('');
