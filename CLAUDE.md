@@ -240,6 +240,8 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 
 **Gate health bar and self-repair (owner request):** `drawCoreBar` draws a health bar with numbers above the Gate in the world, and `drawHeroBar` a small pink one above the hero. After `REGEN_WAIT` (5 s) without damage the Gate regains 0.3% of its maximum per second (`F.coreHitT`, `F.coreRegen`, in `worldTick`), and towers and pylons regain 1.2% per second (`t.hitT`, `t.regen`, in `towerTick`; spike traps do not, they wear by design). A green "+" shows while repairing. Bot, Captain from Moonlit Ruins, 8 runs: 9–20 (median 13.5), within the usual spread.
 
+**Revive countdown (owner request):** when the hero falls, `drawRespawn` shows a screen-space panel above the Gate with a ring and the seconds left (`F.heroRespawn`, `RESPAWN_T`=4). It replaces the old toast; the top-left bar still shows "RESPAWN Ns".
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions

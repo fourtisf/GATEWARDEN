@@ -1405,7 +1405,13 @@ function buildBG(mapKey){
   const mc=MINI.getContext('2d');mc.clearRect(0,0,220,124);mc.drawImage(BG,0,0,WW,WH,0,0,220,124);for(const o of SCN)mc.drawImage(o.img,(o.x-o.ox)*220/WW,(o.y-o.oy)*124/WH,o.w*330/WW,o.hh*186/WH);
   F.amb=[];
 }
-const REGEN_WAIT=5;
+const REGEN_WAIT=5,RESPAWN_T=4;
+function drawRespawn(c){const hr=F.hero;if(!hr||hr.alive||S.phase!=='battle'||F.endFx)return;const t=Math.max(0,F.heroRespawn),n=Math.max(1,Math.ceil(t)),col=HEROES[S.hero].col,x=VW/2,y=196,fr=1-clamp(t/RESPAWN_T,0,1),pop=1+Math.max(0,(t%1)-0.8)*1.2;c.save();
+  c.fillStyle='rgba(8,10,34,.82)';rr(c,x-170,y-92,340,196,18);c.fill();c.strokeStyle=hexA(col,.55);c.lineWidth=2;c.stroke();
+  c.textAlign='center';c.textBaseline='middle';c.font='700 15px Silkscreen, monospace';c.fillStyle='#ff9cc2';c.fillText('HERO DOWN',x,y-66);
+  c.lineWidth=9;c.strokeStyle='rgba(255,255,255,.1)';c.beginPath();c.arc(x,y+4,46,0,Math.PI*2);c.stroke();c.strokeStyle=col;c.lineCap='round';c.beginPath();c.arc(x,y+4,46,-Math.PI/2,-Math.PI/2+Math.PI*2*fr);c.stroke();
+  c.font=`700 ${Math.round(46*pop)}px Silkscreen, monospace`;c.fillStyle='#ffffff';c.fillText(String(n),x+2,y+6);
+  c.font='600 15px Outfit, sans-serif';c.fillStyle='#cfd4ff';c.fillText(`Reviving at the Gate in ${n}s — your army fights on`,x,y+80);c.restore();}
 function drawHeroBar(c){const e=F.hero;if(!e||!e.alive||(S.phase!=='battle'&&S.phase!=='collect'))return;const w=58,x=e.x,y=e.y-e.h*e.sc-14,p=clamp(e.hp/e.maxHp,0,1);c.save();
   c.fillStyle='rgba(5,8,26,.85)';rr(c,x-w/2-2,y-2,w+4,10,4);c.fill();c.fillStyle=e.flash>0?'#ffffff':p>0.5?'#ff5fa2':p>0.25?'#ffd166':'#ff3b5c';if(p>0){rr(c,x-w/2,y,Math.max(3,w*p),6,2.5);c.fill();}
   c.restore();}
@@ -1888,7 +1894,7 @@ function damageAlly(t,amt,src){
   if(t.hp<=0){
     if(t.isHero&&has('phoenix')&&!S.phoenixUsed){S.phoenixUsed=true;t.hp=t.maxHp*0.5;t.inv=1.5;ring(t.x,t.y-20,'#ff7a59',90,.7);toast('Phoenix Feather — revived!','good');return;}
     t.alive=false;burst(t.x,t.y-20,'#ff8a8a',14,150);AU.die();
-    if(t.isHero){F.heroRespawn=4;F.combo=0;toast(`${HEROES[S.hero].name} down — respawning at the Gate in 4s`,'bad');shake(10);}
+    if(t.isHero){F.heroRespawn=RESPAWN_T;F.combo=0;shake(10);}
   }
 }
 function coreDamage(amt,src,tag){
@@ -2768,6 +2774,7 @@ function render(){
   c.globalAlpha=1;drawCoreBar(c);drawHeroBar(c);drawBarks(c);
   c.globalAlpha=1;
   c.setTransform(1,0,0,1,0,0);
+  drawRespawn(c);
   if(F.warpT>0&&S.phase==='battle'){const a=Math.min(1,F.warpT)*0.16;c.fillStyle=`rgba(120,90,255,${a})`;c.fillRect(0,0,VW,900);}
   if(F.goldRushT>0&&S.phase==='battle'){const a=Math.min(1,F.goldRushT)*(0.25+0.1*Math.sin(F.t*6));const g=c.createRadialGradient(VW/2,450,380,VW/2,450,VW*0.6);g.addColorStop(0,'rgba(255,209,102,0)');g.addColorStop(1,`rgba(255,209,102,${a})`);c.fillStyle=g;c.fillRect(0,0,VW,900);}
   if(F.castFlash>0){c.fillStyle=hexA(F.castCol||'#ffffff',Math.min(.13,F.castFlash*0.4));c.fillRect(0,0,VW,900);}
