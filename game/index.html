@@ -378,6 +378,7 @@ button{font-family:inherit}
 @keyframes endGlow{50%{text-shadow:0 0 34px currentColor}}
 @keyframes endBob{50%{transform:translateY(-6px)}}
 .hq{margin-top:3px;font-size:12.5px;font-style:italic;opacity:.9}
+.shopH{cursor:default}.shopH:hover{transform:none}.shopH.own{border-color:rgba(62,242,208,.35)}.shopBuy{display:block;width:100%;margin-top:10px;padding:9px 0;border-radius:10px;font-family:'Silkscreen',monospace;font-size:12px;letter-spacing:1px;text-align:center;background:rgba(180,140,255,.12);border:1px solid rgba(180,140,255,.45);color:#cfc2ff;cursor:pointer}.shopBuy.can{background:linear-gradient(180deg,#ff7ab4,#ff5fa2);border-color:#ff9cc2;color:#2a0b22}.shopBuy.owned{background:rgba(62,242,208,.08);border-color:rgba(62,242,208,.4);color:#3ef2d0;cursor:default}.shopBuy svg{vertical-align:-3px}
 </style>
 </head>
 <body>
@@ -3084,6 +3085,7 @@ function showTitle(){
    <button class="btn mbtn ${r?'ghost':'primary'}" data-act="play">${r?'NEW RUN':'PLAY'}${HERO_ORDER.some(k=>!P.heroes[k]&&P.shards>=HEROES[k].cost)?'<span class="contInfo" style="color:#ff5fa2">NEW HERO READY TO UNLOCK</span>':''}</button>
    ${loginInfo().ready?`<button class="btn mbtn ghost small loginBtn" style="width:340px" data-act="login">🎁 DAILY BONUS · +${loginInfo().reward} SHARDS</button>`:''}
    <div style="display:flex;gap:12px;width:340px"><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="sanctum">SANCTUM</button><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="missions">MISSIONS</button></div>
+   <button class="btn mbtn ghost" data-act="heroshop">HERO SHOP${HERO_ORDER.some(k=>!P.heroes[k]&&P.shards>=HEROES[k].cost)?' <span style="color:#ff5fa2">●</span>':''}</button>
    <button class="btn mbtn ghost" data-act="achievements">ACHIEVEMENTS ${Object.keys(P.ach).length}/${ACH.length}</button>
    <div style="display:flex;gap:12px;width:340px"><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="settings">SETTINGS</button><button class="btn mbtn ghost" style="flex:1;padding:0" data-act="how">HOW TO PLAY</button></div>
    <button class="btn mbtn ghost small" style="width:340px" data-act="music">♪ MUSIC: ${P.settings.musicOn===false?'OFF':'ON'} <span style="opacity:.55">· M</span></button>
@@ -3123,10 +3125,15 @@ function showSelect(){
   <div class="heroGrid">${heroes}</div><div class="selInfo ${own?'':'lockedInfo'}">${info}</div>${mast}<div class="secT">STARTING LAND <span style="color:var(--muted);letter-spacing:1px">· the battlefield changes every wave — you fight across all eight lands</span></div><div class="mapGrid">${maps}</div>${ascBox}
   <div class="mbtns"><button class="btn mbtn ghost" data-act="back">BACK</button>${startBtn}</div></div>`);
 }
+function showHeroShop(){MENU='heroshop';
+  const cards=HERO_ORDER.map(k=>{const H=HEROES[k],own=P.heroes[k],can=P.shards>=H.cost;
+    return `<div class="hcard shopH ${own?'own':''}" style="--hc:${H.col}"><img src="${IMG[k]}"><div class="hn">${H.name}</div><div class="ht">${H.title}</div><div class="hd">${H.desc}</div>${heroStatBars(H)}<div class="sbar" style="margin-top:6px"><span>Q</span><b style="color:#dfe3ff;font-weight:400">${SKILLS[H.skills.q].icon} ${SKILLS[H.skills.q].name}</b></div><div class="sbar"><span>E</span><b style="color:#dfe3ff;font-weight:400">${SKILLS[H.skills.e].icon} ${SKILLS[H.skills.e].name}</b></div><div class="sbar"><span>R</span><b style="color:${ULTS[H.ult].col};font-weight:400">${ULTS[H.ult].icon} ${ULTS[H.ult].name}</b></div><div class="hq" style="color:${H.col};min-height:34px;margin-top:8px">“${H.quote}”</div>${own?'<div class="shopBuy owned">✓ OWNED</div>':`<button class="shopBuy ${can?'can':''}" data-act="unlockHero" data-arg="${k}">${ICON_SHARD} ${H.cost}${can?' · BUY':''}</button>`}</div>`;}).join('');
+  const left=HERO_ORDER.filter(k=>!P.heroes[k]).length;
+  overlay(`<div class="modal" style="width:1080px"><h2>HERO SHOP</h2><p>${left?'Spend Soul Shards to recruit new heroes. Every hero has a different weapon, skills and ultimate.':'You own every hero. More are on the way.'} &nbsp;<b style="color:#b48cff">${ICON_SHARD} ${P.shards}</b></p><div class="heroGrid">${cards}</div><p style="font-size:12.5px;color:var(--muted);margin-top:12px">Earn Soul Shards from every run, the daily bonus, bounties and rank-ups.</p><div class="mbtns"><button class="btn mbtn ghost" data-act="back">BACK</button><button class="btn mbtn primary" data-act="play">PLAY ▶</button></div></div>`);}
 function unlockHero(k){
   const H=HEROES[k];if(P.heroes[k])return;
   if(P.shards<H.cost){toast(`Need ${H.cost} Soul Shards (you have ${P.shards})`,'bad');AU.err();return;}
-  P.shards-=H.cost;P.heroes[k]=true;HSEL=k;saveP();AU.chest();toast(`${H.name} unlocked!`,'good');banner(`${H.name.toUpperCase()} UNLOCKED`,H.title,H.col);checkHeroAch();showSelect();
+  P.shards-=H.cost;P.heroes[k]=true;HSEL=k;saveP();AU.chest();toast(`${H.name} unlocked!`,'good');banner(`${H.name.toUpperCase()} UNLOCKED`,H.title,H.col);checkHeroAch();if(MENU==='heroshop')showHeroShop();else showSelect();
 }
 function showSanctum(){
   MENU='sanctum';
@@ -3284,6 +3291,7 @@ function doAct(a,arg){
   else if(a==='howp')overlay(howHTML('pauseMenu'));
   else if(a==='back')showTitle();
   else if(a==='missions')showMissions();
+  else if(a==='heroshop')showHeroShop();
   else if(a==='login'){claimLogin();if(MENU==='missions')showMissions();else showTitle();}
   else if(a==='title'){S.paused=false;toTitle();}
   else if(a==='resume')resume();
@@ -3446,7 +3454,7 @@ function buildMapThumbs(last){const order=MAP_ORDER.filter(k=>k!==last).concat([
 function boot(){ensureQuests();fit();initTouch();if(!P.gift){P.gift=1;P.shards+=200;saveP();}if(NATIVE){try{for(const id in P.ach)NATIVE.achieve(id);}catch(e){}AU.init();}buildImages();buildMapThumbs(P.last.map||'ruins');buildSkillBar();$('#heroPortrait').src=IMG.captain;setupTitleScene();renderAll();showTitle();requestAnimationFrame(t=>{last=t;frame(t);});}
 const fontsReady=document.fonts&&document.fonts.ready?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve();
 fontsReady.then(boot);
-window.__G={drawHero,drawEnemy,IMG,HEROES,ACH,update,render,tryAttack,startDaily,dailyInfo,ensureQuests,buyTrain,trainCost,get S(){return S;},get P(){return P;},F,get WV(){return WV;},TEST,PERF,newRun,continueRun,startWave,pickCard,pickRelic,pickPact,buildTower,buyOffer,rerollShop,repairGate,unitCost,canRecruit,castAbility,setSpeed:n=>{S.speed=n;},spawnEnemy,endWave,toTitle,showSelect,showSanctum,showAch,showSettings,unlockHero,buyPerm,saveP,evoReady,doAct,toggleFormation,openChest};
+window.__G={drawHero,drawEnemy,IMG,HEROES,ACH,update,render,tryAttack,startDaily,dailyInfo,ensureQuests,buyTrain,trainCost,get S(){return S;},get P(){return P;},F,get WV(){return WV;},TEST,PERF,newRun,continueRun,startWave,pickCard,pickRelic,pickPact,buildTower,buyOffer,rerollShop,repairGate,unitCost,canRecruit,castAbility,setSpeed:n=>{S.speed=n;},spawnEnemy,endWave,toTitle,showSelect,showHeroShop,showSanctum,showAch,showSettings,unlockHero,buyPerm,saveP,evoReady,doAct,toggleFormation,openChest};
 })();
 </script>
 </body>
