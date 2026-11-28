@@ -217,6 +217,12 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Performance, worst case (wave 18, ~150 enemies, defenses, full army, 1920×1080, headless Chromium): update 1.6 ms + render 3.1 ms per frame. No optimisation was needed.
 - The bot still does not walk to shrines, so shrine strength is unmeasured.
 
+**Experience pass:**
+- Ultimates no longer raise the big banner; they show a floating label above the hero. The hero has a filled ring and a bobbing marker above the head. Frost pylon range rings are fainter.
+- Level-ups no longer interrupt the fight: a pulsing `#lvBtn` ("LEVEL UP — PRESS C") appears and the player opens the card pick with C or a click; it opens by itself after 14 s, at wave end, for the starting power, or when `P.settings.autoLevel`, `TEST.auto` or `TEST.turbo` is set (so bot sims are unchanged).
+- Endings: `F.endFx` drives a short sequence before the result dialog (`endTick`, `drawEndFx`): defeat = the Gate shatters, red vignette, camera on the Gate, 3 s; victory or demo complete = fireworks, a light pillar on the Gate, 3.6 s. Result dialogs use `.endWin` / `.endLose`.
+- Heroes can be bought from the first minute: every save gets a one-time gift of 200 Soul Shards (`P.gift`, in `boot`), and all five heroes are purchasable in the web demo (`DEMO_HEROES`). The demo is now limited only by the 10-wave cap.
+
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
 ## Conventions
