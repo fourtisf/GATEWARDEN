@@ -1,7 +1,7 @@
 {
   "name": "gatewarden",
   "productName": "Gatewarden",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Gatewarden: hordes from every side, one hero, hold the Gate.",
   "main": "main.js",
   "author": "YOUR_STUDIO_NAME",

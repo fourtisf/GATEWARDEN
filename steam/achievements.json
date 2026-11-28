@@ -65,7 +65,7 @@
   {
     "api_name": "GW_STAR3",
     "display_name": "Elite Guard",
-    "description": "Merge a \u2605\u2605\u2605 unit",
+    "description": "Merge a ★★★ unit",
     "hidden": false,
     "icon": "achievement_icons/GW_STAR3.jpg",
     "icon_locked": "achievement_icons/GW_STAR3_locked.jpg",
@@ -187,5 +187,32 @@
     "icon": "achievement_icons/GW_BOUNTY5.jpg",
     "icon_locked": "achievement_icons/GW_BOUNTY5_locked.jpg",
     "in_game_reward_soul_shards": 40
+  },
+  {
+    "api_name": "GW_GUARDS8",
+    "display_name": "Fortress",
+    "description": "Fill all 8 guard posts around the Gate",
+    "hidden": false,
+    "icon": "achievement_icons/GW_GUARDS8.jpg",
+    "icon_locked": "achievement_icons/GW_GUARDS8_locked.jpg",
+    "in_game_reward_soul_shards": 40
+  },
+  {
+    "api_name": "GW_HIRE3",
+    "display_name": "Band of Heroes",
+    "description": "Have 3 hired heroes in your army",
+    "hidden": false,
+    "icon": "achievement_icons/GW_HIRE3.jpg",
+    "icon_locked": "achievement_icons/GW_HIRE3_locked.jpg",
+    "in_game_reward_soul_shards": 40
+  },
+  {
+    "api_name": "GW_WRATH",
+    "display_name": "Not Today",
+    "description": "Clear a wave in which the Gate's Wrath saved you",
+    "hidden": false,
+    "icon": "achievement_icons/GW_WRATH.jpg",
+    "icon_locked": "achievement_icons/GW_WRATH_locked.jpg",
+    "in_game_reward_soul_shards": 30
   }
 ]

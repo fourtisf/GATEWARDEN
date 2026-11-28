@@ -35,7 +35,7 @@ Semua bahan sudah ada di folder `store/`:
 ⚠️ Capsule di folder `store/capsules/` masih **draft** buatan otomatis dari art game. Gambar capsule adalah faktor terbesar orang mengklik game di Steam, jadi sebaiknya **pesan capsule profesional** sebelum rilis (artist di Fiverr/ArtStation, sekitar US$100–400).
 
 ## Tahap 4 — Setting teknis di Steamworks 👤/🤖
-- **Stats & Achievements**: buat 21 achievement persis seperti di `steam/achievements.csv`. API name harus `GW_...`. Upload ikonnya dari `steam/achievement_icons/` (versi berwarna dan versi `_locked`), lalu klik **Publish**.
+- **Stats & Achievements**: buat 24 achievement persis seperti di `steam/achievements.csv`. API name harus `GW_...`. Upload ikonnya dari `steam/achievement_icons/` (versi berwarna dan versi `_locked`), lalu klik **Publish**.
 - **Steam Cloud**: aktifkan Auto-Cloud, isi Root `WinAppDataRoaming`, path `Gatewarden/save`, pattern `*.json`. Dengan ini save pemain ikut tersimpan di cloud.
 - **Installation → Launch Options**: executable diisi `Gatewarden.exe`.
 - Klik **Publish** di halaman perubahan Steamworks setiap kali selesai mengubah setting.

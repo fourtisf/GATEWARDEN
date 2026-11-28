@@ -20,3 +20,6 @@ GW_DAILY,"Daily Grinder","Reach wave 10 in a Daily Challenge",0,achievement_icon
 GW_MASTER5,"Veteran","Reach Mastery 5 with any hero",0,achievement_icons/GW_MASTER5.jpg,achievement_icons/GW_MASTER5_locked.jpg
 GW_TREASURE,"Goblin Robber","Catch a Treasure Goblin",0,achievement_icons/GW_TREASURE.jpg,achievement_icons/GW_TREASURE_locked.jpg
 GW_BOUNTY5,"Bounty Hunter","Complete 5 bounties",0,achievement_icons/GW_BOUNTY5.jpg,achievement_icons/GW_BOUNTY5_locked.jpg
+GW_GUARDS8,"Fortress","Fill all 8 guard posts around the Gate",0,achievement_icons/GW_GUARDS8.jpg,achievement_icons/GW_GUARDS8_locked.jpg
+GW_HIRE3,"Band of Heroes","Have 3 hired heroes in your army",0,achievement_icons/GW_HIRE3.jpg,achievement_icons/GW_HIRE3_locked.jpg
+GW_WRATH,"Not Today","Clear a wave in which the Gate's Wrath saved you",0,achievement_icons/GW_WRATH.jpg,achievement_icons/GW_WRATH_locked.jpg

@@ -12,25 +12,28 @@ Monsters pour in from every side and the Gate must not fall. Slash, dash and cas
 Gatewarden is a fast, crunchy action roguelite where you personally fight on the front line. Every wave, monsters swarm the crystal Gate from all directions. You control a hero directly: swing, dash through danger, and unleash skills, while the army you recruit holds the line beside you.
 
 **Fight with your own hands**
-- Four heroes that play completely differently: the sword-spinning **Captain**, the piercing-arrow **Ranger**, the star-blasting **Arcanist** and the hammer-smashing **Warden**.
+- Five heroes that play completely differently: the sword-spinning **Captain**, the piercing-arrow **Ranger**, the twin-blade **Shade**, the star-blasting **Arcanist** and the hammer-smashing **Warden**.
 - Every hero has unique Q / E skills and an ultimate, plus a 4th skill you choose mid-run from 9 options: Chain Storm, Spirit Golem, Blade Tornado, Time Warp and more.
 - Weighty combat: wind-ups, impact freezes, screen-shaking slams and combo streaks that pay out bonus gold.
 
 **Build something broken every run**
 - Level up and pick from 25+ upgrade cards and 20 relics.
 - Max a weapon and pair it with the right card to unlock one of **6 evolutions**, like Crescent Storm, Storm Halo or Twin Cast.
-- Recruit Knights, Archers, Rogues, Mages, Clerics and Dragons between waves. Three of a kind merge into ★★ and ★★★ units, with class synergies on top.
+- Recruit eleven kinds of soldiers, from Knights and Archers to Paladins, Snipers, Berserkers and Dragons. Three of a kind merge into ★★ and ★★★ units, with class synergies on top.
+- **Hire the other heroes** to fight beside you, and open the shop at any moment: the battle pauses while you buy.
+- Post **Gate guards** around the crystal: cannons, guard towers, frost pylons and barricades with archers, each with its own attack.
 
 **Read the battlefield**
 - Bombers, shield bearers that block frontal attacks, splitting slimes, charging tuskers, and elites with affixes.
-- Four bosses with telegraphed attack patterns (ground slams, bullet rings, charges, meteor rain) that enrage at half health.
+- **Eight lands**, and the battlefield changes every wave: each has its own terrain, pools, exclusive enemies and boss. You choose the road: safe, or dangerous for better rewards.
+- Nine bosses with telegraphed attack patterns (ground slams, bullet rings, charges, meteor rain) that enrage at half health.
 - Mid-wave events: ambushes, elite hunts, and a Treasure Goblin you have to catch before it escapes.
 
 **Endless reasons to play one more run**
 - Soul Shards and the **Sanctum**: permanent upgrades and new heroes.
 - **Hero Mastery** levels with bonuses and unlockable skins.
-- **Ascension 1–10** on three battlefields: Moonlit Ruins, Frozen Pass and Hellforge.
-- A **Daily Challenge** with rotating modifiers, plus rotating **Bounties** and 21 Steam achievements.
+- Three difficulty levels, then **Ascension 1–10** on every land for those who want more.
+- A **Daily Challenge** with rotating modifiers, plus rotating **Bounties** and 24 Steam achievements.
 - Full controller support, Steam Cloud saves, and Endless mode after you beat the Demon Lord.
 
 ## Suggested tags

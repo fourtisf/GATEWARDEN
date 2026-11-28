@@ -74,7 +74,7 @@ Steam builds use the electron-builder **`dir` target** (an unpacked folder). Ste
    - Set `author`, `build.copyright` and `build.appId` in `package.json`.
    - Then run `npm run check:release`.
 2. **Steamworks partner site** (owner does it or gives you the values):
-   - **Stats & Achievements:** create the 21 achievements exactly as in `steam/achievements.csv`. The API name must be `GW_<ID>`. Upload `steam/achievement_icons/*.jpg` (achieved + `_locked`). Publish.
+   - **Stats & Achievements:** create the 24 achievements exactly as in `steam/achievements.csv`. The API name must be `GW_<ID>`. Upload `steam/achievement_icons/*.jpg` (achieved + `_locked`). Publish.
    - **Steam Cloud (Auto-Cloud):** byte quota 10 MB, 10 files. Root `WinAppDataRoaming`, subdirectory `Gatewarden/save`, pattern `*.json`. Linux root: `LinuxXdgConfigHome`, subdirectory `Gatewarden/save`.
    - **Installation > General > Launch options:** Windows executable `Gatewarden.exe`. Linux (optional) executable `gatewarden`.
    - **Depots:** one Windows depot (all languages, Windows OS). Optional Linux depot.
@@ -255,6 +255,12 @@ Keep these hooks: they power balance testing. DevTools are disabled in packaged 
 - Teaching: Training has a sixth step "Open the shop"; How to Play has rows for the shop (B), heroes for hire, Gate guards, the healing ring, self-repair and the last stand; one-time hints `P.tips.guard` (banner when a guard is affordable and none is owned) and `P.tips.heal` (toast when hurt away from the Gate).
 - Late-wave clutter: with more than 40 enemies alive, undamaged normal enemies draw their health bar at 35% opacity; unit chatter stops above 50 enemies; tower sounds are throttled (`twSnd`), the cannon no longer booms on firing, and its landing shake is smaller.
 - Still open: keys 1·2·3 field defenses and shop guards remain two systems (How to Play now says so); land enemies and five land bosses are still tinted variants; audio is synthesised.
+
+**v0.9.0 (difficulty, guard management, achievements, store refresh):**
+- Difficulty: `P.settings.diff` (`easy` / `normal` / `hard`, default normal), chosen on hero select in the Ascension row (`diffCtl`, actions `diffUp` / `diffDown`), copied to `S.diff` in `newRun`. `diffK()` returns it, or null on Ascension 1+ and the daily (where difficulty does not apply). `DIFFS[k]` = enemy HP factor (0.85 / 1 / 1.1), shard factor (0.8 / 1 / 1.25) and how many killing blows the Gate survives (`ls` 2 / 1 / 0, `S.lastStand` is now a count). `ease(w)`: easy 0.44→0.8 and never fully off, normal as before, hard none. Saved runs without `S.diff` count as normal.
+- Guards: `sellGuard(slot)` from the POSTED chips under the guard row (refund `guardRefund` = 40% of base cost × level; the price counter `S.guardN` does not go back down). `guardRange(k,lv)` is shown in the buy tooltip, and a dashed range ring shows for 5 s after buying or upgrading (`t.showR`, drawn in `drawTShots`).
+- Achievements 22–24: `guards8` (all 8 posts filled), `hire3` (3 hired heroes in the army), `wrath` (clear the wave in which the Gate's Wrath fired, `S.lsWave`). Steam entries are in `steam/achievements.csv` / `.json` with icons `GW_GUARDS8`, `GW_HIRE3`, `GW_WRATH` (+ `_locked`).
+- Store: `store/STORE_PAGE.md` rewritten for 5 heroes, 8 lands, 9 bosses, hired heroes, the anytime shop, Gate guards and difficulty; `store/screenshots/*.png` regenerated from this build (bot-made drafts, not hand-picked). Version is 0.9.0 in `package.json`, the lockfile and `VERSION`.
 
 **Balance reference** (bot, no upgrades, Moonlit Ruins): runs end around waves 11–20 and occasionally win. With Sanctum upgrades at level 4, it is mostly a win. Hellforge at near-max upgrades is about 50/50. Re-run bot sims after any number change.
 
